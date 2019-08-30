@@ -1,0 +1,67 @@
+$xs: 100px;
+$sm: 200px;
+$md: 300px;
+$lg: 540px;
+.form-item-sm {
+  .el-input,
+  .el-textarea {
+    width: $sm;
+  }
+  .el-select {
+    .el-input {
+      width: $sm;
+    }
+  }
+  .el-radio-group {
+    width: $sm;
+  }
+}
+.form-item-xs {
+  .el-input,
+  .el-textarea {
+    width: $xs;
+  }
+  .el-select {
+    .el-input {
+      width: $xs;
+    }
+  }
+  .el-radio-group {
+    width: $xs;
+  }
+}
+.form-item-md {
+  .el-input,
+  .el-textarea {
+    width: $md;
+  }
+  .el-select {
+    .el-input {
+      width: $md;
+    }
+  }
+  .el-radio-group {
+    width: $md;
+  }
+}
+.form-item-lg {
+  .el-input,
+  .el-textarea {
+    width: $lg;
+  }
+  .el-select {
+    .el-input {
+      width: $lg;
+    }
+  }
+  .el-radio-group {
+    width: $lg;
+  }
+}
+.form-item-require{
+  .el-form-item__label:before{
+    content: '*';
+    color: #ff5a5a;
+    margin-right: 4px;
+  }
+}

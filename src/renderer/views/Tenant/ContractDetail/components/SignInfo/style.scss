@@ -1,0 +1,69 @@
+@import "../../../../../styles/variables";
+@import "../../../../../styles/mixin";
+$configOrange: #fd9258;
+$configGray: #dddddd;
+$configWhite: #fffcfa;
+.sign-info{
+  margin-top: 20px;
+  .panel-body{
+    padding-left: 13px;
+  }
+  .text-box{
+    min-height: 30px;
+    padding: 5px 0;
+    color: $--color-text-regular;
+    @include displayFlex(row,center,flex-start);
+    .text-item{
+      @include displayFlex(row,center,flex-start);
+      width: 500px;
+      font-size: 14px;
+      &.text-item-lg{
+        width: 1000px;
+      }
+      span:first-child{
+        width: 125px;
+        &:after{
+          content: " ：";
+        }
+      }
+      span:last-child{
+        flex: 1;
+        padding-right: 20px;
+      }
+    }
+    &.text-blue{
+      color: $--color-primary;
+    }
+  }
+  .roomConfig {
+    @include displayFlex(row,center,flex-start);
+    width: 600px;
+    margin: 20px 0;
+    border-radius: 4px;
+    overflow: hidden;
+    background: $configOrange;
+    border: 1px solid $configGray;
+    font-size: 14px;
+    .roomConfigLeft {
+      @include displayFlex(row,center,center);
+      width: 36px;
+      color: white;
+
+      .ConfigLeftTitle {
+        width: 20px;
+        text-align: center;
+      }
+    }
+
+    .roomConfigRight {
+      flex: 1;
+      background: $configWhite;
+      padding: 12px;
+
+      span {
+        display: inline-block;
+        margin: 6px;
+      }
+    }
+  }
+}

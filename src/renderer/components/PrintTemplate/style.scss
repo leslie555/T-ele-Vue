@@ -1,0 +1,12 @@
+  .PrintBox {
+    height: 420px;
+    width: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
+    overflow: auto;
+  }
+  #printBody{
+    height: auto;
+    width: auto;
+    overflow: visible;
+  }

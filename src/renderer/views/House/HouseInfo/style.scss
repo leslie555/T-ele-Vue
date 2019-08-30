@@ -1,0 +1,206 @@
+$configOrange: #fd9258;
+$configGray: #dddddd;
+$configWhite: #fffcfa;
+@import "../../../styles/variables";
+@import "../../../styles/mixin";
+
+.upload-btn{
+  @include displayFlex(column,center,center);
+  width: 100px;
+  height: 100px;
+  line-height: normal;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  position: relative;
+  .upload-btnBox{
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    position: absolute;
+    background: rgba(0, 0, 0, .6);
+    .upload-BtnList{
+      color: white;
+      display: inline-block;
+      border: 1px solid white;
+      width: 49px;
+      height: 30px;
+      line-height: 30px;
+      font-size: 10px;
+      text-align: center;
+      overflow: hidden
+    }
+    .upload-BtnList:hover{
+      background: #389EF2;
+    }
+  }
+  cursor: pointer;
+  i{
+    font-size: 30px;
+    color: $--color-text-secondary;
+    margin-bottom: 10px;
+  }
+  span{
+    font-size: 12px;
+    color: $--color-text-secondary;
+  }
+}
+.upload-imgs{
+  border-radius: 4px;
+  padding: 20px 0 0 0;
+  width: 100%;
+  overflow: hidden;
+  .upload-img-Box{
+    // border: 1px solid #ddd;
+    border-radius: 4px;
+    padding-top: 10px;
+    margin-top: 10px;
+    overflow: hidden;
+    width: 70%;
+  }
+  .upload-img{
+    @include displayFlex(row,center,center);
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    margin-right: 20px;
+    float: left;
+    img{
+      max-width: 98px;
+      max-height: 100px;
+      cursor: zoom-in;
+    }
+    .upload-paper{
+      position: absolute;
+      top: -2px;
+      left: -2px;
+    }
+    i{
+      position: absolute;
+      right: -8px;
+      top: -8px;
+      line-height: normal;
+      background: #fff;
+      border-radius: 50%;
+      color: $--color-danger;
+      font-size: 17px;
+      cursor: pointer;
+    }
+  }
+}
+
+.app-container {
+  .HouseInfoTitle {
+    font-size: 18px;
+    margin: 30px 0 40px;
+
+    .TitleName {
+      margin-right: 30px;
+    }
+
+    .TitleStatus {
+      color: #389ef2;
+    }
+
+    .titleBox {
+      font-size: 14px;
+      color: #444444;
+      display: inline-block;
+    }
+
+    .titleBox.titleLeft {
+      margin-right: 80px;
+    }
+  }
+
+  .HouseInfoContent {
+    margin-bottom: 40px;
+
+    .ContentItem {
+      font-size: 14px;
+    }
+
+    .ContentBox {
+      display: inline-block;
+      margin-bottom: 20px;
+
+      .ContentName {
+        display: inline-block;
+        min-width: 90px;
+        text-align: right;
+        margin-right: 30px;
+        color: #444444;
+      }
+
+      .ContentValue {
+        display: inline-block;
+        min-width: 170px;
+        color: #666666;
+      }
+    }
+
+    .ContentBoxLeft {
+      margin-right: 220px;
+    }
+  }
+
+  .HouseInfoTable {
+    margin-bottom: 40px;
+  }
+
+  .HouseInfoImgBox {
+    margin-bottom: 40px;
+  }
+
+  .HouseInfoConfig {
+    margin-bottom: 40px;
+  }
+
+  .HouseInfoConfig {
+    .roomConfig {
+      @include displayFlex(row, stretch, flex-start);
+      width: 600px;
+      margin: 20px;
+      border-radius: 4px;
+      overflow: hidden;
+      background: $configOrange;
+      border: 1px solid $configGray;
+      font-size: 12px;
+  
+      .roomConfigLeft {
+        @include displayFlex(row, center, center);
+        width: 36px;
+        color: white;
+        padding: 2px 0;
+  
+        .ConfigLeftTitle {
+          width: 18px;
+          text-align: center;
+        }
+      }
+  
+      .roomConfigRight {
+        flex: 1;
+        background: $configWhite;
+        padding: 16px;
+  
+        span {
+          display: inline-block;
+          margin: 6px;
+        }
+      }
+    }
+  }
+
+  .HouseInfoDesc {
+    .HouseInfoDescBox {
+      font-size: 14px;
+      color: #666666;
+      width: 76%;
+      line-height: 2em;
+    }
+  }
+}

@@ -1,0 +1,53 @@
+.app-container {
+  .panel h4.panel-title:before{
+    top: 30% !important;
+  }
+
+  .CalcformItem.panel{
+    padding: 20px 18px 16px;
+  }
+
+  .el-input {
+    width: auto;
+  }
+
+  .CalcformItem {
+    margin: 10px 0 20px;
+
+    .panel-title {
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eeeeee;
+    }
+
+    .CalcformContent {
+      // padding-left: 20px;
+
+      .el-form-item {
+        margin-right: 120px;
+        margin-bottom: 10px;
+        min-width: 200px;
+
+        .ContentMsg {
+          color: #999999;
+          margin-left: 16px;
+        }
+      }
+    }
+  }
+  .isNew{
+    color: red;
+  }
+
+  // 过度效果
+  .ShowAllBox-enter-active,
+  .ShowAllBox-leave-active {
+    transition: all .5s;
+  }
+
+  .ShowAllBox-enter,
+  .ShowAllBox-leave-to {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+}

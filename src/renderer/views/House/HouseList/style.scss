@@ -1,0 +1,256 @@
+.app-container {
+  .active.icon-shanjianmoren::before {
+    content: "\E681";
+  }
+  .SelectBox{
+    .houseListCard{
+      margin-bottom: 30px;
+    }
+  }
+  .HouseListCount {
+    float: right;
+    font-size: 14px;
+    color: #999999;
+  }
+
+  .SelectHouseTitle {
+    font-size: 14px;
+    color: rgba(56, 158, 242, .8)
+  }
+
+  .HouseListBox {
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .houseListCard {
+    width: 130px;
+    height: 130px;
+    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    display: inline-block;
+    margin-right: 40px;
+    text-align: center;
+    padding: 10px;
+    box-sizing: border-box;
+    color: #444444;
+    position: relative;
+    cursor: pointer;
+
+    .CardTitle {
+      font-size: 12px;
+      margin-bottom: 20px;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .CardRoomName {
+      font-size: 14px;
+      margin-bottom: 20px;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .CardDate {
+      font-size: 12px;
+      width: 110px;
+      white-space: nowrap;
+      transform: scale(0.8);
+    }
+
+    .CardPrice {
+      position: absolute;
+      width: 100%;
+      height: 30px;
+      bottom: 0;
+      left: 0;
+      background: #efeeee;
+      color: #999999;
+      line-height: 30px;
+      font-size: 12px;
+      border-radius: 0 0 4px 4px;
+    }
+
+    .closeIcon {
+      position: absolute;
+      top: -9px;
+      right: -9px;
+      color: red;
+      cursor: pointer;
+    }
+
+    .CardImg {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+    }
+
+    .isAuditing{
+      position: absolute;
+      width: 20px;
+      height: 50px;
+      padding: 5px 0;
+      border-radius: 4px;
+      background: rgba(255, 90, 90, 0.8);
+      color: white;
+      font-size: 12px;
+      top: 30px;
+      right: 6px;
+    }
+  }
+
+  .moreHouseBox {
+    width: 130px;
+    height: 130px;
+    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    display: inline-block;
+    margin: 0 auto;
+    text-align: center;
+    padding: 10px;
+    box-sizing: border-box;
+    color: #444444;
+    position: relative;
+    cursor: pointer;
+    position: relative;
+    margin: 10px 10px 10px 0;
+
+    .moreHouseText {
+      font-size: 14px;
+      color: rgba(56, 158, 242, .8);
+      position: absolute;
+      display: inline-block;
+      width: 80px;
+      height: 30px;
+      line-height: 30px;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      margin: auto;
+
+    }
+  }
+
+  .active.order {
+    border: 1px solid rgba(87, 206, 245, 0.8);
+    box-shadow: 0 0 20px 0 rgba(87, 206, 245, 0.4);
+  }
+
+  .active.edit {
+    border: 1px solid rgba(255, 90, 90, 0.8);
+    box-shadow: 0 0 20px 0 rgba(255, 90, 90, 0.4);
+  }
+  
+  .active.ToAudit {
+    border: 1px solid rgba(255, 90, 90, 0.8);
+    box-shadow: 0 0 20px 0 rgba(255, 90, 90, 0.4);
+  }
+
+  .active.empty {
+    border: 1px solid rgba(253, 209, 88, 0.8);
+    box-shadow: 0 0 20px 0 rgba(253, 209, 88, 0.4);
+  }
+
+  .active.tarnent {
+    border: 1px solid rgba(56, 158, 242, 0.8);
+    box-shadow: 0 0 20px 0 rgba(56, 158, 242, 0.4);
+  }
+
+  .active.draw {
+    border: 1px solid rgba(51, 204, 153, 0.8);
+    box-shadow: 0 0 20px 0 rgba(51, 204, 153, 0.4);
+  }
+
+  .houseCardBox {
+    width: 180px;
+    height: 160px;
+    padding-left: 10px;
+    padding-right: 16px;
+    margin-right: 2px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    position: relative;
+
+    .houseListCard {
+      margin-right: 10px;
+    }
+  }
+
+  .group{
+    border-top: 1px dashed #389ef2;
+    border-bottom: 1px dashed #389ef2;
+    border-radius: 1px 0 0 1px;
+  }
+
+  .group.first{
+    border-left: 1px dashed #389ef2;
+    border-radius: 6px 0 0 6px;
+  }
+
+  .group.end{
+    border-right: 1px dashed #389ef2;
+    border-radius: 0 6px 6px 0;
+  }
+
+  .ControlShow {
+    font-size: 14px;
+    color: #389ef2;
+    cursor: pointer;
+  }
+
+  // 过度效果
+  .ShowAllBox-enter-active,
+  .ShowAllBox-leave-active {
+    transition: all .8s;
+  }
+
+  .ShowAllBox-enter,
+  .ShowAllBox-leave-to {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+
+  // 总数栏
+  .HouseListCountTop {
+    margin-bottom: 20px;
+  }
+  .HouseListCountItem{
+    width: 180px;
+    position: relative;
+    display: inline-block;
+    margin-right: 60px;
+    padding-left: 15px;
+    .ListCountItemText{
+      font-size: 14px;
+    }
+    .ListCountItemValue{
+      font-size: 14px;
+      font-weight: 600;
+      color: #389ef2;
+      padding: 0 10px;
+    }
+    .ListCountItemValue.ValueRed{
+      color: #FE9256;
+    }
+  }
+  .HouseListCountItem::before{
+    content: '';
+      position: absolute;
+      height: 16px;
+      width: 4px;
+      margin-top: -7px;
+      top:50%;
+      left: 0;
+      background: #389ef2;
+  }
+  .HouseListCountItem.ValueRed::before{
+    background: #FE9256;
+  }
+  .HouseListCountItem.ValueYellow::before{
+    background: rgb(253, 209, 88)
+  }
+}

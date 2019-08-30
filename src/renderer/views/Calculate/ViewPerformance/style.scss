@@ -1,0 +1,69 @@
+.app-container {
+  font-size: 14px;
+
+  p {
+    margin: 20px 0;
+  }
+
+  .PerFormList {
+
+    // margin-bottom: 26px;
+    .PerFormItemTitle {
+      font-size: 16px;
+      font-weight: 400;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed #999;
+      margin-top: 0;
+    }
+
+    .PerFormItemTitle::before {
+      display: inline-block;
+      content: '';
+      width: 4px;
+      height: 26px;
+      background: #409EFF;
+      vertical-align: middle;
+      margin-right: 8px;
+      margin-bottom: 2px;
+    }
+
+    .PerFormItemContentBox {
+      .ContentItem {
+        .ContentTitle {
+          margin-right: 6px;
+        }
+
+        .ContentMsg {
+          margin-right: 80px;
+          color: #999999;
+        }
+
+        .CalcResult,
+        .AccountResult {
+          color: #409EFF;
+          margin-right: 16px;
+        }
+      }
+
+      .CountList {
+        margin-bottom: 10px;
+
+        .ContentItem {
+          margin: 0 0 16px;
+        }
+      }
+    }
+
+    .PerFormBorderBox {
+      // background: #f3f9fe;
+      // border-radius: 8px;
+      width: 100%;
+      border-bottom: 1px dashed #999999;
+      padding-bottom: 30px;
+    }
+
+    .PerFormBorderBox:last-child {
+      border: none;
+    }
+  }
+}

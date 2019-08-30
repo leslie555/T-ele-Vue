@@ -1,0 +1,41 @@
+@import "variables";
+@import "mixin";
+.data-list{
+  position: fixed;
+  top: 100px;
+  left: 100px;
+  right: 0;
+  bottom: 0;
+  padding-bottom: 0 !important;
+  @include displayFlex(column,flex-start,flex-start);
+  &>div{
+    width: 100%;
+  }
+  .data-list-table{
+    flex: 1;
+    min-height: 0;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+  }
+  .data-list-bottom{
+    height: 46px;
+    background: #fff;
+    margin-bottom: 0;
+    @include displayFlex(row,center,space-between);
+    .el-pagination{
+      height: $--input-height;
+      @include displayFlex(row,center,flex-start);
+    }
+    .data-list-select{
+      .el-button{
+        margin-left: 10px;
+      }
+    }
+  }
+}
+.hideSidebar{
+  .data-list{
+    left: 36px;
+  }
+}

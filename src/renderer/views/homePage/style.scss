@@ -1,0 +1,647 @@
+@import '../../styles/variables';
+@import "../../styles/mixin";
+
+.app-container {
+  ul {
+    list-style: none;
+  }
+  .homeTitleBox {
+    height: 100px;
+    background: #444444;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    color: $--color-white;
+    box-sizing: border-box;
+    padding: 12px;
+    font-size: 16px;
+    position: relative;
+    cursor: pointer;
+    transition: all .2s ease-in;
+
+    .homeTitleHeader {
+      margin-bottom: 20px;
+    }
+
+    .homeTitleContent {
+      font-size: 12px;
+
+      .contentName {
+        display: inline-block;
+        width: 86px;
+        // margin-right: 10px;
+      }
+    }
+
+    .homeTitleContent.Sec {
+      margin-top: 10px;
+    }
+
+    .HomeTitleImg {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+    }
+  }
+
+  // 今日公告
+  .TodayNews {
+    background: $--color-white;
+    height: 200px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 20px 0 rgba(150, 150, 150, 0.1);
+    border-radius: 4px;
+
+    .NewsTitle {
+      letter-spacing: 0.1em;
+      padding: 16px;
+      border-bottom: 1px solid #eeeeee;
+    }
+
+    .NewsListBox {
+      padding: 10px 48px;
+      padding-right: 20px;
+      height: 140px;
+      overflow: auto;
+
+      .NewsList {
+        margin-bottom: 16px;
+        position: relative;
+
+        .NewsIcon {
+          position: absolute;
+          top: 2px;
+          left: -24px;
+          font-size: 12px;
+          color: #389ef2;
+        }
+
+        .NewsListTitle {
+          font-size: 14px;
+          color: #333333;
+          margin-bottom: 4px;
+          cursor: pointer;
+          @include displayFlex(row, center, space-between);
+
+          .title {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 60%;
+          }
+
+          .TitleDate {
+            color: #a4a4a4;
+            font-size: 12px;
+          }
+        }
+
+        .NewsListMsg {
+          font-size: 12px;
+          color: #a4a4a4;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          width: 80%;
+        }
+      }
+    }
+  }
+
+  // 备忘录
+  .homePagePanel {
+    background: $--color-white;
+    height: 300px;
+    width: 100%;
+    margin-bottom: 20px;
+    box-shadow: 0 0 20px 0 rgba(150, 150, 150, 0.1);
+    border-radius: 6px;
+    position: relative;
+    transition: all .3s linear;
+    .homePageCommonTitle{
+      display: inline-block;
+      padding-left: 12px;
+      padding-top: 3px;
+      padding-bottom: 3px;
+      border-left: 4px solid #389ef2;
+    }
+    .homePageTitleMiddle{
+      @include displayFlex(row, center, flex-start);
+      .middleBox{
+        @include displayFlex(row, center, flex-start);
+        margin-right: 20px;
+        .middleBefore{
+          width: 12px;
+          height: 12px;
+          margin-right: 5px;
+          border-radius: 2px;
+        }
+        .middleValue{
+          font-size: 14px;
+        }
+      }
+    }
+    .homePageTitleRight{
+      margin-right: 10px;
+    }
+    .homePageTitleRightBox{
+      @include displayFlex(row, center, flex-end)
+    }
+    .homePageTitleBorder{
+      border-bottom: 1px solid #eeeeee;
+    }
+    .homePageTitleRightGray {
+      color: #999999;
+      font-size: 12px;
+    }
+    .homePageTitleFlexBox{
+      @include displayFlex(row, center, flex-start)
+    }
+    .homePageTitleFlex{
+      padding-left: 20px;
+      margin-right: 10px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .homePageTitleFlex.active{
+      color: #389ef2;
+      font-size: 16px;
+    }
+    .homePageRightBtn{
+      margin-left: 10px;
+    }
+    .RamarkTitle {
+      letter-spacing: 0.1em;
+      padding: 16px;
+      padding-left: 0px;
+      border-bottom: 1px solid #eeeeee;
+
+      .DropdownLink {
+        color: #999999;
+        margin-left: 10px;
+        cursor: pointer;
+
+        .iconfont {
+          font-size: 6px;
+          vertical-align: middle;
+          margin-left: 2px;
+        }
+      }
+
+      .AddNewRemark {
+        color: #389ef2;
+        font-size: 14px;
+        float: right;
+        margin-right: 20px;
+        cursor: pointer;
+      }
+    }
+    .echartTitle {
+      height: 58px;
+      @include displayFlex(row, center, space-between);
+      letter-spacing: 0.1em;
+      padding: 15px;
+      padding-left: 0px;
+      // border-bottom: 1px solid #eeeeee;
+
+      .DropdownLink {
+        color: #999999;
+        margin-left: 10px;
+        cursor: pointer;
+
+        .iconfont {
+          font-size: 6px;
+          vertical-align: middle;
+          margin-left: 2px;
+        }
+      }
+
+      .AddNewRemark {
+        color: #389ef2;
+        font-size: 14px;
+        float: right;
+        margin-right: 20px;
+        cursor: pointer;
+      }
+    }
+
+    .RamarkListBox {
+      padding: 10px 24px;
+      height: 220px;
+      overflow: auto;
+
+      .RamarkList {
+        margin-bottom: 8px;
+
+        .RamarkListTitle {
+          font-size: 14px;
+          color: #333333;
+          margin-bottom: 4px;
+          @include displayFlex(row, center, space-between);
+
+          .title {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 70%;
+          }
+
+          .iconfont {
+            float: right;
+            margin-right: 10px;
+            cursor: pointer;
+            color: #999999;
+          }
+
+          .iconfont:hover {
+            color: #389ef2;
+          }
+        }
+
+        .RamarkListMsg {
+          font-size: 12px;
+          color: #a4a4a4;
+        }
+      }
+    }
+    .echartListBox {
+      padding: 10px 10px;
+      height: 240px;
+    }
+    .houseInfoBox{
+      @include displayFlex(row, center, space-between);
+      height: 100%;
+      margin-top: 20px;
+      .houseInfoLeft{
+        width: 30%;
+        height: 100%;
+      }
+      .houseInfoRight{
+        width: 100%;
+        height: 100%;
+        padding-top: 1  0px;
+        @include displayFlex(row, flex-start, space-between);
+        .houseInfoList{
+          width: 30%;
+          padding: 0 2px;
+          @include displayFlex(column, center, flex-start);
+          .houseInfoTopTop{
+            margin-bottom: 10px;
+          }
+          .houseInfoTop{
+            // flex: 1;
+            @include displayFlex(column, center, center);
+            word-break:break-all;
+            width: 60px;
+            height: 60px;
+            text-align: center;
+            color: white;
+            font-size: 16px;
+            // margin-left: 50px;
+            // margin-right: 50px;
+            margin-bottom: 30px;
+            border-radius: 6px;
+            transition: all .3s ease-in;
+          }
+          // .houseInfoTop:hover{
+          //   transform: scale(1.05)
+          // }
+          .houseInfoBottom{
+            @include displayFlex(row, center, space-between);
+            width: 100%;
+            padding: 0 10px;
+            .houseInfoBottomItem{
+              @include displayFlex(column, center, flex-start);
+              padding: 0 2px;
+              .houseInfoLabel{
+                margin-bottom: 10px;
+                text-align: center;
+                font-size: 12px;
+              }
+              .houseInfoValue{
+                text-align: center;
+                font-size: 12px;
+              }
+            }
+          }
+          .houseInfoBottomBigPadding{
+            padding: 0 30px;
+          }
+        }
+      }
+    }
+    .flexBetweenBox{
+      @include displayFlex(row, center, space-between);
+      padding: 0 10px;
+      height: 100%;
+      .flexItem{
+        width: 24%;
+        padding: 0 32px;
+        @include displayFlex(column, center, flex-start);
+        .flexTop{
+          @include displayFlex(column, center, center);
+          margin-bottom: 30px;
+        }
+        .flexMiddle{
+          @include displayFlex(column, center, center);
+          margin-bottom: 30px;
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          transition: all .3s linear
+        }
+        .flexBottom{
+          width: 100%;
+          @include displayFlex(row, center, space-between);
+          .flexBottomItem{
+            color: #666666;
+            font-size: 14px;
+            .flexBottomLabel{
+              text-align: center;
+              margin-bottom: 10px;
+            }
+            .flexBottomValue{
+              text-align: center;
+            }
+          }
+        }
+        .flexContractMiddle{
+          @include displayFlex(column, center, center);
+          margin-bottom: 20px;
+          width: 130px;
+          height: 130px;
+          border-radius: 50%;
+          font-size: 32px;
+          font-weight: 400;
+          transition: all .3s linear
+        }
+        .flexContractMiddle:hover{
+          transform: scale(1.05)
+        }
+        .flexMiddle:hover{
+          transform: scale(1.05)
+        }
+        .flexContractMiddle.title1{
+          border: 4px solid #09ceaf;
+          color: #09ceaf;
+        }
+        .flexContractMiddle.title2{
+          border: 4px solid #fe8596;
+          color: #fe8596;
+        }
+        .flexContractMiddle.title3{
+          border: 4px solid #34b8f0;
+          color: #34b8f0;
+        }
+        .flexContractMiddle.title4{
+          border: 4px solid #fe9976;
+          color: #fe9976;
+        }
+        .flexContractBottom{
+          font-size: 14px;
+          color: #666666;
+          @include displayFlex(column, center, center);
+        }
+      }
+    }
+  }
+  .homePagePanel:hover{
+    box-shadow: 0 0 30px 0 rgba(150, 150, 150, 0.5);;
+  }
+  .flexMiddle.title1 {
+    background: linear-gradient(0deg, #00cdac, #8ddad5);
+  }
+
+  .flexMiddle.title2 {
+    background: linear-gradient(0deg, #fe8095, #fdc8a7);
+  }
+
+  .flexMiddle.title3 {
+    background: linear-gradient(0deg, #4a87f0, #04befe);
+  }
+
+  .flexMiddle.title4 {
+    background: linear-gradient(0deg, #fe8e6c, #fee2ba);
+  }
+
+  .homeTitleBox.title1:hover {
+    box-shadow: 0 0 20px 0 rgba(105, 214, 202, 0.8);
+  }
+
+  .homeTitleBox.title2:hover {
+    box-shadow: 0 0 20px 0 rgba(254, 161, 158, 0.8);
+  }
+
+  .homeTitleBox.title3:hover {
+    box-shadow: 0 0 20px 0 rgba(29, 170, 249, 0.8);
+  }
+
+  .homeTitleBox.title4:hover {
+    box-shadow: 0 0 20px 0 rgba(254, 164, 128, 0.8);
+  }
+
+  .HouseInfoLineBox {
+    height: 300px;
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 10px 0;
+    box-shadow: 0 0 20px 0 rgba(150, 150, 150, 0.1);
+    background: #ffffff;
+    border-radius: 4px;
+    position: relative;
+
+    .HouseInfoLine {
+      width: 100%;
+      height: 280px;
+    }
+  }
+
+  .PayLineBox {
+    height: 550px;
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 10px 0;
+    box-shadow: 0 0 20px 0 rgba(150, 150, 150, 0.1);
+    background: #ffffff;
+    border-radius: 4px;
+    position: relative;
+
+    .PayLine {
+      width: 100%;
+      height: 520px;
+    }
+  }
+
+  .btnBox {
+    position: relative;
+    margin-right: 20px;
+    width: 150px;
+    height: 30px;
+    span.ehartsBtn {
+      display: inline-block;
+      width: 80px;
+      top: 3px;
+      height: 24px;
+      border-radius: 12px;
+      color: #999999;
+      font-size: 12px;
+      background: #f4f7fc;
+      text-align: center;
+      line-height: 24px;
+      position: absolute;
+      z-index: 200;
+      cursor: pointer;
+      transition: background-color .3s ease-out;
+    }
+
+    span.ehartsBtn.active {
+      background: #34cadd;
+      color: #ffffff;
+      z-index: 300;
+    }
+
+    span.ehartsBtn.PayBtn.active {
+      background: #22a6f8;
+      color: #ffffff;
+      z-index: 300;
+    }
+  }
+
+  .PayDataBox {
+    height: 550px;
+    padding: 20px;
+    box-shadow: 0 0 20px 0 rgba(150, 150, 150, 0.1);
+    background: #ffffff;
+    border-radius: 4px;
+
+    .DataTitle {
+      @include displayFlex(row, center, space-between);
+      margin-bottom: 10px;
+
+      .iconfont {
+        font-size: 18px;
+        color: #999999;
+        cursor: pointer;
+      }
+
+      .iconfont:hover {
+        color: #22a6f8;
+      }
+    }
+  }
+
+  .MoneyDataBox {
+    height: 550px;
+    padding: 20px;
+    box-shadow: 0 0 20px 0 rgba(150, 150, 150, 0.1);
+    background: #ffffff;
+    border-radius: 4px;
+
+    .DataTitle {
+      @include displayFlex(row, center, space-between);
+      margin-bottom: 10px;
+
+      .iconfont {
+        font-size: 18px;
+        color: #999999;
+        cursor: pointer;
+      }
+
+      .iconfont:hover {
+        color: #22a6f8;
+      }
+    }
+  }
+
+  // 中央饼图
+  .echartsPanel {
+    @include displayFlex(row, center, space-between);
+    margin-bottom: 20px;
+    padding: 30px 0 20px;
+
+    .echartsBox {
+      width: 500px;
+      flex: 1;
+      margin-left: 20px;
+
+      .echartsTitle {
+        text-align: left;
+        width: 100%;
+      }
+
+      .pieBox {
+        width: 100%;
+        height: 300px;
+        padding: 0 60px;
+      }
+    }
+  }
+}
+
+.Home_oneLine{
+  width: 45%
+}
+.Home_twoLine{
+  width: 30%;
+}
+.Home_threeLine{
+  width: 25%;
+}
+
+@media screen and (max-width: 1440px) {
+  .Home_oneLine{
+    width: 54.1%
+  }
+  .Home_twoLine{
+    width: 45.9%;
+  }
+  .Home_threeLine{
+    display: none;
+  }
+}
+//   .app-container {
+//     .homeTitleBox {
+//       height: 120px;
+
+//       .homeTitleContent.Sec {
+//         margin-top: 20px;
+//       }
+//     }
+
+//     .TodayNews {
+//       height: 250px;
+
+//       .NewsListBox {
+//         height: 190px;
+//       }
+//     }
+
+//     .RamarkArray {
+//       height: 250px;
+
+//       .RamarkListBox {
+//         height: 180px;
+//       }
+//     }
+
+//     .HouseInfoLineBox {
+//       height: 380px;
+
+//       .HouseInfoLine {
+//         height: 360px;
+//       }
+//     }
+
+//     .PayLineBox {
+//       height: 550px;
+
+//       .PayLine {
+//         height: 520px;
+//       }
+//     }
+
+//     .PayDataBox {
+//       height: 550px;
+//       padding: 20px;
+//     }
+//   }
+// }

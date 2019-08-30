@@ -1,0 +1,99 @@
+@import "../../../styles/variables";
+@import "../../../styles/mixin";
+
+.contract-detail {
+  .base-info {
+    @include displayFlex(row, center, space-between);
+    margin-bottom: 15px;
+    .base-info-left, .base-info-right {
+      flex: 1;
+      background: #fff;
+      border-radius: 2px;
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+      height: 150px;
+    }
+    .base-info-left {
+      @include displayFlex(row, center, center);
+      margin-right: 15px;
+    }
+    .base-info-right{
+      .right-box{
+        @include displayFlex(column,flex-start,center);
+        padding: 0 20px;
+        height: 100%;
+        width: 100%;
+      }
+      .info-box{
+        @include displayFlex(row,center,flex-start);
+        width: 100%;
+      }
+      .info-title{
+        line-height: 34px;
+        font-size: 16px;
+        color: $--color-primary;
+      }
+      .info-text{
+        line-height: 30px;
+        font-size: 12px;
+        color: $--color-text-secondary;
+        flex: 1;
+      }
+    }
+    .user-info {
+      @include displayFlex(column,center,center);
+      width: 140px;
+      border-right: 1px solid #ddd;
+      height: 100%;
+      .img-box{
+        @include displayFlex(column,center,center);
+        flex: 1;
+        border-bottom: 1px solid #ddd;
+        width: 100%;
+        i{
+          color: $--color-primary;
+          font-size: 46px;
+          margin-bottom: 2px;
+        }
+        span{
+          color: $--color-text-primary;
+          font-size: 14px;
+        }
+      }
+      .user-phone{
+        @include displayFlex(row,center,center);
+        height: 48px;
+        color: $--color-text-primary;
+        font-size: 12px;
+        i{
+          margin-left: 5px;
+          font-size: 12px;
+          cursor: pointer;
+        }
+      }
+    }
+    .house-info{
+      @include displayFlex(column,flex-start,center);
+      flex: 1;
+      padding: 0 20px;
+      .info-title{
+        line-height: 34px;
+        font-size: 16px;
+        color: $--color-primary;
+      }
+      .info-text{
+        line-height: 30px;
+        font-size: 12px;
+        color: $--color-text-secondary;
+      }
+    }
+  }
+  .tabs-btn-box{
+    position: relative;
+    .tabs-btn{
+      position: absolute;
+      right: 0;
+      top: 16px;
+      margin-right: 20px;
+    }
+  }
+}

@@ -1,0 +1,78 @@
+@import "../../styles/mixin";
+@import "../../styles/variables";
+$gary:#ddd;
+.steps-box{
+  .steps-panel{
+    width: 100%;
+    @include displayFlex(column,center,center);
+    height: 100px;
+    .steps-herder{
+      @include displayFlex(row,center,center);
+      .step-item-title{
+        @include displayFlex(row,center,center);
+        width: 220px;
+        color: $gary;
+        font-size: 14px;
+        margin-bottom: 10px;
+        &.active{
+          color: $--color-primary;
+        }
+      }
+    }
+    .steps-content{
+      @include displayFlex(row,center,center);
+      .step-item{
+        @include displayFlex(row,center,center);
+        &.active{
+          .step-item-icon{
+            cursor: pointer;
+            border-color: darken($--color-primary,15%);
+            &-inner{
+              background: $--color-primary;
+            }
+          }
+          .step-item-progress{
+            border-color: transparent;
+            &-inner{
+              width: 100%;
+            }
+          }
+        }
+        &.current{
+          .step-item-icon{
+            &-inner{
+              background: $--color-danger;
+            }
+          }
+        }
+      }
+      .step-item-icon{
+        width: 20px;
+        height: 20px;
+        box-sizing: border-box;
+        border-radius: 50%;
+        border: 1px dashed darken($gary,50%);
+        cursor: not-allowed;
+        @include displayFlex(row,center,center);
+        &-inner{
+          width: 10px;
+          height: 10px;
+          background: $gary;
+          border-radius: 50%;
+        }
+      }
+      .step-item-progress{
+        width: 200px;
+        border-top: 1px dashed $gary;
+        &-inner{
+          width: 0;
+          transition: width .5s ease;
+          border-top: 1px dashed $--color-primary;
+        }
+      }
+    }
+  }
+  .steps-body{
+    min-height: 400px;
+  }
+}

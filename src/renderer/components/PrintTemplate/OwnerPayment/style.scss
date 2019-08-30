@@ -1,0 +1,46 @@
+.receipt-title {
+  display: flex;
+  width: 100%;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 50px;
+}
+h5{
+  font-size: 24px;
+  color: #444444;
+  font-family: 'SimHei';
+}
+.table-mark {
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  td {
+    border: 1px solid #999999;
+    padding: 5px;
+    vertical-align: middle;
+    text-align: center;
+    font-size: 14px;
+    max-width: 185px;
+    //word-wrap:break-word
+  }
+  td.bz{
+    word-wrap:break-word;
+    white-space: pre-wrap;
+  }
+  td.hx{
+    white-space: nowrap;
+  }
+  .table-head {
+    height: 30px;
+    color: #444444;
+  }
+}
+  .tableBigBox{
+    height: auto;
+    width: auto;
+    overflow: visible;
+    padding-top: 30px;
+    margin: 0 auto;
+  }
+

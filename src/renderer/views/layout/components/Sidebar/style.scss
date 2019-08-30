@@ -1,0 +1,48 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixin';
+
+.menu-box {
+  @include displayFlex(row, flex-start, flex-start);
+  padding: 10px 20px 10px 0;
+}
+
+.menu-item-box {
+
+}
+
+.menu-item-title {
+  padding: 5px 0 10px 15px;
+  color: #666;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.menu-link-box {
+  @include displayFlex(column, flex-start, flex-start);
+  flex-wrap: wrap;
+  max-height: 280px;
+  &.num-1 {
+    width: 120px;
+  }
+  &.num-2 {
+    width: 240px;
+  }
+  &.num-3 {
+    width: 360px;
+  }
+}
+
+.menu-link-item {
+  @include displayFlex(row, center, flex-start);
+  font-size: 14px;
+  height: 40px;
+  width: 120px;
+  padding: 0 15px;
+  box-sizing: border-box;
+  color: #7d889e;
+  cursor: pointer;
+  &:hover {
+    background: #f3f9fe !important;
+    color: #389ef2 !important;
+  }
+}

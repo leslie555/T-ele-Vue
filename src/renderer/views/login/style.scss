@@ -1,0 +1,116 @@
+@import '../../styles/mixin.scss';
+@media only screen and (max-width: 1550px) {
+  .login-form-container {
+    width: 400px !important;
+  }
+  .left-insert {
+    width: 563px !important;
+    height: 448px !important;
+  }
+}
+@media only screen and (max-width: 1200px) {
+  .login-form-container {
+    width: 360px !important;
+  }
+  .left-insert {
+    width: 463px !important;
+    height: 368px !important;
+  }
+}
+.login-bg-wrap {
+  height: 100vh;
+  position: relative;
+  /*     background: -webkit-linear-gradient(18deg, #389ef2, #31bbff);
+            background: -o-linear-gradient(18deg, #389ef2, #31bbff);
+            background: -moz-linear-gradient(18deg, #389ef2, #31bbff); */
+  background: linear-gradient(18deg, #389ef2, #31bbff);
+  .copyright {
+    width: 100%;
+    text-align: center;
+    position: absolute;
+    color: #fff;
+    font-size: 12px;
+    bottom: 20px;
+  }
+  .login-container {
+    height: 100%;
+    padding: 0 10%;
+    @include displayFlex(row, center, space-between);
+    background: url('../../assets/Login/bgInsert.png') no-repeat;
+    background-size: cover;
+    .left-insert {
+      width: 756px;
+      height: 603px;
+      background: url('../../assets/Login/leftInsert.png') no-repeat
+        center/cover;
+    }
+    .login-form-container {
+      width: 450px;
+      height: 510px;
+      position: relative;
+      top: -5%;
+      .login-form-header {
+        height: 150px;
+        @include displayFlex(column, center, center);
+        align-content: flex-start;
+        .logo-png {
+          width: 175px;
+          height: 52px;
+          background: url('../../assets/Login/logo.png') no-repeat center center;
+        }
+        .header-title {
+          margin-top: 20px;
+          font-size: 24px;
+          letter-spacing: 15px;
+          color: #f9f9f9;
+        }
+      }
+      .login-form-content {
+        @include displayFlex(column, center, flex-start);
+        border-radius: 3px;
+        box-shadow: 5px 5px 5px rgba(78, 155, 206, 0.4);
+        width: 100%;
+        height: 300px;
+        background: #fff;
+        .login-form-title {
+          font-size: 18px;
+          color: #999;
+          margin-top: 60px;
+          letter-spacing: 10px;
+        }
+        .login-form-input-wrap {
+          width: 100%;
+          padding: 0 50px;
+          .iconfont {
+            font-size: 23px;
+          }
+          .el-form-item {
+            min-width: 300px;
+            width: 100%;
+          }
+          margin-top: 50px;
+          @include displayFlex(column, center, flex-start);
+          .login-form-input {
+            width: 100%;
+            height: 40px;
+          }
+          .login-form-button {
+            margin-top: 20px;
+          }
+          .download-pc {
+            align-self: flex-end;
+            margin-top: -13px;
+            color: #389ef2;
+            .download-btn {
+              font-size: 12px;
+            }
+          }
+        }
+      }
+    }
+  }
+  .el-button--primary {
+    background: #45b3f9;
+    border-color: #45b3f9;
+  }
+}

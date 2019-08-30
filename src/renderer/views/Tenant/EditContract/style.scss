@@ -1,0 +1,38 @@
+@import "../../../styles/variables";
+@import "../../../styles/mixin";
+$configOrange: #fd9258;
+$configGray: #dddddd;
+$configWhite: #fffcfa;
+.edit-contract{
+  .roomConfig {
+    @include displayFlex(row,center,flex-start);
+    width: 600px;
+    margin: 20px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: $configOrange;
+    border: 1px solid $configGray;
+    font-size: 14px;
+    .roomConfigLeft {
+      @include displayFlex(row,center,center);
+      width: 36px;
+      color: white;
+
+      .ConfigLeftTitle {
+        width: 20px;
+        text-align: center;
+      }
+    }
+
+    .roomConfigRight {
+      flex: 1;
+      background: $configWhite;
+      padding: 12px;
+
+      span {
+        display: inline-block;
+        margin: 6px;
+      }
+    }
+  }
+}

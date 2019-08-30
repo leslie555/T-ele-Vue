@@ -1,0 +1,41 @@
+@import "../../../../../styles/variables";
+@import "../../../../../styles/mixin";
+.contract-tabs{
+  @include displayFlex(row,center,flex-start);
+  margin-bottom: 20px;
+  .contract-tab{
+    @include displayFlex(column,flex-start,flex-start);
+    padding: 16px 18px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    height: 100px;
+    max-width: 600px;
+    margin-right: 30px;
+    cursor: pointer;
+    &.active{
+      border-color: $--color-primary;
+    }
+    .contract-tab-title{
+      @include displayFlex(row,center,flex-start);
+      font-size: 16px;
+      color: $--color-text-primary;
+      margin-bottom: 10px;
+      i{
+        @include displayFlex(row,center,center);
+        margin-left: 15px;
+        width: 40px;
+        height: 20px;
+        background: $--color-primary;
+        color: #fefefe;
+        border-radius: 4px;
+        font-size: 12px;
+        font-style: normal;
+      }
+    }
+    .contract-tab-content{
+      font-size: 12px;
+      line-height: 18px;
+      color: $--color-text-secondary;
+    }
+  }
+}

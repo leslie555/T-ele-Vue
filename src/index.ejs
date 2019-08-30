@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- 设置字符集格式 -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- 设置网站标题 -->
+    <title>弹窝</title>
+    <!-- 设置关键字 -->
+    <meta name="Keywords" content="弹个房,弹窝"/>
+    <!-- 设置描述 -->
+    <meta name="Description" content="弹个房,弹窝"/>
+    <!-- 启用360浏览器的极速模式(webkit) -->
+    <meta name="renderer" content="webkit">
+    <meta name="force-rendering" content="webkit"/>
+    <!-- 避免IE使用兼容模式 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <!-- IE Edge浏览器提示 -->
+    <script>
+      var getExplorer = (function () {
+        var explorer = window.navigator.userAgent,
+          compare = function (s) { return (explorer.indexOf(s) >= 0); },
+          ie11 = (function () { return ("ActiveXObject" in window) })();
+        if (compare("MSIE") || ie11) { return 'ie'; }
+        else if (compare("Firefox") && !ie11) { return 'Firefox'; }
+        else if (compare("Chrome") && !ie11) {
+          if (explorer.indexOf("Edge") > -1) {
+            return 'Edge';
+          } else {
+            return 'Chrome';
+          }
+        }
+        else if (compare("Opera") && !ie11) { return 'Opera'; }
+        else if (compare("Safari") && !ie11) { return 'Safari'; }
+
+      })()
+
+      if (getExplorer == 'ie') {
+        window.location.href='/ie.html'
+      }
+    </script>
+    <style>
+      .app-loading{
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #389EF2;
+        z-index: 9999;
+        font-family: "Microsoft YaHei";
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .app-loading:before{
+        content: '';
+        display: block;
+        width: 40px;
+        height: 40px;
+        box-sizing: border-box;
+        border: solid 3px transparent;
+        border-top-color: #fff;
+        border-left-color: #fff;
+        border-radius: 50%;
+        animation: nprogress-spinner 400ms linear infinite;
+      }
+      .app-loading:after{
+        content: '资源载入中..';
+        display: block;
+        font-size: 14px;
+        color: #fff;
+        margin-top: 20px;
+        letter-spacing: 2px;
+      }
+    </style>
+    <% if (htmlWebpackPlugin.options.nodeModules) { %>
+      <!-- Add `node_modules/` to global paths so `require` works properly in development -->
+      <script>
+        require('module').globalPaths.push('<%= htmlWebpackPlugin.options.nodeModules.replace(/\\/g, '\\\\') %>')
+      </script>
+    <% } %>
+  </head>
+  <body>
+    <div id="app" class="app-loading"></div>
+    <!-- Set `__static` path to static files in production -->
+    <% if (process.env.NODE_ENV !== 'production') { %>
+    <script>
+        if (process.env.NODE_ENV !== 'development') window.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
+    </script>
+    <% } %>
+    <!-- webpack builds are automatically injected -->
+  </body>
+</html>

@@ -1,0 +1,63 @@
+@import "../../../styles/variables";
+@import "../../../styles/mixin";
+.upload-btn{
+  @include displayFlex(column,center,center);
+  width: 100px;
+  height: 100px;
+  line-height: normal;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  i{
+    font-size: 30px;
+    color: $--color-text-secondary;
+    margin-bottom: 10px;
+  }
+  span{
+    font-size: 12px;
+    color: $--color-text-secondary;
+  }
+}
+.upload-imgs{
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 20px 0 0 20px;
+  width: 540px;
+  overflow: hidden;
+  .upload-img{
+    @include displayFlex(row,center,center);
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    margin-right: 20px;
+    float: left;
+    img{
+      max-width: 100px;
+      max-height: 100px;
+      cursor: zoom-in;
+    }
+    i{
+      position: absolute;
+      right: -8px;
+      top: -8px;
+      line-height: normal;
+      background: #fff;
+      border-radius: 50%;
+      color: $--color-danger;
+      font-size: 17px;
+      cursor: pointer;
+    }
+  }
+}
+.upload-notice{
+  color: $--color-primary;
+  font-size: 12px;
+  &:before{
+    content: '*';
+    margin-right: 2px;
+  }
+}

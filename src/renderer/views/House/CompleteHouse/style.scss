@@ -1,0 +1,51 @@
+@import "../../../styles/variables";
+@import "../../../styles/mixin";
+
+$configOrange: #fd9258;
+$configGray: #dddddd;
+$configWhite: #fffcfa;
+
+.app-container {
+  .roomConfig {
+    @include displayFlex(row, stretch, flex-start);
+    width: 600px;
+    margin: 20px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: $configOrange;
+    border: 1px solid $configGray;
+    font-size: 12px;
+
+    .roomConfigLeft {
+      @include displayFlex(row, center, center);
+      width: 36px;
+      color: white;
+      padding: 2px 0;
+
+      .ConfigLeftTitle {
+        width: 18px;
+        text-align: center;
+      }
+    }
+
+    .roomConfigRight {
+      flex: 1;
+      background: $configWhite;
+      padding: 16px;
+
+      span {
+        display: inline-block;
+        margin: 6px;
+      }
+    }
+  }
+}
+
+.icon-shanjianmoren {
+  color: red;
+  margin-left: 20px;
+}
+
+[v-cloak] {
+  display: none;
+}

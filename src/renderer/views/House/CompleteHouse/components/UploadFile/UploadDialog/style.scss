@@ -1,0 +1,57 @@
+@import "../../../../../../styles/variables";
+@import "../../../../../../styles/mixin";
+.upload-dialog{
+  .tabs{
+    @include displayFlex(row,center,center);
+    width: 100%;
+    height: 42px;
+    border-bottom: 1px solid #eee;
+    .tab{
+      @include displayFlex(row,center,center);
+      flex: 1;
+      font-size: 12px;
+      color: $--color-text-regular;
+      height: 100%;
+      cursor: pointer;
+      &.active{
+        background: #f3f9fe;
+        color: $--color-primary;
+      }
+    }
+  }
+  .upload-box{
+    width: 660px;
+    height: 384px;
+    padding: 20px 8px 20px 20px;
+    border:1px dashed rgb(221,221,221);
+    border-radius: 4px;
+    background: #f3f9fe;
+    margin: 20px auto 0;
+    .upload-content{
+      height: 320px;
+    }
+    .upload-tip{
+      font-size: 12px;
+      color: $--color-text-regular;
+      margin-top: 10px;
+    }
+    .scan-box{
+      @include displayFlex(row,center,center);
+      margin-bottom: 10px;
+      .scan-text{
+        margin-left: 20px;
+        font-size: 12px;
+        color: #606266;
+        p{
+          line-height: 22px;
+        }
+      }
+    }
+  }
+  .upload-scan{
+    padding-top: 10px;
+    .scan-scroll{
+      height: 260px;
+    }
+  }
+}

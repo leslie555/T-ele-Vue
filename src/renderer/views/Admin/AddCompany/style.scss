@@ -1,0 +1,25 @@
+@import "../../../styles/variables.scss";
+@import "../../../styles/mixin.scss";
+.company-info-form{
+  font-size: 14px;
+  @include displayFlex(row,flex-start,space-around);
+  .company-info-form-child{
+    flex: 1;
+  }
+  .panel-body-item{
+    color: #444444;
+    margin-bottom: 20px;
+    .panel-body-input{
+      width: 300px;
+      height: 36px;
+      line-height: 36px;
+      color: #999999;
+    }
+  }
+}
+.panel-body-buttons{
+  text-align: center;
+  .save-button{
+    margin-right: 20px;
+  }
+}

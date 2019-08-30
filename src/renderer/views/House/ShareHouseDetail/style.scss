@@ -1,0 +1,82 @@
+@import "../../../styles/variables";
+@import "../../../styles/mixin";
+
+.app-container {
+  .houseCarouselImg {
+    max-width: 100%;
+    height: 100%;
+    border-radius: 6px;
+  }
+
+  .HouseTitleDetail {
+    h4 {
+      font-weight: normal;
+      font-size: 20px;
+    }
+
+    .InfoTitle{
+      @include displayFlex(row, center, space-between);
+    }
+
+    span {
+      font-size: 14px;
+      line-height: 26px;
+    }
+
+    span.HouseDetailName {
+      color: #999999;
+      width: 60px;
+      height: 20px;
+      display: inline-block;
+    }
+
+    .headerImg {
+      width: 60px;
+      height: 60px;
+      background-repeat: no-repeat;
+      background-size: cover;
+      border-radius: 50%;
+    }
+
+    .DetailsRow {
+      margin-bottom: 10px;
+    }
+  }
+
+  .HouseInfoListBox {
+    .HouseInfoList:first-of-type {
+      margin-top: 20px;
+    }
+
+    .HouseInfoList {
+      .HouseInfoTitle panel-title {
+        font-size: 16px;
+        margin-bottom: 20px;
+      }
+
+      .HouseInfoDesc {
+        font-size: 14px;
+        color: #333333;
+        text-indent: 2em;
+      }
+    }
+  }
+  .el-button.btnActive{
+    color: #389ef2;
+    border-color: #c3e2fb;
+    background-color: #ebf5fe;
+  }
+  .el-button.disabled{
+    color: #dddddd;
+    border-color: #dddddd;
+    background-color: #ffffff;
+  }
+
+  .HouseManagerBox{
+    @include displayFlex(row, center, flex-start);
+    width: 100%;
+    .HouseManager{
+      margin-right: 40px;
+    }
+  }
+}

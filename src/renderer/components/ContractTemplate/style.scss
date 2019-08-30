@@ -1,0 +1,539 @@
+@import "../../styles/mixin.scss";
+
+.contract-template-outer {
+  @include displayFlex(row, flex-start, center);
+  border: 1px solid #eee;
+  .print-div {
+    position: fixed;
+    right: 40px;
+    bottom: 150px;
+    cursor: pointer;
+    z-index: 3000;
+    .icon-print-contract {
+      font-size: 44px;
+      color: #ddd;
+      transition: color 1s;
+      border-radius: 50%;
+    }
+    .icon-print-contract:hover {
+      color: #389ef2;
+    }
+  }
+}
+
+.contract-header-content p span, .contract-list-content p span, .supply-list-content p span {
+  width: auto;
+  line-height: 14px;
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px solid #333;
+  padding: 4px 10px;
+}
+
+.contract-header-content p span {
+  line-height: 16px;
+}
+
+.text-bold {
+  font-weight: bold;
+}
+
+div,p,span {
+  color: #444
+}
+
+@media print {
+  @page {
+    size: auto;
+    margin: 0 auto;
+    padding: 10mm auto;
+  }
+  .contract-template {
+    min-width: 1500mm !important;
+  }
+  .contract-list-item-mark {
+    margin-top: 80px !important;
+  }
+}
+
+.contract-template {
+  width: 960px;
+  padding: 30px 30px 80px;
+  margin: 0 auto;
+  .contract-text {
+    margin-bottom: 60px;
+    .contract-statement {
+      font-size: 14px;
+    }
+    .contract-header {
+      line-height: 34px;
+      color: #444;
+      .contract-header-title {
+        margin-top: 20px;
+        margin-bottom: 35px;
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+      }
+      .contract-header-content {
+        font-size: 16px;
+        //@include displayFlex(row, stretch, space-around);
+        .header-content {
+          flex: 1;
+          @include displayFlex(row, stretch, space-around);
+          p {
+            flex: 1
+          }
+        }
+        .first-party-div {
+          @include displayFlex(row, stretch, space-around);
+          .first-party-info1 {
+            flex: 1.1;
+          }
+          .first-party-info2 {
+            flex: 1;
+          }
+        }
+      }
+    }
+    .contract-list {
+      color: #444;
+      .contract-list-item {
+        margin-top: 40px;
+        line-height: 34px;
+        .contract-list-title {
+          font-weight: bold;
+          font-size: 16px;
+        }
+        .contract-list-content {
+          font-size: 14px;
+          .pay-info {
+            @include displayFlex(row, stretch, space-around);
+            .pay-left, .pay-right {
+              flex: 1;
+            }
+          }
+        }
+      }
+    }
+  }
+  .table-title {
+    padding-left: 10px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    height: 18px;
+    line-height: 18px;
+    border-left: 4px solid #389ef2;
+  }
+  .table-content {
+    margin: 0 10px 20px 10px;
+    text-align: center;
+    color: #444;
+    font-size: 14px;
+    .table-bill-plan {
+      background-color: rgb(221, 221, 221);
+      th, td {
+        background-color: #ffffff;
+      }
+      th {
+        background-color: #f3f8fc;
+        color: #606266;
+      }
+      .no-data {
+        height: 50px;
+        text-align: center;
+        color: #444;
+      }
+      .total-amount {
+        text-align: right;
+        padding-right: 30px;
+        height: 50px;
+        font-weight: bold;
+      }
+      .head-title {
+        font-weight: bold;
+        font-size: 14px;
+        padding: 8px 0;
+      }
+      .bill-title {
+        width: 280px;
+      }
+      .bill-project {
+        width: 120px;
+      }
+      .bill-amount {
+        width: 135px;
+      }
+      .bill-type {
+        width: 145px;
+      }
+      .bill-date {
+        width: 205px;
+      }
+      .item-content {
+        height: 80px;
+      }
+      // 其他记账
+      .bill-other-project {
+        width: 250px;
+      }
+      .bill-other-type {
+        width: 120px;
+      }
+      .bill-other-amount {
+        width: 135px;
+      }
+      .bill-other-date {
+        width: 175px;
+      }
+      .bill-other-remark {
+        width: 205px;
+      }
+    }
+    .table-other-bill-plan {
+      td {
+        height: 60px;
+      }
+    }
+  }
+  .contract-supply {
+    line-height: 34px;
+    color: #444;
+    .contract-supply-title {
+      font-weight: bold;
+      margin-top: 30px;
+      text-align: center;
+      font-size: 18px;
+    }
+    .contract-supply-desc {
+      font-size: 14px;
+      margin-top: 30px;
+    }
+    .supply-list {
+      color: #444;
+      .supply-item {
+        margin-bottom: 50px;
+        line-height: 34px;
+        .supply-list-content {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+  .sign-div-owner {
+    .sign-container {
+      @include displayFlex(row, stretch, space-between);
+      font-size: 16px;
+      font-weight: bold;
+      .sign-content {
+        flex: 1;
+        .sign-title {
+          width: 150px;
+          text-align: right;
+        }
+        .sign-text {
+          margin-top: 40px;
+        }
+      }
+      .sign-party {
+        @include displayFlex(row, flex-start, flex-start);
+        .sign-party-img {
+          width: 200px;
+          height: 110px;
+          @include displayFlex(row, center, center);
+          img {
+            max-height: 110px;
+            max-width: 200px;
+            cursor: zoom-in;
+          }
+        }
+      }
+
+      .second-party-item {
+        margin-top: 50px;
+      }
+    }
+    .sign-time {
+      @include displayFlex(row, center, flex-end);
+      margin-top: 80px;
+      margin-right: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      .sign-time-container {
+        width: 220px;
+      }
+      p {
+        display: inline;
+      }
+    }
+  }
+  .sign-div-tenant {
+    .sign-container {
+      @include displayFlex(row, stretch, space-between);
+      font-size: 16px;
+      font-weight: bold;
+      .sign-content {
+        flex: 1;
+        .first-party-seal {
+          margin-top: 40px;
+          height: 110px;
+          @include displayFlex(row,flex-start,flex-start);
+          //float: left;
+          .first-party-seal-img {
+            //float: right;
+            width: 200px;
+            height: 110px;
+            @include displayFlex(row, center, center);
+            img {
+              max-height: 110px;
+              max-width: 200px;
+              cursor: zoom-in;
+            }
+          }
+        }
+        .sign-text {
+          margin-top: 40px;
+        }
+      }
+    }
+    .sign-time {
+      @include displayFlex(row, center, flex-end);
+      margin-top: 80px;
+      margin-right: 100px;
+      font-size: 16px;
+      font-weight: bold;
+      .sign-time-container {
+        width: 220px;
+      }
+      p {
+        display: inline;
+      }
+    }
+  }
+  .house-equipment {
+    margin-top: 114px;
+    .equipment-title {
+      text-align: center;
+      font-size: 18px;
+      margin-bottom: 50px;
+      color: #444;
+      font-weight: bold;
+    }
+    .house-equipment-container {
+      p {
+
+      }
+      .sign-container {
+        margin-top: 50px;
+        font-weight: bold;
+        font-size: 16px;
+      }
+    }
+  }
+  .equiment-list {
+    .equiment-title {
+      font-size: 16px;
+      margin-top: 70px;
+      font-weight: bold;
+      @include displayFlex(row,center,center);
+    }
+    .appendix-info {
+      margin-top: 20px;
+      .info-title {
+        font-size: 15px;
+        font-weight: bold;
+        line-height: 34px;
+      }
+      .info-text {
+        font-size: 14px;
+        margin-left: 35px;
+        //text-indent: 35px;
+      }
+    }
+    .confirm-info {
+      margin-top: 30px;
+      .info-text {
+        font-size: 14px;
+        font-weight: bold;
+      }
+      .sign-info {
+        font-weight: bold;
+        margin-top: 50px;
+        margin-right: 110px;
+        @include displayFlex(row,center,flex-end);
+        .sign-info-container {
+          width: 250px;
+          @include displayFlex(column,flex-start,flex-start);
+          .sign-title {
+            width: 120px;
+            @include displayFlex(row,center,flex-end);
+          }
+          .sign-text {
+            @include displayFlex(row,center,flex-end);
+            .first-party-seal {
+              margin-top: 40px;
+              height: 110px;
+              //float: left;
+              @include displayFlex(row,flex-start,flex-start);
+              .first-party-seal-img {
+                //float: right;
+                width: 200px;
+                height: 110px;
+                @include displayFlex(row, center, center);
+                img {
+                  max-height: 110px;
+                  max-width: 200px;
+                  cursor: zoom-in;
+                }
+              }
+            }
+          }
+          .sign-time {
+            margin-top: 30px;
+            @include displayFlex(row,center,flex-end);
+            .sign-time-container {
+              @include displayFlex(row,center,flex-start);
+              p {
+                //display: inline;
+              }
+            }
+          }
+          //.sign-content {
+          //  flex: 1;
+          //
+          //  .sign-text {
+          //    margin-top: 40px;
+          //  }
+          //}
+        }
+      }
+    }
+  }
+
+  // 业主合同附件
+  .appendix-container {
+    .appendix-content {
+      page-break-before: always;
+      page-break-after: auto;
+      margin-top: 30px;
+      .appendix-title {
+        margin-bottom: 15px;
+        font-weight: bold;
+        font-size: 16px;
+      }
+      .appendix-table-container {
+
+        .table-content {
+          margin: 0 10px 20px 10px;
+          text-align: center;
+          color: #444;
+          font-size: 14px;
+        }
+        .appendix-table {
+          background-color: rgb(221, 221, 221);
+          border-collapse: collapse;
+          th, td {
+            background-color: #ffffff;
+            border: 1px solid #eee;
+          }
+          th {
+            background-color: #f3f8fc;
+            color: #606266;
+          }
+          td {
+            padding: 8px 0;
+          }
+          .head-title {
+            font-weight: bold;
+            font-size: 14px;
+            padding: 8px 0;
+          }
+        }
+
+      }
+      .house-equipment-container {
+
+        .appendix-table {
+          th {
+            width: 200px;
+          }
+          .equipment-name {
+            min-width: 150px;
+          }
+          .equipment-number {
+            min-width: 100px;
+          }
+          .equipment-remark {
+            min-width: 300px;
+          }
+          .receive-sign {
+            min-width: 100px;
+          }
+        }
+      }
+      .waterelect-table-container {
+        .appendix-table {
+
+          th {
+            width: 200px;
+          }
+          .waterelect-data {
+            min-width: 100px;
+          }
+          .init-data {
+            min-width: 100px;
+          }
+          .end-data {
+            min-width: 100px;
+          }
+          .is-settle {
+            min-width: 100px;
+          }
+          .waterelect-number {
+            min-width: 300px;
+          }
+        }
+      }
+      .other-fee-table-container {
+        margin-top: 30px;
+        .appendix-table {
+          th {
+            width: 200px;
+          }
+          .other-fee {
+            min-width: 100px;
+          }
+          .is-settle {
+            min-width: 100px;
+          }
+          .settle-date {
+            min-width: 200px;
+          }
+          .other-remark {
+            min-width: 300px;
+          }
+        }
+      }
+    }
+    .house-equipment {
+
+    }
+    .house-Utilities {
+
+    }
+    .contract-supply {
+
+    }
+    .appendix-text {
+      //@include displayFlex(row,center,flex-start);
+      .supplement-title {
+
+      }
+      .supplement-text {
+        text-indent:30px;
+        margin-bottom: 15px;
+        font-size: 16px;
+      }
+    }
+  }
+}

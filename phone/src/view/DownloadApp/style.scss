@@ -1,0 +1,103 @@
+@mixin displayFlex($a,$b,$c) {
+  display: flex;
+  flex-direction: $a;
+  align-items: $b;
+  justify-content: $c;
+}
+
+.download-phone {
+  position: relative;
+  min-height: 100vh;
+  background:  linear-gradient(#45b3f9, #31bbff);
+  .download-bg {
+    position: absolute;
+    width: 6.64rem;
+    height: 11.75rem;
+    top: .2rem;
+    left: .5rem;
+  }
+  .logo-box {
+    @include displayFlex(row, center, flex-start);
+    height: 1rem;
+    padding-left: .5rem;
+    position: relative;
+    img {
+      height: .35rem;
+    }
+  }
+  .title-box {
+    @include displayFlex(row, flex-start, center);
+    letter-spacing: 3px;
+    height: 1rem;
+    color: #fff;
+    font-size: 24px;
+    position: relative;
+  }
+  .phone-box {
+    @include displayFlex(row, flex-start, center);
+    margin-top: -.7rem;
+    position: relative;
+    img {
+      width: 6.8rem;
+      margin-right: 1.36rem;
+    }
+  }
+  .bottom-box {
+    @include displayFlex(column,center,flex-start);
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    margin-left: -2.8rem;
+    width: 5.6rem;
+    height: 4.36rem;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    background: #fff;
+    .list-item {
+      @include displayFlex(row, center, flex-start);
+      width: 3.8rem;
+      margin-top: .3rem;
+      .item-left {
+        width: .6rem;
+      }
+      .item-right {
+        flex: 1;
+        padding-left: .2rem;
+      }
+      .item-title{
+        font-size: .32rem;
+        color: #389ef2;
+      }
+      .item-content{
+        font-size: .18rem;
+        margin-top: .1rem;
+        color: #ccc;
+      }
+    }
+    .download-btn{
+      @include displayFlex(row,center,center);
+      background: url("../../assets/download-app/download-btn.png") no-repeat;
+      background-size: 100% 100%;
+      width: 4rem;
+      height: .6rem;
+      color: #fff;
+      font-size: 14px;
+      margin-top: .4rem;
+    }
+  }
+  .mask-box {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,.7);
+    img {
+      position: absolute;
+      right: .5rem;
+      top: .2rem;
+      width: 3.95rem;
+      height: 2.88rem;
+    }
+  }
+}

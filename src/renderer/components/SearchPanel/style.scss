@@ -1,0 +1,48 @@
+@import "../../styles/variables";
+@import "../../styles/mixin";
+.search-panel{
+  .el-form-item{
+    margin-bottom: 12px;
+  }
+  .search-header{
+    //overflow: hidden;
+    .search-header-left{
+      margin-top: -12px;
+      .el-form-item{
+        margin-bottom: 0;
+        margin-top: 12px;
+      }
+      .search-header-toggle{
+        height: 40px;
+        line-height: 40px;
+        display: inline-block;
+        font-size: 14px;
+        color: $--color-primary;
+        cursor: pointer;
+        padding-left: 10px;
+        margin-top: 12px;
+      }
+    }
+    &.search-header-normal{
+      .search-header-left{
+        float: left;
+        display: block;
+      }
+      .search-header-right{
+        float: right;
+      }
+    }
+    &.search-header-flex{
+      @include displayFlex(row,flex-start,flex-start);
+      .search-header-left{
+        flex: 1;
+        flex-wrap: wrap;
+      }
+    }
+
+  }
+  .search-content{
+    margin-top: 12px;
+    margin-bottom: -12px;
+  }
+}

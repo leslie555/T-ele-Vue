@@ -1,0 +1,35 @@
+@import "../../../styles/variables";
+@import "../../../styles/mixin";
+.contract-sign{
+  @include displayFlex(column,flex-start,flex-start);
+  .contract-sign-box{
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    background: #fff;
+    padding: 0 18px;
+    border-radius: 2px;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+  .contract-sign-template{
+    border: none;
+  }
+  .bottom-box{
+    width: 100%;
+    @include displayFlex(row,center,center);
+    height: 80px;
+    background: #fff;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+  }
+  .btn-box{
+    @include displayFlex(row,center,flex-start);
+    position: absolute;
+    right: 15px;
+    top: 0;
+    height: 50px;
+    .btn-box-item{
+
+    }
+  }
+}

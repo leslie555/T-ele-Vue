@@ -1,0 +1,76 @@
+.qr-sign {
+  min-height: 100vh;
+}
+#canvas {
+  position: relative;
+}
+.sign-canvas {
+  position: relative;
+  padding: 0.1rem 0.1rem;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.sign-canvas .sign-canvas-tip {
+  width: 92%;
+  position: absolute;
+  height: 33%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+  color: #ddd;
+}
+
+.tip1 {
+  top: 0;
+  border-bottom: 1px dashed #bebebe;
+}
+.tip3 {
+  bottom: 0;
+  border-top: 1px dashed #bebebe;
+}
+
+.sign-canvas #canvas {
+  border-radius: 10px;
+  background: #f4f8fc66;
+  z-index: 101;
+  border: 1px dashed #b5b5b5;
+}
+
+.sign-notice {
+  padding: 0 0.58rem;
+  margin-top: 8px;
+  margin-bottom: 5px;
+  line-height: 0.35rem;
+  font-size: 0.2rem;
+  color: #666;
+}
+
+.sign-notice::before {
+  content: '*';
+  color: red;
+}
+
+.sign-canvas .sign-canvas-clear {
+  position: absolute;
+  z-index: 101;
+  bottom: 0.2rem;
+  right: 0.7rem;
+  width: 40px;
+  height: 40px;
+  background: url('../../assets/clear.png');
+  background-size: cover;
+}
+
+.sign-button {
+  position: absolute;
+  left: 50%;
+  width: 2rem;
+  margin-left: -1rem;
+  bottom: 0.4rem;
+}

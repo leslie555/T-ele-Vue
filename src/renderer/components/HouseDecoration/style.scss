@@ -1,0 +1,63 @@
+$configOrange: #fd9258;
+$configGray: #dddddd;
+$configWhite: #fffcfa;
+@import "../../styles/variables";
+@import "../../styles/mixin";
+
+.el-form-item {
+  margin-bottom: 10px;
+}
+
+.dialogRadius {
+  border-radius: 6px;
+}
+
+.upload-img-Box {
+  // border: 1px solid #ddd;
+  border-radius: 4px;
+  padding-top: 10px;
+  margin-top: 10px;
+  overflow: hidden;
+  width: 400px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.upload-img {
+  @include displayFlex(row, center, center);
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  margin-right: 20px;
+  float: left;
+  img {
+    max-width: 98px;
+    max-height: 100px;
+    cursor: zoom-in;
+  }
+  .upload-paper {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+  }
+  i {
+    position: absolute;
+    right: -8px;
+    top: -8px;
+    line-height: normal;
+    background: #fff;
+    border-radius: 50%;
+    color: $--color-danger;
+    font-size: 17px;
+    cursor: pointer;
+  }
+}
+
+.valueColor {
+  color: #389EF2;
+}

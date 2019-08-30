@@ -1,0 +1,61 @@
+@import "../../../../../styles/variables";
+@import "../../../../../styles/mixin";
+.config-add{
+  color: $--color-primary;
+  font-size: 17px;
+  cursor: pointer;
+}
+.input-box{
+  padding-left: 140px;
+  font-size: 14px;
+}
+.input-single{
+  @include displayFlex(row,center,flex-start);
+  float: left;
+  height: 28px;
+  line-height: 28px;
+  margin-right: 40px;
+  margin-bottom: 10px;
+  .input-handle{
+    @include displayFlex(row,center,flex-start);
+    border: 1px solid #ddd;
+    height: 28px;
+    .name{
+      border: none;
+      height: 26px;
+      width: 80px;
+      border-right: 1px solid #ddd;
+    }
+    .number{
+      border: none;
+      height: 26px;
+      width: 26px;
+      border-right: 1px solid #ddd;
+      border-left: 1px solid #ddd;
+    }
+    input{
+      outline: none;
+      text-align: center;
+      font-size: 12px;
+    }
+    span{
+      @include displayFlex(row,center,center);
+      width: 26px;
+      height: 26px;
+      cursor: pointer;
+      color: $--color-text-secondary;
+      cursor: pointer;
+    }
+  }
+  i{
+    margin-left: 10px;
+    color: $--color-danger;
+    font-size: 17px;
+    cursor: pointer;
+  }
+}
+.equipment-checklist>label{
+  width: 100px;
+  margin-left: 0 !important;
+  margin-top: 10px;
+}

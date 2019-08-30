@@ -1,0 +1,99 @@
+//globl transition css
+
+/*fade*/
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.28s;
+}
+
+.fade-enter,
+.fade-leave-active {
+  opacity: 0;
+}
+
+/*fade-transform*/
+.fade-transform-leave-active,
+.fade-transform-enter-active {
+  transition: all .5s;
+  position: absolute;
+}
+.fade-transform-enter {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+.fade-transform-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+/*breadcrumb*/
+.breadcrumb-enter-active,
+.breadcrumb-leave-active {
+  transition: all .5s;
+}
+
+.breadcrumb-enter,
+.breadcrumb-leave-active {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.breadcrumb-move {
+  transition: all .5s;
+}
+
+.breadcrumb-leave-active {
+  position: absolute;
+}
+
+/* slide-fade 设置持续时间和动画函数 */
+.slide-fade-enter-active {
+  transition: all .8s ease;
+}
+
+.slide-fade-leave-active {
+  transition: all .3s ease;
+}
+
+.slide-fade-enter, .slide-fade-leave-to
+  /* .slide-fade-leave-active for below version 2.1.8 */
+{
+  transform: translateX(20px);
+  opacity: 0;
+}
+
+/*step-slide 点击下一步的动画*/
+.step-slide-enter-active {
+  transition: all .8s ease;
+}
+
+.step-slide-leave-active {
+  transition: all .8s ease;
+}
+
+.step-slide-enter
+{
+  transform: translateX(300px);
+  opacity: 0;
+}
+.step-slide-leave-to{
+  transform: translateX(-300px);
+  opacity: 0;
+}
+/* 点击上一步的动画 */
+.step-slide-reverse-enter-active {
+  transition: all .8s ease;
+}
+
+.step-slide-reverse-leave-active {
+  transition: all .8s ease;
+}
+
+.step-slide-reverse-enter
+{
+  transform: translateX(-300px);
+  opacity: 0;
+}
+.step-slide-reverse-leave-to{
+  transform: translateX(300px);
+  opacity: 0;
+}

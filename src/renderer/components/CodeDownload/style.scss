@@ -1,0 +1,86 @@
+@import "../../styles/mixin.scss";
+
+.code-dialog {
+  //position: relative;
+  @include displayFlex(column,center,center);
+  .code-dialog-cover {
+    background: rgba(0,0,0,0.5);
+    position: fixed;
+    z-index: 9999;
+    top:0;
+    left:0;
+    width: 100%;
+    height: 100%;
+    @include displayFlex(column,center,center);
+    .code-dialog-box {
+      position: relative;
+      .code-background {
+        width: 800px;
+        height: 500px;
+      }
+      .code-text {
+        position: absolute;
+        right: 120px;
+        top:40px;
+        p {
+          font-size: 24px;
+          color: #389ef2;
+          font-weight: 600;
+          letter-spacing: 3px;
+          text-shadow: 3px 3px 7px #60b6fd;
+        }
+      }
+      .code-ios {
+        position: absolute;
+        right: 240px;
+        top: 100px;
+      }
+      .code-android {
+        position: absolute;
+        right: 136px;
+        top:100px;
+      }
+      .common {
+        width: 105px;
+        height: 22px;
+        border-radius: 10px;
+        background-color: #389EF2;
+        color: white;
+        font-size: 16px;
+        text-align: center;
+        padding-top: 2px;
+      }
+      .code-text-ios {
+        position: absolute;
+        top:280px;
+        right: 280px;
+      }
+      .code-text-android {
+        position: absolute;
+        top:280px;
+        right: 162px;
+      }
+      .code-Slogan {
+        position: absolute;
+        top:334px;
+        right: 70px;
+        p {
+          padding-bottom: 14px;
+          color: #666666;
+          font-size: 14px;
+        }
+      }
+      .code-cha {
+        position: absolute;
+        right: -9px;
+        top:-9px;
+        cursor: pointer;
+      }
+      .code-tips {
+        position: absolute;
+        right: 20px;
+        bottom: 20px;
+      }
+    }
+  }
+}

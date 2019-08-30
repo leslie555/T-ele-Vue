@@ -1,0 +1,28 @@
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixin';
+.bill-panel{
+  .iconfont{
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .icon-tianjiamoren{
+    color: $--color-primary;
+    margin-left: 10px;
+  }
+  .icon-shanjianmoren{
+    color: $--color-danger;
+    margin-right: 10px;
+  }
+  .bill-item-total{
+    margin-top: 10px;
+  }
+  .bill-footer{
+    @include displayFlex(row,center,space-between);
+    height: 60px;
+    padding: 0 20px;
+    .foot-right{
+      font-size: 14px;
+      font-weight: bold;
+    }
+  }
+}

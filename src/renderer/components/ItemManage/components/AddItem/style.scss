@@ -1,0 +1,91 @@
+@import "../../../../styles/variables.scss";
+.add-item-content{
+  overflow: auto;
+  height: 500px;
+  position: relative;
+  .left-div{
+    float: left;
+    .left-div-title{
+      margin-bottom: 5px;
+      font-size: 14px;
+      color: #444;
+    }
+    .left-table{
+      height: 400px;
+      width: 526px;
+    }
+  }
+  .transfer-btn{
+    position: absolute;
+    left: 542px;
+    top: 37%;
+    .add-btn{
+      background-color:$--color-primary ;
+      color: #fff;
+    }
+    .add-btn:hover{
+      background-color: $--color-primary-light-2;
+    }
+    .remove-btn{
+      margin-top: 20px;
+      background-color:$--color-primary;
+      color: #fff;
+    }
+    .remove-btn:hover{
+      background-color: $--color-primary-light-2;
+    }
+  }
+  .right-div{
+    float: right;
+    .right-div-title{
+      margin-bottom: 5px;
+      font-size: 14px;
+      color:$--color-primary;
+    }
+    .right-table{
+      width: 526px;
+    }
+  }
+}
+.item-list{
+  position: relative;
+  ul{
+    box-shadow: 3px 3px 3px #999;
+    width: 100px;
+    position: absolute;
+    top: 8px;
+    margin: 0;
+    padding: 0;
+    left: 80px;
+    z-index: 99999;
+    background-color: #fff;
+    li{
+      display: list-item;
+      text-align: center;
+      list-style: none;
+      font-size: 14px;
+      line-height: 40px;
+      color: #666;
+      border-bottom: 1px solid #eee;
+    }
+    li:last-child{
+      border-bottom:none;
+    }
+    li:hover{
+      color:#389ef2;
+      cursor: pointer;
+    }
+  }
+  .more-region{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-bottom: 15px solid #999;
+    border-left: 15px solid transparent;
+  }
+  .more-region:hover{
+    border-bottom-color: #389ef2;
+  }
+}

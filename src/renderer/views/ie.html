@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>系统提示</title>
+</head>
+<style>
+  body{
+    margin: 0;
+    padding: 0;
+    background: #389EF2;
+    color: #fff;
+    font-family: "Microsoft YaHei";
+  }
+  .body-wrap {
+    width: 600px;
+    height: 200px;
+    position: fixed;
+    bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+  }
+  .normal{
+    font-size: 18px;
+    line-height: 36px;
+  }
+  .normal span{
+    /*color: #00cdac;*/
+  }
+  .text{
+    font-size: 14px;
+  }
+</style>
+<body>
+<div class="body-wrap">
+  <p class="normal"><span>温馨提示：</span>为了您更好的用户体验以及更佳的视觉效果，系统不开放给IE浏览器使用，请选用以下几种方式中的一种继续使用：</p>
+  <p class="text">1：<a href="http://newfunrenting.oss-cn-zhangjiakou.aliyuncs.com/download/弹窝 Setup 1.0.23.exe" download>点击下载弹窝客户端</a></p>
+  <p class="text">2：非IE浏览器切换至浏览器的极速模式</p>
+  <p class="text">3：使用360、火狐、谷歌、QQ等浏览器</p>
+</div>
+</body>
+<script>
+  var getExplorer = (function() {
+    var explorer = window.navigator.userAgent
+    var compare = function(s) {
+        return (explorer.indexOf(s) >= 0)
+      }
+    var ie11 = (function() {
+        return ('ActiveXObject' in window)
+      })()
+    if (compare('MSIE') || ie11) {
+      return 'ie'
+    } else if (compare('Firefox') && !ie11) {
+      return 'Firefox'
+    } else if (compare('Chrome') && !ie11) {
+      if (explorer.indexOf('Edge') > -1) {
+        return 'Edge'
+      } else {
+        return 'Chrome'
+      }
+    } else if (compare('Opera') && !ie11) {
+      return 'Opera'
+    } else if (compare('Safari') && !ie11) {
+      return 'Safari'
+    }
+  })()
+
+  if (!(getExplorer === 'ie' || getExplorer === 'Edge')) {
+    window.location.href = '/index.html'
+  }
+</script>
+</html>
