@@ -54,8 +54,18 @@
 
   export default {
     name: 'FixApplyAddDialog',
-
     data() {
+      var checkTel = (rule, value, callback) => {
+        const reg = /^1[3-9]\d{9}$/
+        if (value === '') {
+          callback(new Error('电话号码不能为空'))
+        } else {
+          if (!reg.test(value)) {
+            callback(new Error('请输入正确的电话号码格式'))
+          }
+          callback()
+        }
+      }
       return {
         modalVisibility: false,
         loading: false,
@@ -67,7 +77,6 @@
           PersonChargeTel: '', // 负责人电话
           BZ: '' // 备注
         },
-        PersonChargeName: '',
         PersonChargeTel: '',
         typeList: {},
         columnList: [],
@@ -84,7 +93,7 @@
             { required: true, min: 2, max: 15, message: '请输入负责人姓名', trigger: 'blur' }
           ],
           PersonChargeTel: [
-            { required: true, message: '请输入有效电话号码', trigger: 'blur' }
+            { required: true, validator: checkTel, trigger: 'blur' }
           ],
           BZ: [
             { min: 0, max: 150, message: '长度在 0 到 150 个字符', trigger: 'blur' }
@@ -115,13 +124,21 @@
             this.loading = true
             if (this.form.KeyID) {
               EditSupplyCommodity(this.form).then((res) => {
-                console.log('修改成功res', res)
-                console.log('修改成功this.form', this.form)
-                this.$emit('editConfigInfo', this.form)
-                this.$message({
-                  message: '修改成功!',
-                  type: 'success'
-                })
+                if (res.Code === 0 && res.Data === 1) {
+                  console.log('修改成功res', res)
+                  console.log('修改成功this.form', this.form)
+                  this.$emit('editConfigInfo', this.form)
+                  this.$message({
+                    message: '修改成功!',
+                    type: 'success'
+                  })
+                } else {
+                  console.log('修改失败res', res)
+                  this.$message({
+                    message: '修改失败!',
+                    type: 'error'
+                  })
+                }
                 this.$refs.ruleForm.resetFields()
                 this.close()
               }).catch(() => {

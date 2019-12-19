@@ -115,7 +115,7 @@
           })
           const backData = {
             KeyID: this.companyID,
-            PrincipalData: res.Data || this.principalInfo
+            PrincipalData: res.Data || []
           }
           this.$emit('GetPrincipalData', backData)
           this.companyID = ''

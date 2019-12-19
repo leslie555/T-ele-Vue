@@ -93,10 +93,10 @@ import { validatePhone } from '@/utils/validate/rulevalidator'
               this.CloseReservation()
             }).catch(() => {
               this.btnLoading = false
-              this.$message({
-                message: '预定失败,请检查网络',
-                type: 'warning'
-              })
+              // this.$message({
+              //   message: '预定失败,请检查网络',
+              //   type: 'warning'
+              // })
             })
           } else {
             this.$message.error('请填写完整!')

@@ -41,9 +41,9 @@
             class="table-normal">
                 <!-- <el-table-column
                     v-for="(item, index) in tableLabel"
-                    :key="index" 
-                    :prop="item.prop" 
-                    :min-width="item.width" 
+                    :key="index"
+                    :prop="item.prop"
+                    :min-width="item.width"
                     :label="item.label">
                 </el-table-column> -->
                    <!-- <template slot-scope="scope">
@@ -56,12 +56,17 @@
             <el-table-column align="center"  label='单位' min-width="130" prop="Unit"></el-table-column>
             <el-table-column align="center"  label='内部单价（元）' min-width="130" prop="InsidePrice"></el-table-column>
             <el-table-column align="center"  label='外部单价（元）' min-width="130" prop="ExternalPrice"></el-table-column>
-            <el-table-column align="center"  label='备注' min-width="130" prop="BZ"></el-table-column>
+            <el-table-column align="center"  label='备注' min-width="130" prop="BZ">
+              <template slot-scope="scope">
+                <span :title="scope.row.BZ" class="sangedian">{{ scope.row.BZ }}</span>
+              </template>
+            </el-table-column>
             <el-table-column
                 fixed="right"
                 label="操作"
+                align="center"
                 min-width="300">
-                <template slot-scope="scope">
+                <!-- <template slot-scope="scope">
                     <el-button
                     size="mini"
                     type="primary"
@@ -88,6 +93,17 @@
                     type="primary"
                     plain
                     @click="handleStorage(scope.$index, scope.row, 4)">操作记录</el-button>
+                </template> -->
+                <template slot-scope="scope">
+                  <table-buttons
+                    :options="operation2button"
+                    :condition="scope.row.Operation"
+                    @handleputWarehouseClick="handleStorage(scope.$index, scope.row, 1)"
+                    @handledeliverClick="handleStorage(scope.$index, scope.row, 2)"
+                    @handleUpdateClick="handleStorage(scope.$index, scope.row, 3)"
+                    @handleDeleteClick="handleDelete(scope.$index, scope.row)"
+                    @handleoperatingClick="handleStorage(scope.$index, scope.row, 4)"
+                  ></table-buttons>
                 </template>
                 </el-table-column>
         </el-table>
@@ -128,10 +144,38 @@
         listLoading: true,
         tableSelected: [],
         pageSize: 10,
+        recordPage: null,
         ruleForm: {
           CategoryID: '',
           ProjectName: ''
-        }
+        },
+        operation2button: [
+          {
+            key: 'putWarehouse',
+            value: '入库',
+            type: 'primary'
+          },
+          {
+            key: 'deliver',
+            value: '出库',
+            type: 'primary'
+          },
+          {
+            key: 'Update',
+            value: '修改',
+            type: 'primary'
+          },
+          {
+            key: 'Delete',
+            value: '删除',
+            type: 'danger'
+          },
+          {
+            key: 'operating',
+            value: '操作记录',
+            type: 'primary'
+          }
+        ]
       }
     },
     computed: {
@@ -161,10 +205,10 @@
               CategoryID: this.ruleForm.CategoryID,
               ProjectName: this.ruleForm.ProjectName
           }).then(({ Data }) => {
-              this.filterList = Data.rows
-              // this.filterList.forEach(val => {
-              //   val.EndTime = this.$dateFormat(val.EndTime, 'yyyy-MM-dd')
-              // })
+              // this.filterList = Data.rows
+              const filterList = Data.rows
+              this.filterTableData(filterList)
+              this.filterList = filterList
               this.listLoading = false
               // 传给父组件的标识
               return Data
@@ -172,6 +216,17 @@
           .catch(() => {
             this.listLoading = false
           })
+      },
+      filterTableData(filterList) {
+        filterList.map(v => {
+          let Operation = []
+          if (v.Number !== 0) {
+            Operation = ['putWarehouse', 'deliver', 'Update', 'Delete', 'operating']
+          } else {
+            Operation = ['putWarehouse', 'Update', 'Delete', 'operating']
+          }
+          v.Operation = Operation
+        })
       },
       // 选择门店过后，返回来的数据
       handleStoreChange(val) {
@@ -228,7 +283,7 @@
                 const index = this.filterList.findIndex(v => v.KeyID === row.KeyID)
                 this.filterList.splice(index, 1)
             }).catch(() => {
-                this.$message.error('删除失败!')
+                // this.$message.error('删除失败!')
             })
         })
       },
@@ -242,3 +297,11 @@
     }
   }
 </script>
+<style lang="scss" scoped>
+  .sangedian{
+      overflow:hidden;
+      word-break:keep-all;
+      white-space:nowrap;
+      text-overflow:ellipsis;
+  }
+</style>

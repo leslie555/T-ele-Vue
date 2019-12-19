@@ -10,9 +10,9 @@
       <div :id="uuid">
         <payment-bill-one v-if="busType == 'PaymentBill' && busNum == 1" :PrintData="KeyID"></payment-bill-one>
         <payment-bill-two v-if="busType == 'PaymentBill' && busNum == 2" :PrintData="KeyID"></payment-bill-two>
-        <receipt-bill-one v-if="busType == 'ReceiptBill' && busNum == 1" :printData="KeyID"></receipt-bill-one>
-        <receipt-bill-two v-if="busType == 'ReceiptBill' && busNum == 2" :printData="KeyID"></receipt-bill-two>
-        <housing-deposit-one v-if="busType == 'ReceiptBill' && busNum == 3" :printData="KeyID"></housing-deposit-one>
+        <receipt-bill-one v-if="busType == 'ReceiptBill' && busNum == 1" :printData="KeyID" :FullID="FullID"></receipt-bill-one>
+        <receipt-bill-two v-if="busType == 'ReceiptBill' && busNum == 2 && ReceiptBillThree" :FullID="FullID" :printData="KeyID"  :money="money"></receipt-bill-two>
+        <housing-deposit-one v-if="busType == 'ReceiptBill' && busNum == 3" :printData="KeyID" :FullID="FullID"></housing-deposit-one>
         <report-staing-one
           v-if="busType == 'ReportStaing' && busNum == 1"
           :printData="tableArr"
@@ -115,7 +115,9 @@
     <div slot="footer" class="dialog-footer">
       <el-button @click="close">取 消</el-button>
       <el-button type="primary" @click="handlePrint">打印</el-button>
+      <el-button type="primary" @click="handleDownload" v-if="busType == 'ReceiptBill'" :loading="downloadLoading">下载PDF</el-button>
     </div>
+    <a :href="downloadUrl" style="display: none;" target="_blank" download :id="downloadID"></a>
   </el-dialog>
 </template>
 
@@ -146,6 +148,8 @@
   import EarningReports from './EarningReports/one'
   import CashFlow from './CashFlow/one'
   import RepairReports from './RepairReports/one'
+  import { HtmlToPDF } from '@/api/system'
+  import { gwUrl, baseURL } from '@/config'
 
   import uuid from '../../utils/uuid'
   import {
@@ -211,7 +215,13 @@
         tableArr: [],
         // 测算报表专用（传递查询条件和数据）
         tableObj: {},
-        IsShowYear: ''
+        IsShowYear: '',
+        money: '',
+        FullID: '',
+        ReceiptBillThree: true,
+        downloadUrl: '',
+        downloadLoading: false,
+        downloadID: ''
       }
     },
     methods: {
@@ -225,8 +235,10 @@
              title,
              IsShowYear,
              isList,
-             row
+             row,
+             money
            }) {
+        this.downloadID = 'downloadPrintTemplate_' + uuid()
         if (isList !== 'yes' && this.$parent.$refs.bottomToolBar.getTotal() > 100) {
           this.$alert('温馨提示: 数据量过多,请导出或筛选后再打印')
           return
@@ -239,18 +251,26 @@
           if (title) {
             this.tableTitle = title
           }
+          debugger
           if (busType === 'PaymentBill' && busNum === 1) {
             this.KeyID = row.KeyID
           } else if (busType === 'PaymentBill' && busNum === 2) {
             this.KeyID = row.KeyID
           } else if (busType === 'ReceiptBill' && busNum === 1) {
             this.KeyID = row.KeyID
+            this.FullID = row.FullID
           } else if (busType === 'ReceiptBill' && busNum === 2) {
             this.KeyID = row.KeyID
+            this.FullID = row.FullID
+            this.money = money
+            this.ReceiptBillThree = false
+            this.$nextTick(() => {
+              this.ReceiptBillThree = true
+            })
           } else if (busType === 'ReceiptBill' && busNum === 3) {
             this.KeyID = row.KeyID
+            this.FullID = row.FullID
           } else if (busType === 'ReportStaing' && busNum === 2) {
-            debugger
             QueryStagingExcelList({
               parm: {
                 size: 5,
@@ -575,6 +595,31 @@
             this.printLoading = false
             this.close()
           }
+        })
+      },
+      handleDownload() {
+        let signUrl = ''
+        switch (this.busNum) {
+          case 1:
+            signUrl = `${gwUrl}/ReceiptOne?KeyID=${this.KeyID}&to=${this.$store.getters.token}`
+            break
+          case 2:
+            signUrl = `${gwUrl}/ReceiptTwo?KeyID=${this.KeyID}&to=${this.$store.getters.token}&money=${this.money}`
+            break
+          case 3:
+            signUrl = `${gwUrl}/ReceiptThree?KeyID=${this.KeyID}&to=${this.$store.getters.token}`
+        }
+        this.downloadLoading = true
+        HtmlToPDF({
+          Url: encodeURIComponent(signUrl)
+        }).then(({ Data }) => {
+          this.downloadUrl = baseURL + Data
+          this.downloadLoading = false
+          this.$nextTick(() => {
+            document.getElementById(this.downloadID).click()
+          })
+        }).catch(() => {
+          this.downloadLoading = false
         })
       }
     }

@@ -95,7 +95,7 @@
             height: 40px;
           }
           .login-form-button {
-            margin-top: 20px;
+            margin-top: 10px;
           }
           .download-pc {
             align-self: flex-end;
@@ -104,6 +104,11 @@
             .download-btn {
               font-size: 12px;
             }
+          }
+          .login-remember {
+            color: #777;
+            font-size: 13px;
+            align-self: flex-end;
           }
         }
       }

@@ -174,17 +174,17 @@
                             <!--</el-option>-->
                         <!--</el-select>-->
                     <!--</el-form-item>-->
-                    <el-form-item label="账户" prop="InitialCashBank" label-width="100px">
-                        <el-select v-model="PayMentEditFormData.InitialCashBank" placeholder="请选择">
-                            <el-option
-                                    v-for="(item, index) in accountData"
-                                    :key="index"
-                                    :label="item.AccountName + item.Account"
-                                    :value="item.Account"
-                                    @click.native = "ChangePayWays(item.KeyID)">
-                            </el-option>
-                        </el-select>
-                    </el-form-item>
+                    <!--<el-form-item label="账户" prop="InitialCashBank" label-width="100px">-->
+                        <!--<el-select v-model="PayMentEditFormData.InitialCashBank" placeholder="请选择">-->
+                            <!--<el-option-->
+                                    <!--v-for="(item, index) in accountData"-->
+                                    <!--:key="index"-->
+                                    <!--:label="item.AccountName + item.Account"-->
+                                    <!--:value="item.Account"-->
+                                    <!--@click.native = "ChangePayWays(item.KeyID)">-->
+                            <!--</el-option>-->
+                        <!--</el-select>-->
+                    <!--</el-form-item>-->
                   <el-form-item label="主管"  prop="Remarks">
                     <el-input
                       v-model="PayMentEditFormData.EdName"

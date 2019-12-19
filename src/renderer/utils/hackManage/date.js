@@ -13,8 +13,15 @@ Date = (function(Date) {
   function MyDate() {
     // 当只有一个参数并且参数类型是字符串时，把字符串中的-替换为/
     if (arguments.length === 1) {
-      const arg = arguments[0]
+      let arg = arguments[0]
       if (Object.prototype.toString.call(arg) === '[object String]' && arg.indexOf('T') === -1) {
+        // 兼容ios new Date
+        if (arg.length === '7') {
+          arg += '-01'
+        }
+        if (arg.length === '4') {
+          arg += '-01-01'
+        }
         arguments[0] = arg.replace(/-/g, '/')
         // console.log(arguments[0]);
       }

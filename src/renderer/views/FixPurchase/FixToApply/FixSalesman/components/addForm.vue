@@ -4,7 +4,7 @@
     @close="close"
     :title="type === 1 ? '新增' : '修改'"
     :center="true"
-    width="840px"
+    width="900px"
     append-to-body
   >
     <el-form
@@ -19,7 +19,12 @@
       <div class="dialog-container form-item-sm">
         <div class="clearfix">
           <el-form-item label="房源名称" prop="HouseName">
-            <search-house :type="3" v-model="EditFormData.HouseName" @select="selectedHouse"></search-house>
+            <search-house
+              :type="3"
+              key-word="HouseKey"
+              v-model="EditFormData.HouseName"
+              @select="selectedHouse"
+            ></search-house>
           </el-form-item>
           <el-form-item label="钥匙位置" prop="KeyLocation">
             <el-input
@@ -50,11 +55,11 @@
               v-model="project.ProjectIDs"
             ></el-cascader>
             <el-input placeholder="单价" disabled v-model="project.ExternalPrice"></el-input>
-            <span class="unit">{{`${unit}/元`}}</span>
+            <span class="unit">{{project.Unit?`元/${project.Unit}`:''}}</span>
             <el-input-number
               v-model="project.Number"
               size="small"
-              :min="1"
+              :min="0.01"
               label="数量"
               @change="handleNumberChange(index)"
             ></el-input-number>
@@ -113,12 +118,15 @@
         EditFormData: {
           HouseName: '',
           HouseID: '',
+          HouseKey: '',
+          HouseArea: '',
+          Location: '',
           KeyLocation: '',
           ZXJSON: [{
             RenovationApplyCategoryID: '',
             ProjectIDs: [],
             ExternalPrice: '',
-            Number: 0,
+            Number: 1,
             ExternalPriceTotalAmount: ''
           }],
           ImageID: [],
@@ -132,7 +140,6 @@
         },
         btnLoading: false,
         projectData: [],
-        unit: '',
         oldImage: []
       }
     },
@@ -151,11 +158,17 @@
           InsidePrice: v.InsidePrice,
           ExternalPrice: v.ExternalPrice
         }))
-        this.projectData = type.Data.map(v => ({
-          label: v.CategoryName,
-          value: v.KeyID,
-          children: filterProject.filter(val => val.CategoryID === v.KeyID)
-        }))
+        this.projectData = []
+        type.Data.forEach(v => {
+          const children = filterProject.filter(val => val.CategoryID === v.KeyID)
+          if (children.length > 0) {
+            this.projectData.push({
+              label: v.CategoryName,
+              value: v.KeyID,
+              children
+            })
+          }
+        })
       },
       open(type, form) { // type: 1新增 2修改
         this.type = type
@@ -165,8 +178,8 @@
           EditFormData.ZXJSON.forEach(v => {
             v.ProjectIDs = [v.RenovationApplyCategoryID, v.RenovationApplyConfigueID]
           })
-          EditFormData.ImageID = EditFormData.imageList
-          this.oldImage = this.$deepCopy(form.imageList)
+          EditFormData.ImageID = EditFormData.imageList || []
+          this.oldImage = this.$deepCopy(form.imageList) || []
           this.EditFormData = EditFormData
         }
         this.btnLoading = false
@@ -179,12 +192,15 @@
         this.EditFormData = {
           HouseName: '',
           HouseID: '',
+          HouseKey: '',
+          HouseArea: '',
+          Location: '',
           KeyLocation: '',
           ZXJSON: [{
             RenovationApplyCategoryID: '',
             ProjectIDs: [],
             ExternalPrice: '',
-            Number: 0,
+            Number: 1,
             ExternalPriceTotalAmount: ''
           }],
           ImageID: [],
@@ -196,11 +212,13 @@
       submitForm(status) { // 暂存1 提交2
         const form = this.$deepCopy(this.EditFormData)
         form.Status = status
+        this.EditFormData.ZXJSON.forEach(v => {
+          v.ExternalPriceTotalAmount = +v.ExternalPriceTotalAmount
+        })
         form.ZXJSON = JSON.stringify(this.EditFormData.ZXJSON)
         form.ImageLocation = this.$DiffArrFn(this.oldImage, this.EditFormData.ImageID, [
           'ImageLocation'
         ])
-        console.log(form)
         // form.ImageLocation = this.EditFormData.ImageID
         form.ImageID = this.EditFormData.ImageID.map(v => v.KeyID).join(',')
         this.$refs['addFixSalesmanForm'].validate(valid => {
@@ -213,7 +231,10 @@
                     type: 'success',
                     message: '新增成功!'
                   })
-                  this.$emit('AddNewData', response.Data.ApplyRecord[0], status)
+                  const data = response.Data.ApplyRecord[0]
+                  data.ywyList = response.Data.DecorationDetails
+                  data.imageList = response.Data.imageList
+                  this.$emit('AddNewData', data, status)
                   this.btnLoading = false
                   this.close()
                 }
@@ -229,7 +250,10 @@
                     type: 'success',
                     message: '修改成功!'
                   })
-                  this.$emit('EditNewData', response.Data.ApplyRecord[0], status)
+                  const data = response.Data.ApplyRecord[0]
+                  data.ywyList = response.Data.DecorationDetails
+                  data.imageList = response.Data.imageList
+                  this.$emit('EditNewData', data, status)
                   this.btnLoading = false
                   this.close()
                 }
@@ -250,16 +274,19 @@
         this.EditFormData.ZXJSON.push({
           ProjectIDs: [],
           ExternalPrice: '',
-          Number: 0,
+          Number: 1,
           ExternalPriceTotalAmount: ''
         })
       },
       selectedHouse(data) {
+        this.EditFormData.HouseName = data.HouseName
         this.EditFormData.HouseID = data.KeyID
+        this.EditFormData.HouseKey = data.HouseKey
+        this.EditFormData.HouseArea = data.HouseArea
+        this.EditFormData.Location = data.Location
       },
       projectChange(data, idx) {
         const item = findNodeByArr(this.projectData, data)
-        this.unit = item.Unit
         const EditFormData = { ...this.EditFormData }
         EditFormData.ZXJSON[idx].RenovationApplyConfigueID = item.value
         EditFormData.ZXJSON[idx].RenovationApplyCategoryID = item.CategoryID
@@ -274,7 +301,7 @@
       handleNumberChange(idx) {
         const item = this.EditFormData.ZXJSON[idx]
         if (item.ExternalPrice) {
-          item.ExternalPriceTotalAmount = item.ExternalPrice * item.Number
+          item.ExternalPriceTotalAmount = this.$priceFormat(item.ExternalPrice * item.Number)
           item.InsidePriceTotalAmount = item.InsidePrice * item.Number
         }
         this.$set(this.EditFormData.ZXJSON, idx, item)
@@ -305,5 +332,6 @@
 <style lang="scss" scoped>
   .unit {
     margin-left: 5px;
+    margin-right: 5px;
   }
 </style>

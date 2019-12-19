@@ -523,7 +523,7 @@
         }]
         this.$nextTick(() => {
           this.$refs.tree.setCurrentKey(bus.KeyID + '')
-          this.defaultExpanded = [bus.KeyID + '']
+          this.defaultExpanded = structure.map(v => v.fullID)
         })
       })
     }

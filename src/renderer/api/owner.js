@@ -113,6 +113,14 @@ export function previewOwnerContract(data) {
     data
   })
 }
+// 预览合同(新)
+export function NewPreviewOwnerContract(data) {
+  return request({
+    url: '/OwnerContract/OwnerContract/NewPreviewOwnerContract',
+    method: 'post',
+    data
+  })
+}
 
 // 搜索小区
 export function searchCommunityList(data) {

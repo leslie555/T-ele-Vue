@@ -20,12 +20,13 @@ const msgNumber = {
     },
     actions: {
         SearchMsgNumber({ commit }) {
+            console.log('SEARCH_MSG_NUMBER')
             return new Promise(resolve => {
                 setInterval(() => {
                     FindReadCount().then(response => {
                         commit('SEARCH_MSG_NUMBER', response.Data)
                     })
-                }, 20000)
+                }, 60000)
               resolve()
             })
         },

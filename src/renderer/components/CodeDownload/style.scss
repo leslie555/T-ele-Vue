@@ -1,17 +1,17 @@
-@import "../../styles/mixin.scss";
+@import '../../styles/mixin.scss';
 
 .code-dialog {
   //position: relative;
-  @include displayFlex(column,center,center);
+  @include displayFlex(column, center, center);
   .code-dialog-cover {
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     position: fixed;
     z-index: 9999;
-    top:0;
-    left:0;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    @include displayFlex(column,center,center);
+    @include displayFlex(column, center, center);
     .code-dialog-box {
       position: relative;
       .code-background {
@@ -21,7 +21,7 @@
       .code-text {
         position: absolute;
         right: 120px;
-        top:40px;
+        top: 40px;
         p {
           font-size: 24px;
           color: #389ef2;
@@ -37,14 +37,14 @@
       }
       .code-android {
         position: absolute;
-        right: 136px;
-        top:100px;
+        right: 46px;
+        top: 100px;
       }
       .common {
         width: 105px;
         height: 22px;
         border-radius: 10px;
-        background-color: #389EF2;
+        background-color: #389ef2;
         color: white;
         font-size: 16px;
         text-align: center;
@@ -52,17 +52,17 @@
       }
       .code-text-ios {
         position: absolute;
-        top:280px;
-        right: 280px;
+        top: 280px;
+        right: 265px;
       }
       .code-text-android {
         position: absolute;
-        top:280px;
-        right: 162px;
+        top: 280px;
+        right: 72px;
       }
       .code-Slogan {
         position: absolute;
-        top:334px;
+        top: 334px;
         right: 70px;
         p {
           padding-bottom: 14px;
@@ -73,7 +73,7 @@
       .code-cha {
         position: absolute;
         right: -9px;
-        top:-9px;
+        top: -9px;
         cursor: pointer;
       }
       .code-tips {

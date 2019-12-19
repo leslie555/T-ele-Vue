@@ -10,10 +10,10 @@
               style="width: 150px"
             ></el-input>
           </el-form-item>
-          <template v-if="isCompanyLeader">
+          <template>
             <el-form-item label="业务员">
               <el-input
-                v-model="fixApplyForm.salesManInfo"
+                v-model="fixApplyForm.Salesman"
                 autocomplete="off"
                 placeholder="姓名/电话"
                 style="width: 150px"
@@ -34,7 +34,7 @@
         <template slot="button">
           <el-button type="primary" @click="search">查询</el-button>
           <el-button type="primary" @click="reset">重置</el-button>
-          <template v-if="!isCompanyLeader">
+          <template>
             <el-button type="primary" @click="openAddForm(1)">新增</el-button>
           </template>
         </template>
@@ -49,42 +49,45 @@
           height="100%"
           class="table-normal"
         >
-          <el-table-column label="房源名称" align="center" width="300">
+          <el-table-column label="房源名称" align="center" width="250">
             <template slot-scope="{ row }">
               {{ row.HouseName }}
             </template>
           </el-table-column>
           <el-table-column label="地址" align="center" prop="Location" width="400"></el-table-column>
           <el-table-column label="产权面积" align="center" width="100">
-            <template slot-scope="scope">{{ scope.row.RoomArea }}</template>
+            <template slot-scope="scope">{{ scope.row.RoomArea ? `${scope.row.RoomArea}m&sup2;` : '' }}</template>
           </el-table-column>
           <el-table-column label="业务员" align="center"  width="200">
             <template slot-scope="{ row }">
-            <p>{{ row.Salesman }}</p> 
+            <p>{{ row.Salesman }}</p>
             </template>
           </el-table-column>
           <el-table-column label="部门" align="center" prop="CompanyName" width="100"></el-table-column>
           <el-table-column label="钥匙位置" align="center" prop="KeyLocation" width="100"></el-table-column>
-          <el-table-column label="提交时间" align="center" prop="CreaterTime" width="120">
+          <el-table-column label="提交时间" align="center" prop="ReviewedCommitTime" width="120">
             <template slot-scope="{ row }">
-              {{ $dateFormat(row.CreaterTime)  }}
+              {{ $dateFormat(row.ReviewedCommitTime)  }}
             </template>
           </el-table-column>
-          <el-table-column label="状态" align="center" width="120">
+          <el-table-column label="状态" align="center" width="120" >
             <template slot-scope="{ row }">
               {{ $EnumData.getEnumDesByValue("RenovationApplyRecord", row.Status) }}
             </template>
           </el-table-column>
-          <el-table-column label="操作" align="center"  width="300">
-            <template slot-scope="scope">
-              <el-button
-                v-for="(o, i) in filterOperation(scope.row).Operations"
-                :key="i + ''"
-                :type="o.type"
-                plain
-                size="mini" 
-                @click="open(o.key, scope.row)">{{ o.value }}</el-button>
-            </template>
+          <el-table-column label="操作" align="center"  width="350" fixed="right">
+          <template slot-scope="scope">
+            <table-buttons
+              :options="operations_list"
+              :condition="scope.row.Operations"
+              @handleDetailClick="handleDetail(scope.row)"
+              @handleDeleteClick="handleDelete(scope.row)"
+              @handleWithdrawnClick="handleWithdrawn(scope.row)"
+              @handleCommitClick="handleCommit(scope.row)"
+              @handleApprovalClick="handleApproval(scope.row)"
+              @handleUpdateClick="handleUpdate(scope.row)"
+            ></table-buttons>
+          </template>
           </el-table-column>
         </el-table>
       </div>
@@ -100,19 +103,18 @@
 </template>
 
 <script>
-import { SearchPanel, BottomToolBar } from '@/components'
-// import { CityData } from '@/utils/CityData'
-import { SelectRenovationApplyList, SubmitRenovationApplication, DeleteRenovationApplication, WithdrawRenovationApplication } from '@/api/House'
-// import { getAllEnumData } from '@/api/system'
+import { SearchPanel, BottomToolBar, TableButtons } from '@/components'
+import { SelectRenovationApplyList, SubmitRenovationApplication, DeleteRenovationApplication, WithdrawRenovationApplication } from '@/api/house'
 import addForm from './components/addForm'
 import approvalForm from './components/approvalForm'
 export default {
-  name: 'RenovationApply',
+  name: 'FixSalesman',
   components: {
     SearchPanel,
     BottomToolBar,
     addForm,
-    approvalForm
+    approvalForm,
+    TableButtons
   },
   data() {
     return {
@@ -121,7 +123,6 @@ export default {
       isShowSelect: true,
       list: [],
       tableData: [],
-      // isCompanyLeader: false,
       fix_status: [
         {
           StatusLabel: '全部',
@@ -150,6 +151,10 @@ export default {
         {
           StatusLabel: '装修结束',
           StatusValue: 6
+        },
+        {
+          StatusLabel: '待审批（采购部）',
+          StatusValue: 7
         }
       ],
       operations_list: [
@@ -186,29 +191,17 @@ export default {
       ],
       fixApplyForm: {
         HouseName: '',
-        Status: ''
-      },
-      handle: {}
+        Status: '',
+        Salesman: ''
+      }
     }
   },
   computed: {
-    isCompanyLeader: function() {
-      return this.$store.getters.userinfo.IsCompanyLeader
-    },
     filterFix_status: function() {
-      if (this.isCompanyLeader) {
-        return this.fix_status.filter(v => v.StatusValue !== 1)
-      }
       return this.fix_status
     }
   },
   created() {
-    const keys = ['Approval', 'Detail', 'Update', 'Delete', 'Commit', 'Withdrawn']
-    keys.map(v => {
-      this.handle[v] = this[v]
-    })
-    // console.log('this.$store :', this.$store)
-    // console.log('this.isCompanyLeader :', this.isCompanyLeader)
   },
   activated() {
     this.$refs.bottomToolBar.search(1)
@@ -226,11 +219,10 @@ export default {
         parm: pages,
         HouseName: this.fixApplyForm.HouseName,
         Status: this.fixApplyForm.Status,
-        Salesman: this.isCompanyLeader ? this.fixApplyForm.Salesman : ''
+        Salesman: this.fixApplyForm.Salesman || ''
       }).then(response => {
         if (response.Code === 0) {
           if (response.Data && response.Data.rows) {
-            this.list = response.Data.rows
             this.tableData = this.filterTableData(response.Data.rows)
           }
           this.listLoading = false
@@ -251,49 +243,38 @@ export default {
       this.fixApplyForm.Salesman = ''
       this.$refs.bottomToolBar.search()
     },
-    openAddForm(type, data) {
-      if (type === 1) {
-        this.$refs.AddForm.open(type)
-      } else {
-        this.$refs.AddForm.open(type, data)
-      }
+    openAddForm(type) {
+      this.$refs.AddForm.open(type)
     },
     AddNewData(data) {
+      data = this.filterOperation(data)
       this.tableData.unshift(data)
     },
     EditNewData(data, status) {
-      const index = this.tableData.findIndex(v => v.KeyID === data.KeyID)
-      this.tableData[index] = data
+      // data = this.filterOperation(data)
+      // const index = this.tableData.findIndex(v => v.KeyID === data.KeyID)
+      // this.tableData.splice(index, 1, data)
+      this.fetchData()
     },
     handleAudit(KeyID, type) {
       const index = this.tableData.findIndex(v => v.KeyID === KeyID)
       if (type === 0) {
         this.tableData.splice(index, 1)
       } else if (type === 1) {
-        debugger
-        const data = { ...this.tableData[index] }
+        let data = { ...this.tableData[index] }
         data.Status = 3
+        data = this.filterOperation(data)
         this.tableData.splice(index, 1, data)
       }
     },
     filterOperation(row) {
       let Operations = []
-      if (!this.isCompanyLeader) {
-        if (row.Status === 1) {
-          Operations = this.operations_list.slice(3)
-        } else if (row.Status === 2 || row.Status === 3) {
-          Operations.push(this.operations_list[1])
-          Operations.push(this.operations_list[2])
-        } else if ([4, 5, 6].indexOf(row.Status) !== -1) {
-          Operations.push(this.operations_list[1])
-        }
-      } else if (this.isCompanyLeader) {
-        if (row.Status === 2) {
-          Operations.push(this.operations_list[1])
-          Operations.push(this.operations_list[0])
-        } else {
-          Operations.push(this.operations_list[1])
-        }
+      if (row.Status === 1) {
+        Operations = ['Detail', 'Update', 'Delete', 'Commit']
+      } else if (row.Status === 2 || row.Status === 7) {
+        Operations = ['Detail', 'Withdrawn']
+      } else if ([3, 4, 5, 6].indexOf(row.Status) !== -1) {
+        Operations = ['Detail']
       }
       return {
         ...row,
@@ -301,65 +282,69 @@ export default {
       }
     },
     filterTableData(rows) {
-      if (this.isCompanyLeader) {
-        return rows.filter(v => v.Status !== 1)
-      }
-      return rows
+      return rows.map(row => this.filterOperation(row))
     },
-    Update(row) {
-      this.openAddForm(2, row)
+    handleUpdate(data) {
+      this.$refs.AddForm.open(2, data)
     },
-    Commit(row) {
-      this.$confirm('确定要提交装修申请吗？', '提示').then(() => {
+    handleCommit(row) {
+      this.$confirm('确定要提交装修申请吗？', '提示').then((res) => {
         SubmitRenovationApplication({
           KeyID: row.KeyID,
-          OperationStatus: 1
-        }).then(() => {
-          const index = this.tableData.findIndex(v => v.KeyID === row.KeyID)
-          row.Status = 2
-          this.tableData[index] = row
-          this.$message.success('提交成功')
+          OperationStatus: 1,
+          HouseKey: row.HouseKey,
+          HouseName: row.HouseName
+        }).then((res) => {
+            // const index = this.tableData.findIndex(v => v.KeyID === row.KeyID)
+            // row.Status = 2
+            // row = this.filterOperation(row)
+            // this.tableData.splice(index, 1, row)
+            this.fetchData()
+            this.$message.success('提交成功')
         })
       })
     },
-    Withdrawn(row) {
+    handleWithdrawn(row) {
       this.$confirm('确定要撤回装修申请吗？', '提示').then(() => {
         WithdrawRenovationApplication({
-          KeyID: row.KeyID
+          KeyID: row.KeyID,
+          HouseKey: row.HouseKey
         }).then((res) => {
-          const index = this.tableData.findIndex(v => v.KeyID === row.KeyID)
-          row.Status = 1
-          this.tableData[index] = row
-          this.$message.success('撤回成功')
+            // const index = this.tableData.findIndex(v => v.KeyID === row.KeyID)
+            // row.Status = 1
+            // row = this.filterOperation(row)
+            // this.tableData.splice(index, 1, row)
+            this.fetchData()
+            this.$message.success('撤回成功')
         })
       })
     },
-    Delete(row) {
+    handleDelete(row) {
       this.$confirm('确定要删除该装修申请？', '提示').then(() => {
         DeleteRenovationApplication({
           KeyID: row.KeyID,
-          OperationStatus: 2
-        }).then(() => {
-          const index = this.tableData.findIndex(v => v.KeyID === row.KeyID)
-          this.tableData.splice(index, 1)
+          OperationStatus: 2,
+          HouseKey: row.HouseKey
+        }).then((res) => {
+          // const index = this.tableData.findIndex(v => v.KeyID === row.KeyID)
+          // row = this.filterOperation(row)
+          // this.tableData.splice(index, 1)
+          this.fetchData()
           this.$message.success('删除成功')
         })
       })
     },
-    Detail(row) {
+    handleDetail(row) {
       this.$router.push({
         path: '/FixPurchase/FixPurchaseDepartmentDetail',
         query: {
           purchaseOrfitment: 1,
-          row: row
+          KeyID: row.KeyID
         }
       })
     },
-    Approval(row) {
-      this.$refs.excuteAudit.open(row.KeyID)
-    },
-    open(key, row) {
-      this.handle[key](row)
+    handleApproval(row) {
+      this.$refs.excuteAudit.open(row.KeyID, row.HouseKey)
     }
   }
 }

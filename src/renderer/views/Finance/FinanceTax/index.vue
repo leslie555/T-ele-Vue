@@ -198,6 +198,7 @@
     padding: 0;
     margin: 0;
     flex: 1 1 0%;
+    min-height: 0;
     display: -ms-flexbox;
     display: flex;
     -ms-flex-direction: column;

@@ -91,7 +91,6 @@
               <el-table-column align="center" label="操作" fixed="right" width="180">
                 <template slot-scope="scope">
                   <table-buttons
-                    :showAll="true"
                     :options="operationButton"
                     :condition="scope.row.Operation"
                     @handleEditClick="handleUpdate(scope.row)"
@@ -161,7 +160,6 @@ export default {
     }
   },
   created() {
-    // initUnit()
     this.unitData = this.$EnumData.getEnumListByKey('RenovationUnit').map(item => {
       return {
         Key: item.Value,
@@ -172,10 +170,6 @@ export default {
     // console.log(this.$store.getters.enumList)
   },
   methods: {
-    // 初始化单位
-    initUnit(Unit) {
-     return this.$EnumData.getEnumDesByValue('RenovationUnit', Unit)
-    },
      // 显示所有类别接口
     fetchColumnData() {
       this.listLoading = true
@@ -198,6 +192,12 @@ export default {
         this.listLoading = false
       })
     },
+    // 查询所有类别
+    // initAllColumn() {
+    //    return ShowAllRenovationApply().then(res => {
+    //       this.configMenu = res.Data
+    //    })
+    // },
     // search-查询
     configSearch() {
       this.$refs.bottomToolBar.search()
@@ -210,9 +210,11 @@ export default {
     // search-新增
     configAdd() {
       let editData = {}
+      const typeTitle = { type: 'add', typeName: '新增' }
+      const kID = this.filterConfigMenu.find(val => val.isActive === true)
       if (this.filterConfigMenu.length > 0) {
         editData = {
-         CategoryID: this.filterConfigMenu[0].KeyID,
+         CategoryID: kID.KeyID,
          ProjectName: '',
          Model: '',
          Unit: '',
@@ -226,7 +228,7 @@ export default {
             KeyID: item.KeyID
           }
         })
-      this.$refs.addConfigBox.open(editData, { type: 'add', typeName: '新增' }, this.columnList, this.unitData)
+      this.$refs.addConfigBox.open(editData, typeTitle, this.columnList, this.unitData)
       // console.log('新增')
       } else {
         this.$message.error('请先添加类别!')
@@ -250,7 +252,6 @@ export default {
       })
       this.filterConfigMenu[index].isActive = true
       this.fetchData()
-      this.$refs.bottomToolBar.search()
       console.log('切换栏目', row)
     },
     // 保存栏目
@@ -299,6 +300,7 @@ export default {
             message: '删除成功!'
           })
           this.filterConfigMenu[this.filterConfigMenu.length - 1 ].isActive = true
+          this.$refs.bottomToolBar.search()
           console.log('类别——删除res', res)
         })
       })
@@ -312,22 +314,41 @@ export default {
           CategoryName: this.addColumnName
         }).then(res => {
           console.log('添加类别', res)
-          const filterObject = {
-          KeyID: res.Data,
-          CategoryName: this.addColumnName,
-          isActive: false,
-          isEditing: false
-        }
-        this.filterConfigMenu.push(filterObject)
-        // 切换选中状态到新增栏目上
-        this.changeMenu(filterObject)
-        this.addColumnName = ''
+          if (res.Data === -1) {
+            this.$message({
+              type: 'warning',
+              message: '请勿重复添加类别!'
+            })
+            return
+          } else {
+            const filterObject = {
+              KeyID: res.Data,
+              CategoryName: this.addColumnName,
+              isActive: false,
+              isEditing: false
+            }
+            this.filterConfigMenu.push(filterObject)
+            // 切换选中状态到新增栏目上
+            this.changeMenu(filterObject)
+            // this.initAllColumn()
+            this.addColumnName = ''
+          }
         })
       }
       console.log('addColumnName', this.addColumnName)
     },
     // 表格——修改
     handleUpdate(item) {
+    const flag = this.unitData.some(val => val.Name === item.Unit)
+    console.log(flag)
+    const num = this.unitData.length + 1
+     if (!flag) {
+      this.unitData.splice(-1, 0, {
+        Key: num,
+        Name: item.Unit
+      })
+     }
+     console.log(num)
       const typeTitle = { type: 'update', typeName: '修改' }
       this.columnList = this.filterConfigMenu.map(item => {
         return {
@@ -362,12 +383,11 @@ export default {
       if (index > -1) {
          this.$set(this.filterList, index, { ...this.filterList[index], ...data })
       } else {
-         this.filterList.push(data)
+         this.filterList.push(this.filterTableDataItem(data))
       }
       console.log('index', index)
       console.log('子组件data', data)
       this.$refs.bottomToolBar.search()
-      // console.log('this.filterList[index]', this.filterList[0])
     },
     // 调接口
     fetchData(pages) {

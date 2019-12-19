@@ -12,16 +12,16 @@
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="提交给" :label-width="formLabelWidth" prop="apply">
-        <el-select v-model="ruleForm.SubmissionDepartment" placeholder="请选择" value="">
-          <el-option
-            v-for="item in apply"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value">
-          </el-option>
-        </el-select>
-      </el-form-item>
+        <el-form-item label="提交给" :label-width="formLabelWidth" prop="apply" v-show="ruleForm.ApprovalStatus">
+          <el-select v-model="ruleForm.SubmissionDepartment" placeholder="请选择" value="">
+            <el-option
+              v-for="item in apply"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
       <div class="clearfix form-item-md">
         <el-form-item label="备注" :label-width="formLabelWidth" prop="Remark">
           <el-input type="textarea" :autosize="{ minRows: 4, maxRows: 6}" placeholder="请输入备注"
@@ -38,7 +38,7 @@
 </template>
 
 <script>
-  import { ApprovalRenovationApplication } from '@/api/House'
+  import { ApprovalRenovationApplication } from '@/api/house'
 
   export default {
     name: 'ExcuteAudit',
@@ -51,7 +51,8 @@
           SubmissionDepartment: 1,
           ApprovalStatus: 1,
           ApprovalBZ: '',
-          KeyID: ''
+          KeyID: '',
+          HouseKey: ''
         },
         AuditStatus: [{
           value: 1,
@@ -67,15 +68,15 @@
         formLabelWidth: '100px'
       }
     },
-
     methods: {
-      open(KeyID) {
-        debugger
+      open(KeyID, HouseKey) {
+        // debugger
         this.loading = false
         this.ruleForm.SubmissionDepartment = 1
         this.ruleForm.ApprovalStatus = 1
         this.ruleForm.ApprovalBZ = ''
         this.ruleForm.KeyID = KeyID
+        this.ruleForm.HouseKey = HouseKey
         this.modalVisibility = true
       },
 
@@ -87,22 +88,30 @@
         this.loading = true
         const KeyID = this.ruleForm.KeyID
         const type = this.ruleForm.ApprovalStatus
-        if (this.ruleForm.ApprovalStatus === 0 && this.ruleForm.ApprovalBZ === '') {
+        // debugger
+        if (type === 0 && this.ruleForm.ApprovalBZ === '') {
           this.$message.error('驳回请填写备注！')
           this.loading = false
         } else if (this.ruleForm.SubmissionDepartment === '') {
           this.$message.error('驳回请填写提交部门！')
           this.loading = false
         } else {
-          const param = { ...this.ruleForm }
-          ApprovalRenovationApplication(param).then(() => {
-            this.$emit('approval', KeyID, type)
-            this.$message({
-              message: '审核成功！',
-              type: 'success'
-            })
-            this.close()
-          }).catch(() => {
+          const SubmissionDepartment = this.ruleForm.ApprovalStatus === 0 ? 0 : 1
+          const param = { ...this.ruleForm, SubmissionDepartment }
+          ApprovalRenovationApplication(param).then((res) => {
+            if (res.Data === 1) {
+              this.$emit('approval', KeyID, type)
+              this.$message({
+                message: '审核成功！',
+                type: 'success'
+              })
+              this.close()
+            } else {
+              this.$message.error(`审核失败: ${res.Msg || ''}`)
+              this.close()
+            }
+          }).catch((res) => {
+            // console.log('res.Msg :', res.Msg)
             this.loading = false
             this.$message.error('审核失败！')
           })

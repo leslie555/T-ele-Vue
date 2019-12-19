@@ -50,7 +50,7 @@
                     <el-input style="width:250px;"  v-model="warehouse.Model"></el-input>
                 </el-form-item>
                 <el-form-item label="单位:" style="margin-left:50px;" prop="Unit">
-                    <el-select v-model="warehouse.Unit" style="width:250px;" placeholder="请选择">
+                    <el-select v-model="warehouse.NumberUnit" style="width:250px;" placeholder="请选择">
                         <el-option
                         v-for="item in UnitData"
                         :key="item.Value"
@@ -60,16 +60,16 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="数量:">
-                    <el-input style="width:250px;"  v-model="warehouse.Number"></el-input>
+                    <el-input type="number" style="width:250px;"  v-model="warehouse.Number"></el-input>
                 </el-form-item>
                 <el-form-item label="" style="margin-left:50px;">
                     <p style="width:250px;"></p>
                 </el-form-item>
                 <el-form-item label="内部单价:" prop="InsidePrice">
-                    <el-input style="width:250px;"  v-model="warehouse.InsidePrice"></el-input>
+                    <el-input type="number" style="width:250px;"  v-model="warehouse.InsidePrice"></el-input>
                 </el-form-item>
                 <el-form-item label="外部单价:" style="margin-left:50px;"  prop="ExternalPrice">
-                    <el-input style="width:250px;"  v-model="warehouse.ExternalPrice"></el-input>
+                    <el-input type="number" style="width:250px;"  v-model="warehouse.ExternalPrice"></el-input>
                 </el-form-item>
                 <el-form-item label="备注:">
                     <el-input type="textarea" style="width:655px;" v-model="warehouse.BZ"></el-input>
@@ -82,7 +82,7 @@
                     <div class="operation">
                         <span>{{ $dateFormat(item.CreaterTime) }}</span>
                         <span style="margin-left:30px;">操作人：</span>
-                        <span>{{ item.CreaterName }}</span>
+                        <span>{{ item.UserName }}</span>
                     </div>
                     <div class="operationBottom">
                         <span>{{ item.OperationalRecords }}</span>
@@ -131,6 +131,7 @@
                 ExternalPrice: '',
                 BZ: ''
             },
+            recordNumber: null,
             operation: [],
             rules: {
                 CategoryID: [
@@ -139,7 +140,7 @@
                 ProjectName: [
                     { required: true, message: '请选择项目名称', trigger: 'blur' }
                 ],
-                Unit: [
+                NumberUnit: [
                     { required: true, message: '请选择单位', trigger: 'change' }
                 ],
                 InsidePrice: [
@@ -165,11 +166,18 @@
     },
     methods: {
         open(val) {
+            this.storeUint()
             //  判断新增
             if (val.row !== undefined) {
                 this.KeyID = val.row.KeyID
                 this.Storage.name = val.row.ProjectName
                 this.delivery.name = val.row.ProjectName
+                this.UnitData.forEach(item => {
+                    if (val.row.Unit === item.Description) {
+                        val.row.NumberUnit = item.Value
+                        console.log(item.Value)
+                    }
+                })
             }
             this.num = val.num
             // 强制刷新页面
@@ -183,6 +191,7 @@
             } else if (val.num === 2) {
                 this.titleSize = '出库'
                 this.widthRange = '600px'
+                this.recordNumber = val.row.Number
             } else if (val.num === undefined) {
                 this.titleSize = '新增'
                 this.widthRange = '900px'
@@ -191,26 +200,24 @@
                     ProjectName: '',
                     Model: '',
                     Unit: '',
+                    NumberUnit: '',
                     Number: '',
                     InsidePrice: '',
                     ExternalPrice: '',
                     BZ: ''
                 }
                 // 单位Api
-                this.storeUint()
             } else if (val.num === 3) {
                 this.titleSize = '修改'
                 this.widthRange = '900px'
-                this.storeUint()
                 this.warehouse = JSON.parse(JSON.stringify(val.row))
-                this.warehouse.Unit = Number(this.warehouse.Unit)
+                this.warehouse.NumberUnit = Number(this.warehouse.NumberUnit)
                 // this.warehouse.CategoryID = Number(this.warehouse.CategoryID)
             } else if (val.num === 4) {
                 this.titleSize = '操作记录'
                 this.widthRange = '750px'
                 this.operationData(val.row.KeyID)
             }
-
             this.showDialog = true
         },
         close() {
@@ -222,6 +229,7 @@
                 // 清除出库
                 this.$refs['delivery'].clearValidate()
                 this.$refs['delivery'].resetFields()
+                this.delivery.WaysUse = ''
             } else if (this.num === 3 || this.num === undefined) {
                 // 清除新增和修改（包括验证）
                 this.$refs['warehouse'].clearValidate()
@@ -253,6 +261,13 @@
             } else if (this.num === 2) {
                 this.$refs['delivery'].validate((valid) => {
                      if (valid) {
+                         if (this.delivery.Number > this.recordNumber) {
+                             this.$message({
+                                message: '出库数量不能大于存储数量',
+                                type: 'warning'
+                            })
+                            return
+                         }
                         const obj = {
                             KeyID: this.KeyID,
                             Number: Number(this.delivery.Number),
@@ -271,6 +286,11 @@
                      }
                 })
             } else if (this.num === undefined) {
+                this.UnitData.forEach(item => {
+                    if (this.warehouse.NumberUnit === item.Value) {
+                        this.warehouse.Unit = item.Description
+                    }
+                })
                 this.$refs['warehouse'].validate((valid) => {
                     if (valid) {
                         AddStorageRoom(this.warehouse).then(data => {
@@ -287,6 +307,11 @@
                     }
                 })
             } else if (this.num === 3) {
+                 this.UnitData.forEach(item => {
+                    if (this.warehouse.NumberUnit === item.Value) {
+                        this.warehouse.Unit = item.Description
+                    }
+                })
                 this.$refs['warehouse'].validate((valid) => {
                     if (valid) {
                         var obj = this.warehouse

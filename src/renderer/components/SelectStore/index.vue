@@ -15,7 +15,7 @@
 
 <script>
   import { ShowOrganizationList } from '../../api/report.js'
-  import { ShowOrganizationMeWireList } from '../../api/system'
+  import { ShowOrganizationMeWireList, ShowShareOrganizationMeWireList } from '../../api/system'
   import { findNodeByArr } from '@/utils/getStructure/findNodeByArr'
   import getCompanyStructure from '@/utils/getCompanyStructure'
 
@@ -43,6 +43,10 @@
         })
       } else if (this.type === 'search') {
         ShowOrganizationMeWireList().then(res => {
+          this.tree = getCompanyStructure(res.Data.Filiale, res.Data.BigShop, res.Data.Subbranch)
+        })
+      } else if (this.type === 'house') {
+        ShowShareOrganizationMeWireList().then(res => {
           this.tree = getCompanyStructure(res.Data.Filiale, res.Data.BigShop, res.Data.Subbranch)
         })
       }

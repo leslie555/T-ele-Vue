@@ -44,14 +44,14 @@
               <div>{{scope.row.OpenBank}}</div>
             </template>
           </el-table-column>
+          <el-table-column align="center" label="所属区域" min-width="140" prop="CityInfo">
+            <template slot-scope="scope">
+              <div v-for="item in scope.row.CityInfo" :key="item.value">{{item.label}}</div>
+            </template>
+          </el-table-column>
           <el-table-column align="center" label="期初余额" min-width="100" prop="BeginningBalance"></el-table-column>
           <el-table-column align="center" label="余额" min-width="100" prop="Balance"></el-table-column>
           <el-table-column align="center" label="建账日期" min-width="140" prop="CreateAccountTime"></el-table-column>
-          <el-table-column align="center" label="所属门店" min-width="140" prop="CompanyInfo">
-            <template slot-scope="scope">
-              <div v-for="item in scope.row.CompanyInfo" :key="item.KeyID">{{item.CompanyName}}</div>
-            </template>
-          </el-table-column>
           <el-table-column align="center" label="汇付商户号" min-width="180" prop="HuifuMemberId"></el-table-column>
           <el-table-column align="center" label="备注" min-width="120" prop="Remark"></el-table-column>
           <el-table-column align="center" label="操作" fixed="right" width="180">
@@ -84,6 +84,7 @@
   import EditAccountInfo from './components/EditAccountInfo.vue'
   import { QueryAccountInfoPage } from '../../../api/finance'
   import { dateFormat } from '../../../utils/dateFormat'
+  import menuData from '../../../utils/CityData/menuData'
 
   export default {
     name: 'AccountManage',
@@ -114,10 +115,22 @@
             value: '明细',
             type: 'primary'
           }
-        ]
+        ],
+        cityData: []
       }
     },
-
+    created() {
+      const arr = []
+      menuData.forEach(x => {
+        x.children.forEach(y => {
+          arr.push({
+            label: x.label + '->' + y.label,
+            value: y.value
+          })
+        })
+      })
+      this.cityData = arr
+    },
     activated() {
       this.$refs.bottomToolBar.search(1)
     },
@@ -152,6 +165,8 @@
       },
 
       filterTableDataItem(item) {
+        const arr = item.CityCode.split(',')
+        const CityInfo = this.cityData.filter(y => arr.find(x => +x === +y.value))
         return {
           KeyID: item.KeyID,
           AccountType: item.AccountType,
@@ -163,8 +178,8 @@
           Account: item.Account,
           CreateAccountTime: dateFormat(item.CreateAccountTime, 'yyyy-MM-dd'),
           Remark: item.Remark,
-          CompanyInfo: item.CompanyInfo,
-          Store: item.Store || [],
+          CityCode: item.CityCode,
+          CityInfo,
           HuifuMemberId: item.HuifuMemberId || '',
           ImageUpload: item.ImageUpload || [],
           AccountTypeName: this.$EnumData.getEnumDesByValue('AccountType', item.AccountType),
@@ -190,8 +205,7 @@
           BeginningBalance: '',
           Account: '',
           CreateAccountTime: '',
-          CompanyInfo: [],
-          Store: [],
+          CityCode: '',
           HuifuMemberId: '',
           ImageUpload: [],
           Remark: ''
@@ -209,8 +223,7 @@
           BeginningBalance: row.BeginningBalance,
           Account: row.Account,
           CreateAccountTime: row.CreateAccountTime,
-          CompanyInfo: [],
-          Store: row.Store,
+          CityCode: row.CityCode,
           HuifuMemberId: row.HuifuMemberId,
           ImageUpload: row.ImageUpload,
           Remark: row.Remark
@@ -225,9 +238,8 @@
           return item.KeyID === data.KeyID
         })
         data.Operation = ['Edit', 'Detail']
-        data.Store = data.CompanyInfo.map(item => {
-          return item.KeyID
-        })
+        const arr = data.CityCode.split(',')
+        data.CityInfo = this.cityData.filter(y => arr.find(x => +x === +y.value))
         if (index > -1) {
           this.$set(this.filterList, index, { ...this.filterList[index], ...data })
         } else {
@@ -239,8 +251,7 @@
         this.$router.push({
           path: '/Finance/AccountDetail',
           query: {
-            accountID: row.KeyID,
-            CompanyInfo: JSON.stringify(row.CompanyInfo)
+            accountID: row.KeyID
           }
         })
       }

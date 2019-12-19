@@ -8,12 +8,19 @@
         label-position="left"
         :search="Search"
         box-flex
-        right-width="158px"
+        right-width="200px"
       >
         <template slot="search">
           <el-form-item label="房源名称">
             <el-input
               v-model="HouseListForm.HouseName"
+              style="width: 160px; margin-right: 30px;"
+              clearable
+            ></el-input>
+          </el-form-item>
+          <el-form-item label="合同编号">
+            <el-input
+              v-model="HouseListForm.ContractNumber"
               style="width: 160px; margin-right: 30px;"
               clearable
             ></el-input>
@@ -28,13 +35,6 @@
           <el-form-item label="房间号">
             <el-input
               v-model="HouseListForm.RoomNumber"
-              style="width: 160px; margin-right: 30px;"
-              clearable
-            ></el-input>
-          </el-form-item>
-          <el-form-item label="合同编号">
-            <el-input
-              v-model="HouseListForm.ContractNumber"
               style="width: 160px; margin-right: 30px;"
               clearable
             ></el-input>
@@ -72,6 +72,7 @@
             </el-form-item>
           </div>
           <div class="clearfix">
+            <SelectOrganization v-model="HouseListForm.FullIDNew"></SelectOrganization>
             <el-form-item label="管房人">
               <el-input
                 v-model="HouseListForm.EmployeeName"
@@ -101,8 +102,8 @@
           </div>
         </template>
         <template slot="button">
-          <el-button type="primary" @click="Search">查询</el-button>
-          <el-button type="primary" @click="Reset">重置</el-button>
+          <el-button type="primary" :loading="searchLoading" @click="Search">查询</el-button>
+          <el-button type="primary" :loading="searchLoading" @click="Reset">重置</el-button>
         </template>
       </search-panel>
       <div class="panel">
@@ -150,60 +151,60 @@
         </div>
       </div>
       <!-- 已选房源 -->
-      <transition name="ShowAllBox">
-        <el-row class="panel" v-if="SelectedList.length > 0">
-          <el-row
-            style="border-bottom: 1px #dddddd solid; padding-bottom: 6px; margin-bottom: 20px;"
-          >
-            <span class="SelectHouseTitle">已选房源&emsp;({{ SelectedList.length }})</span>
-            <!-- <el-button
-              type="danger"
-              @click="clearAllSelect"
-              plain
-              size="mini"
-              v-if="2 === 3"
-            >清空</el-button>-->
-            <div style="float: right">
-              <select-employee allCompany tips="管房人" @select="ChangePeople" multi>
-                <!-- v-if="!this.userinfo.IsBusLeader" -->
-                <el-button type="primary" @click="popoverVisible = true" plain size="mini">批量换管房人</el-button>
-              </select-employee>
-            </div>
-          </el-row>
-          <el-row class="HouseListBox SelectBox">
-            <div
-              v-for="(item, index) in SelectedList"
-              :class="['houseListCard', item.Badge, ActiveSelectItem == index ? 'active' : '']"
-              :key="index"
-              @mouseenter="changeShadow(index, 'select')"
-              @mouseleave="changeShadowRemove"
-            >
-              <p class="CardTitle">{{ item.CommunityName }}</p>
-              <p
-                class="CardRoomName"
-              >{{ item.Building }}-{{ item.UnitNumber }}-{{ item.RoomNumber }}{{ !item.RoomName ? '' : '-' }}{{ !item.RoomName ? '' : item.RoomName }}</p>
-              <!-- <p class="CardDate">最早入住: {{ $dateFormat(item.EndDate_Y) }}</p> -->
-              <p class="CardPrice">已选</p>
-              <!-- 右上角icon -->
-              <i
-                :class="['iconfont', 'closeIcon', 'icon-shanjianmoren', ActiveIcon == index ? 'active' : '']"
-                @mouseenter.stop="ChangeIcon(index)"
-                @mouseleave.stop="ChangeIconRomove"
-                @click="deleteHouse(item)"
-              ></i>
-              <!-- 右下角图标 -->
-              <div class="isAuditing" v-if="item.Badge === 'ToAudit'">待审核</div>
-              <img :src="urls[item.Badge]" alt class="CardImg">
-            </div>
-          </el-row>
-        </el-row>
-      </transition>
+      <!--<transition name="ShowAllBox">-->
+        <!--<el-row class="panel" v-if="SelectedList.length > 0">-->
+          <!--<el-row-->
+            <!--style="border-bottom: 1px #dddddd solid; padding-bottom: 6px; margin-bottom: 20px;"-->
+          <!--&gt;-->
+            <!--<span class="SelectHouseTitle">已选房源&emsp;({{ SelectedList.length }})</span>-->
+            <!--&lt;!&ndash; <el-button-->
+              <!--type="danger"-->
+              <!--@click="clearAllSelect"-->
+              <!--plain-->
+              <!--size="mini"-->
+              <!--v-if="2 === 3"-->
+            <!--&gt;清空</el-button>&ndash;&gt;-->
+            <!--<div style="float: right">-->
+              <!--<select-employee allCompany tips="管房人" @select="ChangePeople" multi>-->
+                <!--&lt;!&ndash; v-if="!this.userinfo.IsBusLeader" &ndash;&gt;-->
+                <!--<el-button type="primary" @click="popoverVisible = true" plain size="mini">批量换管房人</el-button>-->
+              <!--</select-employee>-->
+            <!--</div>-->
+          <!--</el-row>-->
+          <!--<el-row class="HouseListBox SelectBox">-->
+            <!--<div-->
+              <!--v-for="(item, index) in SelectedList"-->
+              <!--:class="['houseListCard', item.Badge, ActiveSelectItem == index ? 'active' : '']"-->
+              <!--:key="index"-->
+              <!--@mouseenter="changeShadow(index, 'select')"-->
+              <!--@mouseleave="changeShadowRemove"-->
+            <!--&gt;-->
+              <!--<p class="CardTitle">{{ item.CommunityName }}</p>-->
+              <!--<p-->
+                <!--class="CardRoomName"-->
+              <!--&gt;{{ item.Building }}-{{ item.UnitNumber }}-{{ item.RoomNumber }}{{ !item.RoomName ? '' : '-' }}{{ !item.RoomName ? '' : item.RoomName }}</p>-->
+              <!--&lt;!&ndash; <p class="CardDate">最早入住: {{ $dateFormat(item.EndDate_Y) }}</p> &ndash;&gt;-->
+              <!--<p class="CardPrice">已选</p>-->
+              <!--&lt;!&ndash; 右上角icon &ndash;&gt;-->
+              <!--<i-->
+                <!--:class="['iconfont', 'closeIcon', 'icon-shanjianmoren', ActiveIcon == index ? 'active' : '']"-->
+                <!--@mouseenter.stop="ChangeIcon(index)"-->
+                <!--@mouseleave.stop="ChangeIconRomove"-->
+                <!--@click="deleteHouse(item)"-->
+              <!--&gt;</i>-->
+              <!--&lt;!&ndash; 右下角图标 &ndash;&gt;-->
+              <!--<div class="isAuditing" v-if="item.Badge === 'ToAudit'">待审核</div>-->
+              <!--<img :src="urls[item.Badge]" alt class="CardImg" />-->
+            <!--</div>-->
+          <!--</el-row>-->
+        <!--</el-row>-->
+      <!--</transition>-->
       <!-- 待完善房源 -->
       <el-row class="panel" v-loading="EditLoading">
         <el-row
           style="border-bottom: 1px #dddddd solid; padding-bottom: 16px; margin-bottom: 20px;"
         >
-          <el-checkbox v-model="isEditCheckAll" @change="editCheckAll">全选</el-checkbox>
+          <!--<el-checkbox v-model="isEditCheckAll" @change="editCheckAll">全选</el-checkbox>-->
           <span
             class="SelectHouseTitle"
             style="color: rgba(68, 68, 68, 0.8); margin-left: 20px;"
@@ -233,11 +234,11 @@
             :key="item.HouseKey"
             v-show="CompletingShowControl || (index + 1) < OneRowMax"
           >
-            <el-checkbox
-              style="vertical-align: middle; margin-right: 10px;"
-              v-model="item.isChecked"
-              @change="checked => choiceHouse(checked, item, 'edit')"
-            ></el-checkbox>
+            <!--<el-checkbox-->
+              <!--style="vertical-align: middle; margin-right: 10px;"-->
+              <!--v-model="item.isChecked"-->
+              <!--@change="checked => choiceHouse(checked, item, 'edit')"-->
+            <!--&gt;</el-checkbox>-->
             <div
               :class="['houseListCard', item.Badge, ActiveEditItem === index ? 'active' : '']"
               :key="index"
@@ -252,7 +253,7 @@
               <!--<p class="CardDate">最早入住: {{ $dateFormat(item.EndDate_Y) }}</p>-->
               <p class="CardPrice">待完善</p>
               <!-- 右下角图标 -->
-              <img :src="urls[item.Badge]" alt class="CardImg">
+              <img :src="urls[item.Badge]" alt class="CardImg" />
             </div>
           </div>
         </el-row>
@@ -263,7 +264,7 @@
           <el-row
             style="border-bottom: 1px #dddddd solid; padding-bottom: 16px; margin-bottom: 20px;"
           >
-            <el-checkbox v-model="isAduitCheckAll" @change="aduitCheckAll">全选</el-checkbox>
+            <!--<el-checkbox v-model="isAduitCheckAll" @change="aduitCheckAll">全选</el-checkbox>-->
             <span
               class="SelectHouseTitle"
               style="color: rgba(68, 68, 68, 0.8); margin-left: 20px;"
@@ -293,11 +294,11 @@
               :key="item.HouseKey"
               v-show="AuditShow || (index + 1) < OneRowMax"
             >
-              <el-checkbox
-                style="vertical-align: middle; margin-right: 10px;"
-                v-model="item.isChecked"
-                @change="checked => choiceHouse(checked, item, 'aduit')"
-              ></el-checkbox>
+              <!--<el-checkbox-->
+                <!--style="vertical-align: middle; margin-right: 10px;"-->
+                <!--v-model="item.isChecked"-->
+                <!--@change="checked => choiceHouse(checked, item, 'aduit')"-->
+              <!--&gt;</el-checkbox>-->
               <div
                 :class="['houseListCard', 'edit', ActiveAduitItem === index ? 'active' : '']"
                 :key="index"
@@ -328,10 +329,10 @@
         <el-row
           style="border-bottom: 1px #dddddd solid; padding-bottom: 16px; margin-bottom: 20px;"
         >
-          <el-checkbox
-            v-model="isCompleteCheckAll[houseIndex]"
-            @change="checked => completeCheckAll(checked, houseIndex)"
-          >全选</el-checkbox>
+          <!--<el-checkbox-->
+            <!--v-model="isCompleteCheckAll[houseIndex]"-->
+            <!--@change="checked => completeCheckAll(checked, houseIndex)"-->
+          <!--&gt;全选</el-checkbox>-->
           <span
             class="SelectHouseTitle"
             style="color: rgba(68, 68, 68, 0.8); margin-left: 20px;"
@@ -349,12 +350,12 @@
               v-for="(item, itemIndex) in list"
               :key="item.KeyID"
             >
-              <el-checkbox
-                style="vertical-align: middle; margin-right: 10px;"
-                v-model="item.isChecked"
-                @change="checked => choiceHouse(checked, item, 'complete', houseIndex)"
-                v-if="item.isChecked !== 'none'"
-              ></el-checkbox>
+              <!--<el-checkbox-->
+                <!--style="vertical-align: middle; margin-right: 10px;"-->
+                <!--v-model="item.isChecked"-->
+                <!--@change="checked => choiceHouse(checked, item, 'complete', houseIndex)"-->
+                <!--v-if="item.isChecked !== 'none'"-->
+              <!--&gt;</el-checkbox>-->
               <div
                 :class="['houseListCard', item.Badge, ActiveCompleteItem === item.KeyID ? 'active' : '']"
                 @mouseenter="changeShadow(item.KeyID, 'complete')"
@@ -392,7 +393,7 @@
                 <p class="CardPrice" v-if="item.Badge === 'Invalid'">失效</p>
                 <p class="CardPrice" v-else>¥{{ item.RentMoeny.toFixed(2) }}</p>
                 <!-- 右下角图标 -->
-                <img :src="urls[item.Badge]" alt class="CardImg" v-if="item.Badge !== 'Invalid'">
+                <img :src="urls[item.Badge]" alt class="CardImg" v-if="item.Badge !== 'Invalid'" />
               </div>
               <div
                 :class="['moreHouseBox', item.Badge, ActiveCompleteItem === item.KeyID ? 'active' : '']"
@@ -425,7 +426,7 @@
 <script>
   import houseDetail from './component/houseDetail'
   import { CityData } from '@/utils/CityData'
-  import { SearchPanel } from '@/components'
+  import { SearchPanel, SelectOrganization } from '@/components'
   import SelectEmployee from '@/components/SelectEmployee'
   import { selectRoomStatusList, selectRoomaAwaitList, selectRoomStatusListWhere, selectRoomaAuditList, editHouseInfoEmp, selectRoomStatusTofuList, SelectHouseHead } from '@/api/house'
   import { mapActions, mapGetters } from 'vuex'
@@ -435,7 +436,8 @@
     components: {
       houseDetail,
       SearchPanel,
-      SelectEmployee
+      SelectEmployee,
+      SelectOrganization
     },
     mounted() {
       this.$nextTick(() => {
@@ -555,6 +557,7 @@
         ActiveCompleteItem: -1,
         ActiveIcon: -1,
         isShowAll: false,
+        searchLoading: false,
         // 业务筛选列表
         BusinessList: [
           // 待完善 1 待租 2 已预订 3 预定中 4 已租 5 租客欠款 6 租客即将到期 7 租客已经到期 8  业主即将到期 9 已失效10
@@ -581,7 +584,8 @@
           EmployeeFullID: '',
           EmployeeName: '',
           isMine: false,
-          BusinessScreening: []
+          BusinessScreening: [],
+          FullIDNew: ''
         },
         isShowSelect: true
       }
@@ -610,7 +614,7 @@
       ChangeMyHouse(val) {
         this.isShowSelect = !val
         if (val) {
-          this.HouseListForm.EmployeeFullID = 0
+          this.HouseListForm.EmployeeFullID = ''
           this.HouseListForm.EmployeeName = ''
         }
       },
@@ -641,10 +645,14 @@
         this.Houseparm.page = 1
         this.isGetAll = false
         this.swControl = true
-        this.getHouseList(true)
-        this.getCompHouseList()
-        this.getRoomaAuditList()
-        this.getHeadData()
+        this.searchLoading = true
+        Promise.all([this.getHouseList(true), this.getCompHouseList(), this.getRoomaAuditList(), this.getHeadData()]).finally(() => {
+          this.searchLoading = false
+        })
+        // this.getHouseList(true)
+        // this.getCompHouseList()
+        // this.getRoomaAuditList()
+        // this.getHeadData()
       },
       // 重置
       Reset() {
@@ -659,6 +667,7 @@
         this.HouseListForm.EmployeeName = ''
         this.HouseListForm.isMine = false
         this.HouseListForm.BusinessScreening = []
+        this.HouseListForm.FullIDNew = ''
         this.completeList = []
         this.editingList = []
         this.aduitingList = []
@@ -668,10 +677,14 @@
         this.isGetAll = false
         this.swControl = true
         this.isShowSelect = true
-        this.getHouseList(true)
-        this.getCompHouseList()
-        this.getRoomaAuditList()
-        this.getHeadData()
+        this.searchLoading = true
+        Promise.all([this.getHouseList(true), this.getCompHouseList(), this.getRoomaAuditList(), this.getHeadData()]).finally(() => {
+          this.searchLoading = false
+        })
+        // this.getHouseList(true)
+        // this.getCompHouseList()
+        // this.getRoomaAuditList()
+        // this.getHeadData()
       },
       // 删除按钮悬浮
       ChangeIcon(index) {
@@ -720,7 +733,7 @@
         if (this.OneRowMax > 0) {
           this.Houseparm.size = parseInt(this.OneRowMax) - 1
         }
-        selectRoomStatusList({
+        return selectRoomStatusList({
           Communityparm: this.Communityparm,
           Houseparm: this.Houseparm,
           LeaserState: this.HouseListForm.RentType,
@@ -728,6 +741,7 @@
           CommunityName: this.HouseListForm.CommunityName,
           ContractNumber: this.HouseListForm.ContractNumber,
           RoomNumber: this.HouseListForm.RoomNumber,
+          FullIDNew: this.HouseListForm.FullIDNew,
           CityCode: this.HouseListForm.city.length > 0 ? this.HouseListForm.city[this.HouseListForm.city.length - 1] : '',
           FullID: this.HouseListForm.isMine ? this.$store.state.user.userinfo.FullID : '',
           EmployeeFullID: this.HouseListForm.EmployeeFullID,
@@ -790,12 +804,13 @@
       // 请求带完赛房源
       getCompHouseList() {
         this.AduitLoading = true
-        selectRoomaAwaitList({
+        return selectRoomaAwaitList({
           HouseName: this.HouseListForm.HouseName,
           CommunityName: this.HouseListForm.CommunityName,
           ContractNumber: this.HouseListForm.ContractNumber,
           RoomNumber: this.HouseListForm.RoomNumber,
           LeaserState: this.HouseListForm.RentType,
+          FullIDNew: this.HouseListForm.FullIDNew,
           CityCode: this.HouseListForm.city.length > 0 ? this.HouseListForm.city[this.HouseListForm.city.length - 1] : '',
           FullID: this.HouseListForm.isMine ? this.$store.state.user.userinfo.FullID : '',
           EmployeeFullID: this.HouseListForm.EmployeeFullID,
@@ -821,18 +836,22 @@
               this.swControl = false
               // this.scrollLoading = true
               // loading
-              this.getHouseList(true)
+              this.searchLoading = true
+              this.getHouseList(true).then(() => {
+                this.searchLoading = false
+              })
             }
           }
         }
       },
       getHeadData() {
-        SelectHouseHead({
+        return SelectHouseHead({
           HouseName: this.HouseListForm.HouseName,
           CommunityName: this.HouseListForm.CommunityName,
           ContractNumber: this.HouseListForm.ContractNumber,
           RoomNumber: this.HouseListForm.RoomNumber,
           LeaserState: this.HouseListForm.RentType,
+          FullIDNew: this.HouseListForm.FullIDNew,
           CityCode: this.HouseListForm.city.length > 0 ? this.HouseListForm.city[this.HouseListForm.city.length - 1] : '',
           FullID: this.HouseListForm.isMine ? this.$store.state.user.userinfo.FullID : '',
           EmployeeFullID: this.HouseListForm.EmployeeFullID,
@@ -854,12 +873,13 @@
       // 请求待审核房源
       getRoomaAuditList() {
         this.EditLoading = true
-        selectRoomaAuditList({
+        return selectRoomaAuditList({
           HouseName: this.HouseListForm.HouseName,
           CommunityName: this.HouseListForm.CommunityName,
           ContractNumber: this.HouseListForm.ContractNumber,
           RoomNumber: this.HouseListForm.RoomNumber,
           LeaserState: this.HouseListForm.RentType,
+          FullIDNew: this.HouseListForm.FullIDNew,
           CityCode: this.HouseListForm.city.length > 0 ? this.HouseListForm.city[this.HouseListForm.city.length - 1] : '',
           FullID: this.HouseListForm.isMine ? this.$store.state.user.userinfo.FullID : '',
           EmployeeFullID: this.HouseListForm.EmployeeFullID,

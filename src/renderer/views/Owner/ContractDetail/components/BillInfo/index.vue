@@ -33,7 +33,9 @@
                 <template>{{$dateFormat(props.row.ActualPaymentDate)}}</template>
               </el-table-column>
               <el-table-column v-if="type===1" align="center" label="核销状态" min-width="100">
-                <template slot-scope="scope">{{scope.row.IsActual===1?'已核销':'未核销'}}</template>
+                <template slot-scope="scope">
+                  <span style="margin-left: 20px;">{{WriteOffStatusMap[scope.row.IsActual]}}</span>
+                </template>
               </el-table-column>
               <el-table-column align="center" label="备注" min-width="160">
                 <template slot-scope="scope">{{scope.row.Remark}}</template>
@@ -48,7 +50,7 @@
                 <template slot-scope="scope">
                   <table-buttons
                     :options="WriteOffBtn"
-                    :condition="scope.row.IsActual===0?['WriteOff']:[]"
+                    :condition="scope.row.IsActual===0||scope.row.IsActual ===2?['WriteOff']:[]"
                     :showAll="true"
                     @handleWriteOffClick="handleWriteOffClick(scope.row, 1, scope.$index, props.$index)"
                   ></table-buttons>
@@ -78,9 +80,7 @@
         </el-table-column>
         <el-table-column align="center" :label="`${headerTitle}款日期`" min-width="100"></el-table-column>
         <el-table-column v-if="type===1" align="center" label="核销状态" min-width="100">
-          <template
-            slot-scope="scope"
-          >{{scope.row.TenantBillDetail.every(val=>val.IsActual===1)?'已核销':'未核销'}}</template>
+          <template slot-scope="scope">{{WriteOffStatusMap[scope.row.IsActual]}}</template>
         </el-table-column>
         <el-table-column align="center" label="备注" min-width="160">
           <template slot-scope="scope">{{scope.row.Remarks}}</template>
@@ -95,7 +95,7 @@
           <template slot-scope="scope">
             <table-buttons
               :options="WriteOffBtn"
-              :condition="scope.row.TenantBillDetail.some(val=>val.IsActual===0)?['WriteOff']:[]"
+              :condition="scope.row.TenantBillDetail.some(val=>val.IsActual===0||val.IsActual===2)?['WriteOff']:[]"
               :showAll="true"
               @handleWriteOffClick="handleWriteOffClick(scope.row, 0, scope.$index)"
             ></table-buttons>
@@ -197,6 +197,11 @@
   import { hasPermission } from '../../../../../utils/permission'
   import nzhcn from 'nzh/cn'
 
+  const WriteOffStatusMap = {
+    0: '未核销',
+    1: '已核销',
+    2: '待核销'
+  }
   export default {
     props: {
       BillList: {
@@ -244,6 +249,7 @@
     data() {
       return {
         nzhcn,
+        WriteOffStatusMap,
         childrenKey: 'OwnerBillDetail',
         condition: ['Update', 'Delete'],
         billID: this.$route.query.BillID,
@@ -324,18 +330,19 @@
             const index = this.BookKeep.findIndex(v => v.KeyID === row.KeyID)
             this.BookKeep.splice(index, 1)
           }).catch(() => {
-            this.$message.error('删除失败!')
+            // this.$message.error('删除失败!')
           })
         })
       },
       handleWriteOffClick(row, type, index, pIndex) { // type: 0 账单 1 明细
         if (type === 0) {
-          const ids = row.TenantBillDetail.map(val => val.KeyID)
+          const ids = row.TenantBillDetail.filter(v => v.IsActual !== 1).map(val => val.KeyID)
           UpdateTenIsActual({
             ids
           }).then(res => {
+            row.IsActual = 1
             row.TenantBillDetail.forEach(val => {
-              val.IsActual = 1 // 1 已核销 2 未核销
+              val.IsActual = 1 // 0：未核销 1：已核销 2：待核销
             })
             this.$set(this.BillList, index, row)
           })

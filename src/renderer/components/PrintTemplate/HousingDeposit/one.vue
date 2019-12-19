@@ -1,7 +1,10 @@
 <template>
-  <div>
+  <div class="receipt-box">
     <div class="receipt-title">
       <h5>房屋押金收据凭条</h5>
+    </div>
+    <div class="receipt-company" style="margin-bottom: 10px;">
+      <div class="company-item company-item1"><span>房源名称:</span><span>{{HouseName || '无'}}</span></div>
     </div>
     <table class="table-mark">
       <tr class="table-head">
@@ -15,10 +18,10 @@
         <td colspan="11"><span>付款人:{{newPrintData.OutRoomName || '无'}}</span></td>
       </tr>
       <tr class="table-head">
-        <td rowspan="1" width="35%">房屋地址:<span>{{HouseInfo.CityName}}</span><span>市</span></td>
+        <td rowspan="1" width="35%">房屋地址:<span>{{HouseInfo.CityName}}</span></td>
         <td colspan="3" width="20%" class="table-head-Pos"><span>{{HouseInfo.CommunityName}}</span><span class="table-head-text">小区</span></td>
+        <td colspan="3" width="15%" class="table-head-Pos"><span>{{HouseInfo.Building}}</span><span class="table-head-text">栋</span></td>
         <td colspan="3" width="15%" class="table-head-Pos"><span>{{HouseInfo.UnitNumber}}</span><span class="table-head-text">单元</span></td>
-        <td colspan="3" width="15%" class="table-head-Pos"><span>{{HouseInfo.RoomNumber}}</span><span class="table-head-text">室</span></td>
         <td colspan="2" width="20%" class="table-head-Pos"><span>{{HouseInfo.RoomNumber}}</span><span class="table-head-text">号</span></td>
       </tr>
       <tr class="table-head">
@@ -39,6 +42,7 @@
       <div class="company-item"><span>制单人:</span><span>{{newPrintData.CreaterName || '无'}}</span></div>
       <div class="text-item"><span>制单日期:</span><span>{{$dateFormat(newPrintData.CreaterTime) || '无'}}</span></div>
     </div>
+    <img class="getImg" :src="sealUrl" alt="">
   </div>
 </template>
 
@@ -48,7 +52,8 @@
   export default {
     name: 'one',
     props: {
-      printData: ''
+      printData: '',
+      FullID: ''
     },
     data() {
       return {
@@ -58,7 +63,22 @@
         arr1: '',
         AllMoney: '',
         ArrAllMoney: [],
-        HouseInfo: {}
+        HouseInfo: {},
+        imgObj: {
+          '500100': require('../../../assets/CommonSeal/500100.png'),
+          '500105': require('../../../assets/CommonSeal/500105.png'),
+          '500106': require('../../../assets/CommonSeal/500106.png'),
+          '500108': require('../../../assets/CommonSeal/500108.png'),
+          '500112': require('../../../assets/CommonSeal/500112.png'),
+          '510100': require('../../../assets/CommonSeal/510100.png'),
+          '510104': require('../../../assets/CommonSeal/510104.png'),
+          '510105': require('../../../assets/CommonSeal/510105.png'),
+          '510106': require('../../../assets/CommonSeal/510106.png'),
+          '510107': require('../../../assets/CommonSeal/510107.png'),
+          '510108': require('../../../assets/CommonSeal/510108.png')
+        },
+        sealUrl: '',
+        HouseName: ''
       }
     },
     methods: {
@@ -71,9 +91,24 @@
           this.HouseInfo = Data.HouseInfo
           this.arrData = this.newPaymentData.split('-')
           this.arr1 = this.arrData[2].substr(0, 2)
-          this.AllMoney = Data.ReceiptMoney
+          // this.AllMoney = Data.ReceiptMoney
+          this.AllMoney = Data.PaymentMoney
           this.ArrAllMoney = ToCapChinese(this.AllMoney)
           console.log(this.ArrAllMoney)
+          // 房源名称
+          this.HouseName = Data.HouseInfo.HouseName
+          // 判断显示什么公司的章
+          let CityCode = Data.HouseInfo.CityCode
+          if (CityCode.slice(0, 2) === '50') {
+            if (!this.imgObj[CityCode]) {
+              CityCode = '500100'
+            }
+          } else if (CityCode.slice(0, 2) === '51') {
+            if (!this.imgObj[CityCode]) {
+              CityCode = '510100'
+            }
+          }
+          this.sealUrl = this.imgObj[CityCode]
         })
       }
     },
@@ -149,5 +184,18 @@
       display: inline-block;
       margin-left: 30px;
     }
+  }
+  .getImg{
+    position: absolute;
+    bottom: 10px;
+    right: 65px;
+    height: 110px;
+    opacity: .9;
+  }
+  .table-mark{
+    position: relative;
+  }
+    .receipt-box{
+    position: relative;
   }
 </style>

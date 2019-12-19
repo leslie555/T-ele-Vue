@@ -1,6 +1,6 @@
 <template>
   <div class="app-container data-list">
-    <search-panel :model="ruleForm" ref="ruleForm" label-width="80px">
+    <search-panel :model="ruleForm" ref="ruleForm" label-width="80px" box-flex right-width="200px">
       <template slot="search">
         <el-form-item label="所属业务" prop="BusType">
           <el-select v-model="ruleForm.BusType" placeholder="请选择">
@@ -9,16 +9,24 @@
               v-for="item in BusType"
               :key="item.Value"
               :label="item.Description"
-              :value="item.Value">
-            </el-option>
+              :value="item.Value"
+            ></el-option>
           </el-select>
+        </el-form-item>
+        <el-form-item label="关键字" prop="ApplyName">
+          <el-input v-model="ruleForm.ApplyName" placeholder="内容/申请人/合同号"></el-input>
+        </el-form-item>
+        <el-form-item label="状态" prop="AuditStatus">
+          <el-checkbox-group v-model="ruleForm.AuditStatus">
+            <el-checkbox label="1">待审核</el-checkbox>
+            <el-checkbox label="2">已通过</el-checkbox>
+            <el-checkbox label="3">不通过</el-checkbox>
+            <el-checkbox label="4">反审核</el-checkbox>
+          </el-checkbox-group>
         </el-form-item>
       </template>
       <template slot="more">
         <div class="clearfix">
-          <el-form-item label="关键字" prop="ApplyName">
-            <el-input v-model="ruleForm.ApplyName" placeholder="内容/申请人/合同号"></el-input>
-          </el-form-item>
           <el-form-item label="申请时间" prop="ApplicationTime">
             <el-date-picker
               v-model="ruleForm.ApplicationTime"
@@ -26,18 +34,8 @@
               range-separator="-"
               :default-time="['00:00:00', '23:59:59']"
               start-placeholder="开始日期"
-              end-placeholder="结束日期">
-            </el-date-picker>
-          </el-form-item>
-        </div>
-        <div class="clearfix">
-          <el-form-item label="状态" prop="AuditStatus">
-            <el-checkbox-group v-model="ruleForm.AuditStatus">
-              <el-checkbox label="1">待审核</el-checkbox>
-              <el-checkbox label="2">已通过</el-checkbox>
-              <el-checkbox label="3">不通过</el-checkbox>
-              <el-checkbox label="4">反审核</el-checkbox>
-            </el-checkbox-group>
+              end-placeholder="结束日期"
+            ></el-date-picker>
           </el-form-item>
         </div>
       </template>
@@ -47,16 +45,23 @@
       </template>
     </search-panel>
     <div class="panel data-list-table">
-      <el-table :data="filterList"
-                ref="multipleTable"
-                v-loading.body="listLoading"
-                element-loading-text="加载中"
-                border
-                fit
-                height="100%"
-                class="table-normal">
-        <el-table-column align="center" label='所属业务' fixed="left" width="100"
-                         prop="BusinessTypeName"></el-table-column>
+      <el-table
+        :data="filterList"
+        ref="multipleTable"
+        v-loading.body="listLoading"
+        element-loading-text="加载中"
+        border
+        fit
+        height="100%"
+        class="table-normal"
+      >
+        <el-table-column
+          align="center"
+          label="所属业务"
+          fixed="left"
+          width="100"
+          prop="BusinessTypeName"
+        ></el-table-column>
         <el-table-column align="center" label="申请人" min-width="70" prop="ApplyName"></el-table-column>
         <el-table-column align="center" label="申请时间" min-width="140" prop="ApplyTime"></el-table-column>
         <el-table-column align="center" label="合同编号" min-width="120" prop="ContractNumber"></el-table-column>
@@ -109,6 +114,7 @@
           ApplicationTime: ['', ''],
           AuditStatus: []
         },
+        whileList: [8, 9, 17, 18, 19, 20], // 在业务类型中不展示的
         list: [],
         filterList: [],
         listLoading: false,
@@ -136,7 +142,7 @@
     computed: {
       BusType() {
         return this.$EnumData.getEnumListByKey('BusinessType').filter(item => {
-          return item.Description !== '租客账单' && item.Description !== '业主账单'
+          return !this.whileList.includes(item.Value)
         })
       }
     },
@@ -258,5 +264,4 @@
 </script>
 
 <style lang="scss" scoped>
-
 </style>

@@ -19,7 +19,7 @@
                                v-for="(item,index) in ContractTemplate" :key="index"></el-option>
                   </el-select>
                 </el-form-item>
-                <el-form-item label="合同编号" prop="ContractNumber" v-else>
+                <el-form-item label="合同编号" prop="ContractNumber" v-if="ContractInfo.PaperType==1||isEdit">
                   <el-input v-model="ContractInfo.ContractNumber" placeholder="请输入合同编号" maxlength="50"></el-input>
                 </el-form-item>
               </div>
@@ -112,10 +112,10 @@
               <div class="clearfix" v-for="(v,i) in OwnerInfos" :key="i">
                 <el-form-item :label="`业主${i+1}: 姓名`" required class="form-item-xs">
                   <el-input v-model="v.OwnerName" placeholder="请输入业主姓名"
-                            maxlength="10" :disabled="IsSafeEdit"></el-input>
+                            maxlength="14" :disabled="IsSafeEdit"></el-input>
                 </el-form-item>
                 <el-form-item label="电话" required label-width="100px">
-                  <el-input v-model="v.OwnerPhone" placeholder="请输入业主电话" maxlength="20"
+                  <el-input v-model="v.OwnerPhone" placeholder="请输入业主电话" maxlength="11"
                             :disabled="IsSafeEdit"></el-input>
                 </el-form-item>
                 <el-form-item label="身份证" required label-width="120px">
@@ -137,7 +137,7 @@
               <div class="clearfix">
                 <el-form-item label="紧急联系人姓名" prop="EmergencyContactName">
                   <el-input v-model="ContractInfo.EmergencyContactName"
-                            placeholder="请输入紧急联系人姓名" maxlength="10" :disabled="IsSafeEdit"></el-input>
+                            placeholder="请输入紧急联系人姓名" maxlength="14" :disabled="IsSafeEdit"></el-input>
                 </el-form-item>
                 <el-form-item label="紧急联系人电话" prop="EmergencyContactPhone">
                   <el-input v-model="ContractInfo.EmergencyContactPhone"
@@ -163,7 +163,7 @@
               <div class="clearfix" v-if="ContractInfo.IsAgent">
                 <el-form-item label="代办人姓名" prop="AgentName">
                   <el-input v-model="ContractInfo.AgentName" placeholder="请输入代办人姓名"
-                            maxlength="10" :disabled="IsSafeEdit"></el-input>
+                            maxlength="14" :disabled="IsSafeEdit"></el-input>
                 </el-form-item>
                 <el-form-item label="代办人电话" prop="AgentPhone">
                   <el-input v-model="ContractInfo.AgentPhone" placeholder="请输入代办人电话"
@@ -190,7 +190,7 @@
                    v-if="ContractInfo.CollectionType==2||ContractInfo.CollectionType==3">
                 <el-form-item label="收款人姓名" prop="ReceivePeopleName">
                   <el-input v-model="ContractInfo.ReceivePeopleName"
-                            placeholder="请输入收款人姓名" maxlength="10"></el-input>
+                            placeholder="请输入收款人姓名" maxlength="14"></el-input>
                 </el-form-item>
                 <el-form-item label="收款账号" prop="ReceiveAccount">
                   <el-input v-model="ContractInfo.ReceiveAccount" placeholder="请输入收款账号"
@@ -509,7 +509,7 @@
             <div class="panel-title">交割信息</div>
             <div class="panel-body">
               <div class="clearfix form-item-xs">
-                <el-form-item label="水表读数">
+                <el-form-item label="水表读数" prop="WaterNumber">
                   <el-input v-model="ContractInfo.WaterNumber"
                             min="0"
                             v-positive="ContractInfo.WaterNumber"
@@ -519,7 +519,7 @@
                   ></el-input>
                   <span class="ml-5">吨</span>
                 </el-form-item>
-                <el-form-item label="电表读数">
+                <el-form-item label="电表读数" prop="ElectricityNumber">
                   <el-input v-model="ContractInfo.ElectricityNumber"
                             min="0"
                             v-positive="ContractInfo.ElectricityNumber"
@@ -529,7 +529,7 @@
                   ></el-input>
                   <span class="ml-5">度</span>
                 </el-form-item>
-                <el-form-item label="天然气">
+                <el-form-item label="天然气" prop="GasNumber">
                   <el-input v-model="ContractInfo.GasNumber"
                             min="0"
                             v-positive="ContractInfo.GasNumber"
@@ -581,7 +581,7 @@
               ></upload-file>
               <div class="clearfix">
                 <el-form-item label=" ">
-                  <el-button plain type="primary" @click="createOrder('Preview')" :loading="orderLoading">预览合同
+                  <el-button plain type="primary" @click="createOrder('Preview',4)" :loading="orderLoading">预览合同
                   </el-button>
                 </el-form-item>
               </div>
@@ -593,21 +593,21 @@
               <el-button type="primary" class="mr-20" @click="createOrder('TemporaryStorage',4)"
                          :loading="orderLoading">暂存
               </el-button>
-              <el-button type="primary" @click="createOrder('SignUp')" v-show="ContractInfo.PaperType==0"
+              <el-button type="primary" @click="createOrder('SignUp',4)" v-show="ContractInfo.PaperType==0"
                          :loading="orderLoading">
-                现场签字
+                {{!!query.SafeEdit?'保存':'现场签字'}}
               </el-button>
-              <el-button type="primary" @click="createOrder('Save')" v-show="ContractInfo.PaperType==1"
+              <el-button type="primary" @click="createOrder('Save',4)" v-show="ContractInfo.PaperType==1"
                          :loading="orderLoading">
                 保存
               </el-button>
 
-              <el-button type="primary" class="ml-20" @click="createOrder('SubmitAudit')"
+              <el-button type="primary" class="ml-20" @click="createOrder('SubmitAudit',4)"
                          v-show="ContractInfo.FirstInputTerminal===1&&OwnerContractOperate.IsSigned==1"
                          :loading="orderLoading">提交审核
               </el-button>
             </template>
-            <el-button type="primary" @click="createOrder('Save')" v-else
+            <el-button type="primary" @click="createOrder('Save',4)" v-else
                        :loading="orderLoading">
               保存修改
             </el-button>
@@ -630,6 +630,7 @@
     getContractDetail,
     getOwnerBill,
     insertOwnerContract,
+    NewPreviewOwnerContract,
     safeEditOwnerContract,
     searchCommunityList
   } from '../../../api/owner'
@@ -637,7 +638,7 @@
   import StepsBox from '../../../components/StepsBox'
   import { BillPanel, BookKeeping, ContractTabs, InputNumber } from './components'
   import { Settlement, UploadFile } from '../../../components'
-  import { validatePhone } from '../../../utils/validate/rulevalidator'
+  import { validatePhone, validateCard } from '../../../utils/validate/rulevalidator'
   import { CityData, getCityNameByCode, getCodeArrByCode } from '../../../utils/CityData'
   import uuid from '../../../utils/uuid'
   import { scrollToError } from '../../../utils/scrollToError'
@@ -784,7 +785,10 @@
           ForwardType: 1,
           PaperType: 0,
           CollectionType: 1,
-          PassengerChannel: 0
+          PassengerChannel: 0,
+          WaterNumber: '',
+          ElectricityNumber: '',
+          GasNumber: ''
         }, // 合同信息
         HouseInfo: {}, // 房源信息
         CommunityInfo: {
@@ -805,7 +809,8 @@
           ImageUpload: [],
           BookKeep: [],
           ContractEquipments: [],
-          OwnerInfos: []
+          OwnerInfos: [],
+          OwnerBill: []
         }, // clone的旧数据
         billForm: {}, // 账单表单 用于对比是否修改了账单
         bankList: ['中国工商银行', '中国农业银行', '中国银行', '中国建设银行', '交通银行', '中国邮政储蓄银行', '招商银行', '浦发银行', '中信银行', '中国光大银行', '华夏银行', '中国民生银行', '广发银行', '兴业银行', '平安银行', '浙商银行', '恒丰银行', '渤海银行'],
@@ -848,10 +853,12 @@
               { required: true, message: '请输入业主姓名', trigger: 'blur' }
             ],
             OwnerPhone: [
-              { required: true, message: '请输入业主电话', trigger: 'blur' }
+              { required: true, message: '请输入业主电话', trigger: 'blur' },
+              { validator: validatePhone, trigger: 'blur' }
             ],
             OwnerIDCard: [
-              { required: true, message: '请输入业主身份证号', trigger: 'blur' }
+              { required: true, message: '请输入业主身份证号', trigger: 'blur' },
+              { validator: validateCard, trigger: 'blur' }
             ],
             ContractAddress: [
               { required: false }
@@ -873,7 +880,8 @@
               { validator: validatePhone, trigger: 'blur' }
             ],
             AgentIDCard: [
-              { required: true, message: '请输入代办人身份证', trigger: 'blur' }
+              { required: true, message: '请输入代办人身份证', trigger: 'blur' },
+              { validator: validateCard, trigger: 'blur' }
             ],
             CollectionType: [
               { required: true, message: '请选择收款方式', trigger: 'change' }
@@ -932,7 +940,17 @@
               { validator: validateForward, trigger: 'blur' }
             ]
           },
-          rule5: {}
+          rule5: {
+            WaterNumber: [
+              { required: true, message: '水表读数不能为空', trigger: 'blur' }
+            ],
+            ElectricityNumber: [
+              { required: true, message: '电表读数不能为空', trigger: 'blur' }
+            ],
+            GasNumber: [
+              { required: true, message: '天然气读数不能为空', trigger: 'blur' }
+            ]
+          }
         }
       }
     },
@@ -1080,27 +1098,37 @@
         if (this.query.Renew) {
           OwnerBill = []
           BookKeep = []
+          if (OwnerContract) {
+            OwnerContract.PaperType = 0
+          }
         }
         if (HouseInfo) {
           this.HouseInfo = HouseInfo
         }
         if (OwnerEquipments) {
           this.ContractEquipments = OwnerEquipments
-          this.cloneData.ContractEquipments = this.$deepCopy(OwnerEquipments)
+          if (!this.query.Renew) {
+            this.cloneData.ContractEquipments = this.$deepCopy(OwnerEquipments)
+          }
         }
         if (ImageUpload) {
           this.ImageUpload = ImageUpload
-          this.cloneData.ImageUpload = this.$deepCopy(ImageUpload)
+          if (!this.query.Renew) {
+            this.cloneData.ImageUpload = this.$deepCopy(ImageUpload)
+          }
         }
         if (BookKeep && BookKeep.length > 0) {
           this.BookKeep = BookKeep
-          this.cloneData.BookKeep = this.$deepCopy(BookKeep)
+          if (!this.query.Renew) {
+            this.cloneData.BookKeep = this.$deepCopy(BookKeep)
+          }
         }
         if (OwnerBill && OwnerBill.length > 0) {
           this.$refs.billPanel.initData(OwnerBill)
+          this.cloneData.OwnerBill = OwnerBill
         }
         if (CommunityInfo) {
-          this.handleCommunitySelect(CommunityInfo)
+          this.handleCommunitySelect(CommunityInfo, 1)
           if (this.CommunityInfo.Longitude) {
             this.initMap(1)
           } else {
@@ -1167,7 +1195,9 @@
           }
         } else {
           this.OwnerInfos = OwnerInfos
-          this.cloneData.OwnerInfos = this.$deepCopy(OwnerInfos)
+          if (!this.query.Renew) {
+            this.cloneData.OwnerInfos = this.$deepCopy(OwnerInfos)
+          }
         }
       },
       saveBillForm() {
@@ -1244,10 +1274,24 @@
                 flag = 3
               }
             })
-            if (this.OwnerInfos.some(v => {
-              return !v.OwnerName || !v.OwnerPhone || !v.OwnerIDCard
-            })) {
-              this.$message.error('请填写完成业主相关信息！')
+            try {
+              this.OwnerInfos.forEach((v, i) => {
+                if (!v.OwnerName) {
+                  throw new Error(`请填写业主${i + 1}姓名！`)
+                }
+                if (!v.OwnerPhone) {
+                  throw new Error(`请填写业主${i + 1}电话！`)
+                }
+                const msg1 = validatePhone(null, v.OwnerPhone)
+                if (msg1) throw new Error(`业主${i + 1}${msg1}`)
+                if (!v.OwnerIDCard) {
+                  throw new Error(`请填写业主${i + 1}身份证！`)
+                }
+                const msg2 = validateCard(null, v.OwnerIDCard)
+                if (msg2) throw new Error(`业主${i + 1}${msg2}`)
+              })
+            } catch (err) {
+              this.$message.error(err.message)
               return
             }
             if (flag === -1) {
@@ -1308,7 +1352,7 @@
           cb(arr)
         }
       },
-      handleCommunitySelect(item) {
+      handleCommunitySelect(item, type = 0) {
         this.CommunityInfo = {
           CityCode: item.CityCode,
           CityName: item.CityName,
@@ -1321,15 +1365,20 @@
         this.CommunityInfo.CommunityNameMark = item.CommunityName
         this.CommunityInfo.CityCodeMark = getCodeArrByCode(this.CommunityInfo.CityCode)
         this.$refs.ruleForm1.clearValidate()
+        if (type === 0) {
+          this.setCenterAndMark()
+        }
       },
       handleBankSelect(item) {
         this.ContractInfo.BankName = item
       },
       handleBlurSelect() {
-        if (this.CommunityInfo.CommunityNameMark !== this.CommunityInfo.CommunityName) {
-          this.CommunityInfo.KeyID = ''
-          this.searchMapKey()
-        }
+        setTimeout(() => {
+          if (this.CommunityInfo.CommunityNameMark !== this.CommunityInfo.CommunityName) {
+            this.CommunityInfo.KeyID = ''
+            this.searchMapKey()
+          }
+        }, 400)
       },
       changePayTime(val) {
         this.ContractInfo.PayDaysMark.map((v, i) => {
@@ -1432,7 +1481,7 @@
         getOwnerBill(this.ContractInfo).then(({ Data, BusCode, Msg }) => {
           this.billLoading = false
           if (BusCode === 0) {
-            this.$refs.billPanel.initData(Data)
+            this.$refs.billPanel.initData(Data, this.cloneData.OwnerBill)
             this.$refs.steps.nextStep()
             this.saveBillForm()
           } else {
@@ -1467,6 +1516,16 @@
               }).catch(() => {
                 flag = true
                 this.$message.error('账单信息填写完整才能暂存哦！')
+              })
+            }
+            break
+          case 4:
+            if (type === 'SignUp' || type === 'Save' || type === 'SubmitAudit') {
+              this.$refs['ruleForm5'].validate((a, b) => {
+                if (!a) {
+                  scrollToError(b, this.$refs['ruleForm5'], -10)
+                  flag = true
+                }
               })
             }
             break
@@ -1525,7 +1584,8 @@
             BookKeep,
             OwnerInfos
           },
-          buttonType: type === 'Preview' ? 'TemporaryStorage' : type
+          buttonType: type === 'Preview' ? 'TemporaryStorage' : type,
+          OwnerPreviewID: JSON.parse(sessionStorage.getItem('ownerPreviewID')) || 0
         }
         let fn = insertOwnerContract
         if (this.isEdit) {
@@ -1536,17 +1596,44 @@
         }
         this.orderLoading = true
         if (type === 'Preview') {
-          // 预览了就存起来了
-          this.setOwnerPreview(param).then(() => {
-            this.orderLoading = false
-            this.$router.push({
-              path: '/Owner/ContractPreview'
-            })
-          }).catch(() => {
-            this.orderLoading = false
+          NewPreviewOwnerContract(param).then(res => {
+            if (res.Code === 0 && res.Data) {
+              this.orderLoading = false
+              this.PreviewID = res.Data.KeyID
+              sessionStorage.setItem('ownerPreviewID', this.PreviewID)
+              this.$router.push({
+                path: '/Owner/ContractPreview',
+                query: {
+                  KeyID: res.Data.KeyID
+                }
+              })
+            } else {
+              this.orderLoading = false
+              console.log('预览合同失败:')
+            }
+            console.log('res:', res)
           })
+          // 预览了就存起来了
+          // this.setOwnerPreview(param).then(() => {
+          //   this.orderLoading = false
+          //   this.$router.push({
+          //     path: '/Owner/ContractPreview',
+          //     query: {
+          //       KeyID: this.query.KeyID
+          //     }
+          //   })
+          // }).catch(() => {
+          //   this.orderLoading = false
+          // })
         } else {
-          fn(param).then(({ Data }) => {
+          fn(param).then(({ Data, BusCode, Msg }) => {
+            if (BusCode === 2) {
+              this.$alert(Msg, '温馨提示', {
+                confirmButtonText: '我知道了'
+              })
+              this.orderLoading = false
+              return
+            }
             if (type === 'Save') {
               this.$message.success('保存合同成功')
               this.delView(this.$route)
@@ -1560,25 +1647,25 @@
                 path: '/Owner/ContractList'
               })
             } else if (type === 'SignUp') {
-              this.$message.success('保存合同成功,正在进行现场签字')
               this.delView(this.$route)
-              // this.$router.push({
-              //   path: '/Owner/ContractSign',
-              //   query: {
-              //     KeyID: Data,
-              //     url: this.ContractInfo.FirstInputTerminal === 1 && this.OwnerContractOperate.IsSigned === 1 ? this.OwnerContractOperate.SignInfo : ''
-              //   }
-              // })
-              this.$router.push({
-                path: '/Owner/ContractSign',
-                query: {
-                  Mobile: this.ContractInfo.OwnerPhone,
-                  IDCard: this.ContractInfo.OwnerIDCard,
-                  Name: this.ContractInfo.OwnerName,
-                  ContractID: Data,
-                  type: 0
-                }
-              })
+              if (this.query.SafeEdit) {
+                this.$message.success('保存合同成功')
+                this.$router.push({
+                  path: '/Owner/ContractList'
+                })
+              } else {
+                this.$message.success('保存合同成功,正在进行现场签字')
+                this.$router.push({
+                  path: '/Owner/ContractSign',
+                  query: {
+                    Mobile: this.ContractInfo.OwnerPhone,
+                    IDCard: this.ContractInfo.OwnerIDCard,
+                    Name: this.ContractInfo.OwnerName,
+                    ContractID: Data,
+                    type: 0
+                  }
+                })
+              }
             } else if (type === 'SubmitAudit') {
               this.$message.success('保存合同成功,合同已提交审核')
               this.delView(this.$route)

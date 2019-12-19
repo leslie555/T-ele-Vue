@@ -342,7 +342,7 @@
             const index = this.list.findIndex(v => v.KeyID === row.KeyID)
             this.list.splice(index, 1)
           }).catch(() => {
-            this.$message.error('删除失败!')
+            // this.$message.error('删除失败!')
           })
         })
       },

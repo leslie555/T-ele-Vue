@@ -246,12 +246,12 @@
                   <el-button type="primary"
                              plain
                              @click="handlePrint(scope.row,1)"
-                             size="mini">付款单模板1
+                             size="mini">收款单模板1
                   </el-button>
                   <el-button type="primary"
                              plain
                              @click="handlePrint(scope.row,2)"
-                             size="mini">付款单模板2
+                             size="mini">收款单模板2
                   </el-button>
                   <el-button type="primary"
                              plain
@@ -387,6 +387,7 @@
               @handleWriteClick="handleWrite(scope.row, scope.$index)"
               @handleUnWriteClick="handleUnWrite(scope.row, scope.$index)"
               @handleDetailClick="handleDetail(scope.row)"
+              @handleDeleteClick="handleDelete(scope.row, scope.$index)"
             >
               <el-popover
                 v-setbtn:Print
@@ -447,12 +448,13 @@
     </detail-paymentsingle>
     <select-pay-amount @updateBill="updateBookKeep" ref="topay"></select-pay-amount>
     <print-template ref="printTemplate"></print-template>
+    <AddMoney ref="AddMoney" @OnMoneyClick="OnMoneyClick"></AddMoney>
   </div>
 </template>
 <script>
   // GetTenantList 是从API文档中定义过来的方法 暂时没有数据传入
   import { DeletePaymentSingle, GetPaymentListNew, VerificationNew } from '@/api/ownerBill' // 付款
-  import { DeleteReceiptNew } from '../../../api/finance'
+  import { DeleteReceiptNew, DeletePaymentNew } from '../../../api/finance'
   import { GetReceiveListNew } from '@/api/tenantBill' // 收款
   // import { ShowOrganizationList } from '@/api/report'
   import { mapActions, mapGetters } from 'vuex'
@@ -469,6 +471,7 @@
   import EditPayMentSingle from './components/EditPayMentSingle'
   import DetailPaymentsingle from './components/DetailPaymentsingle'
   import TabChange from '@/components/TabChange'
+  import AddMoney from './components/components/addMoney'
 
   export default {
     name: 'PaymentBill',
@@ -548,7 +551,9 @@
         tableRemarkOptions: {},
         tableList: [
           { name: '收款' },
-          { name: '付款' }]
+          { name: '付款' }],
+        // 控制打印2的添加
+        dialogVisible: false
       }
     },
     components: {
@@ -562,7 +567,8 @@
       PrintTemplate,
       TabChange,
       SelectStore,
-      SelectPayAmount
+      SelectPayAmount,
+      AddMoney
     },
     // 请求ajax中定义的方法
     created() {
@@ -704,34 +710,64 @@
       // 单个删除按钮（暂时仅收款单有删除）
       handleDelete(row, index) {
         console.log(index)
-        this.$confirm('确定删除这条收款单记录?, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          DeleteReceiptNew({
-            KeyID: row.KeyID
-          }).then(({ Data, BusCode, Msg }) => {
-            if (Data) {
-              debugger
-              this.$message({
-                type: 'success',
-                message: '删除成功!'
-              })
-              this.ReceiveBillDataList.splice(index, 1)
-            } else {
-              this.$message({
-                type: 'info',
-                message: '删除失败!'
-              })
-            }
+        if (this.ItemIndex === 0) {
+          this.$confirm('确定删除这条收款单记录?, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            DeleteReceiptNew({
+              KeyID: row.KeyID
+            }).then(({ Data, BusCode, Msg }) => {
+              if (Data) {
+                this.$message({
+                  type: 'success',
+                  message: '删除成功!'
+                })
+                this.ReceiveBillDataList.splice(index, 1)
+              } else {
+                this.$message({
+                  type: 'info',
+                  message: '删除失败!'
+                })
+              }
+            })
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            })
           })
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
+        } else {
+          this.$confirm('确定删除这条收款单记录?, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            DeletePaymentNew({
+              KeyID: row.KeyID
+            }).then(({ Data, BusCode, Msg }) => {
+              if (Data) {
+                debugger
+                this.$message({
+                  type: 'success',
+                  message: '删除成功!'
+                })
+                this.PaymentBillDataList.splice(index, 1)
+              } else {
+                this.$message({
+                  type: 'info',
+                  message: '删除失败!'
+                })
+              }
+            })
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            })
           })
-        })
+        }
       },
       // 点击查询
       handleSearch() {
@@ -834,6 +870,9 @@
         if (data.OnLineOrOffLine !== 1 && data.VerificationStatus === 2) {
           btnOptions.push('UnWrite')
         }
+        if (data.VerificationStatus === 1 && this.ItemIndex === 1) {
+           btnOptions.push('Delete')
+        }
         return btnOptions
       },
       selectable(row, index) {
@@ -846,16 +885,46 @@
       ...mapActions([
         'refreshAccountItem'
       ]),
+      OnMoneyClick(val) {
+        this.$refs.printTemplate.open({
+            busType: 'ReceiptBill',
+            busNum: 2,
+            title: '',
+            IsShowYear: '',
+            isList: 'yes',
+            row: val.row,
+            money: val.money
+          })
+      },
       handlePrint(row, type) {
        if (this.ItemIndex === 0) {
-         this.$refs.printTemplate.open({
-           busType: 'ReceiptBill',
-           busNum: type,
-           title: '',
-           IsShowYear: '',
-           isList: 'yes',
-           row
-         })
+         if (type === 2) {
+           // 判断有租客租金给服务费  没有直接打印
+           if (row.ProjectName.indexOf('租客租金') === -1) {
+            this.$refs.printTemplate.open({
+              busType: 'ReceiptBill',
+              busNum: type,
+              title: '',
+              IsShowYear: '',
+              isList: 'yes',
+              row,
+              money: 0
+            })
+           } else {
+            this.$refs.AddMoney.open({
+              row
+            })
+           }
+         } else {
+          this.$refs.printTemplate.open({
+            busType: 'ReceiptBill',
+            busNum: type,
+            title: '',
+            IsShowYear: '',
+            isList: 'yes',
+            row
+          })
+         }
        } else {
          this.$refs.printTemplate.open({
            busType: 'PaymentBill',

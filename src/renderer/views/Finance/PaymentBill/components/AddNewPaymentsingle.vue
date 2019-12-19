@@ -29,7 +29,7 @@
             </div>
             <div class="clearfix form-item-md">
               <el-form-item label="房源名称" prop="HouseName">
-                <search-house v-model="PayMentData.HouseName" @select="handleHouseSelect"></search-house>
+                <search-house v-model="PayMentData.HouseName" :type="12" @select="handleHouseSelect"></search-house>
               </el-form-item>
             </div>
           </div>
@@ -51,6 +51,7 @@
               <el-table-column align="center" type="selection" fixed="left" width="55"></el-table-column>
               <el-table-column label="类型" min-width="120" prop="InOrOut" align="center">
                 <template slot-scope="scope">
+                  <span class="mark_btn" v-show="scope.row.ShowImg">本月</span>
                   <span>{{$EnumData.getEnumDesByValue('InOrOut', scope.row.InOrOut)}}</span>
                 </template>
               </el-table-column>
@@ -137,23 +138,7 @@
                 style="width: 200px"
               ></el-date-picker>
             </el-form-item>
-            <el-form-item label="账户" prop="InitialCashBank" label-width="100px">
-              <el-select v-model="PayMentData.InitialCashBank" placeholder="请选择">
-                <el-option
-                  v-for="(item, index) in accountData"
-                  :key="index"
-                  :label="item.AccountName + item.Account"
-                  :value="item.Account"
-                  @click.native="ChangePayWays(item.KeyID)"
-                ></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="主管">
-              <el-input v-model="PayMentData.EdName" style="width: 200px"></el-input>
-            </el-form-item>
-            <el-form-item label="门店经理">
-              <el-input v-model="PayMentData.StoreManager" style="width: 200px"></el-input>
-            </el-form-item>
+
 
             <!--<el-form-item label="优惠金额" prop="Discount">-->
             <!--<el-input-->
@@ -174,6 +159,14 @@
             <!--&gt;-->
             <!--</el-input>-->
             <!--</el-form-item>-->
+          </div>
+          <div class="clearfix form-item-md">
+            <el-form-item label="主管">
+              <el-input v-model="PayMentData.EdName" style="width: 200px"></el-input>
+            </el-form-item>
+            <el-form-item label="门店经理">
+              <el-input v-model="PayMentData.StoreManager" style="width: 200px"></el-input>
+            </el-form-item>
           </div>
           <span
             style="display: inline-block;margin-left: 60px;color: #888888;margin-top: -30px;margin-bottom: 30px;"
@@ -205,7 +198,6 @@
   </el-dialog>
 </template>
 <script>
-  import { mapActions, mapGetters } from 'vuex'
   import ChoiceBill from './components/ChoiceBill'
   import TableButtons from '@/components/TableButtons'
   import { AddPaymentSingleNew, GetBillListData } from '@/api/ownerBill'
@@ -213,6 +205,7 @@
   import ChoicePaymentTarget from './components/ChoicePaymentTarget'
   import SearchHouse from '../../../../components/SearchHouse'
   import { UploadFile } from '@/components/UploadFile'
+  import { priceFormat } from '../../../../utils/priceFormat'
 
   export default {
     name: 'add-new-paymentsingle',
@@ -230,7 +223,6 @@
         listLoading: false,
         loading: false,
         AddButton: false,
-        newAccountData: [],
         // IsShowTarget: false, // 是否展示付款对象名称
         IsExhibition: false, // 是否展示新增项目(选择账单有数据的时候才显示表格对象)
         IsshowButton: false, // 是否显示收款账单按钮
@@ -249,8 +241,6 @@
           // PaymentType: this.$EnumData.getEnumDesByValue('PaymentType'), // 付款类型
           // BusinessType: this.$EnumData.getEnumDesByValue('FinanceBusType'), // 业务类型
           PaymentData: new Date(), // 付款日期
-          InitialCashBank: '', // 付款账户账号
-          InitialCashBankId: '', // 付款账户
           BalanceType: '', // 结算方式
           // Discount: '', // 优惠金额
           PaymentMoney: '', // 付款金额
@@ -279,9 +269,6 @@
           ],
           PaymentData: [
             { required: true, message: '请输入付款日期', trigger: 'change' }
-          ],
-          InitialCashBank: [
-            { required: true, message: '请输入付款账户', trigger: 'change' }
           ],
           PaymentMoney: [
             { required: true, message: '请输入付款金额', trigger: 'blur' }
@@ -313,14 +300,10 @@
             Description: '银行卡',
             Value: '银行卡'
           }]
-        // InitialCashBank: [{
-        //   label: '中国工商银行',
-        //   Value: '中国工商银行'
-        // }]
       }
     },
     created() {
-      this.refreshAccountItem()
+      //
     },
     methods: {
       open(index) {
@@ -329,14 +312,6 @@
         this.IsExhibition = false
         this.ShowPayMentDialog = true
         this.PayMentData.Pic = []
-        this.refreshAccountItem().then(Data => {
-          const defaultAccount = Data.find(val => val.IsDefault)
-          if (defaultAccount) {
-            this.PayMentData.InitialCashBank = defaultAccount.Account
-            this.PayMentData.BalanceType = defaultAccount.AccountType
-            this.PayMentData.InitialCashBankId = defaultAccount.KeyID
-          }
-        })
         if (index === 0) {
           this.ItemIndex = 0
           this.PayMentData.InOrOut = 1 // 收入
@@ -346,29 +321,6 @@
           this.PayMentData.InOrOut = 2 // 支出
           this.labelText = '应支日期'
         }
-      },
-      ...mapActions([
-        'refreshAccountItem'
-      ]),
-      ChangePayWays(value) {
-        // this.PayMentData.InitialCashBank = ''
-        //  var newData = 0
-        // if (value === '银行卡') {
-        //    newData = 4
-        // } else if (value === '支付宝') {
-        //   newData = 3
-        // } else if (value === '微信') {
-        //   newData = 2
-        // } else if (value === '现金') {
-        //   newData = 1
-        // }
-        this.accountData.forEach(item => {
-          if (item.KeyID === value) {
-            this.PayMentData.BalanceType = item.AccountType
-            this.PayMentData.InitialCashBankId = value
-          }
-        })
-        // console.log(this.newAccountData)
       },
       close() {
         this.ShowPayMentDialog = false
@@ -389,7 +341,7 @@
               paidMoney = -item.PaidMoney
             }
             sum += paidMoney
-            this.PayMentData.PaymentMoney = sum
+            this.PayMentData.PaymentMoney = priceFormat(sum)
           })
         } else if (this.tableSelected.length === 0) {
           this.PayMentData.PaymentMoney = ''
@@ -403,6 +355,9 @@
           inOrOut: this.PayMentData.InOrOut
         }).then(({ Data, BusCode, Msg }) => {
           console.log(Data)
+          Data.map(x => {
+            x.ShowImg = this.$dateFormat(x.ReceivableDate, 'yyyyMM') === this.$dateFormat(new Date(), 'yyyyMM')
+          })
           this.PaymentFormList = Data
           this.editOldData = this.$deepCopy(Data) // 深拷贝老表格的数据
         })
@@ -656,9 +611,6 @@
       InOrOut() {
         return this.$EnumData.getEnumListByKey('InOrOut')
       },
-      ...mapGetters([
-        'accountData'
-      ]),
       // 付款金额
       paymentCalData() {
         if (this.PaymentFormList.length === 0) {
@@ -673,10 +625,6 @@
           return dd
         }
       }
-      // 付款账户筛选
-      // GetteraccountData() {
-      //  this.newAccountData.filter()
-      // }
     }
   }
 </script>
@@ -685,5 +633,18 @@
   .el-dialog {
     height: 700px !important;
     overflow-y: scroll !important;
+  }
+
+  .mark_btn {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 12px;
+    width: 30px;
+    height: 16px;
+    line-height: 16px;
+    border-bottom-right-radius: 4px;
+    background-color: #389EF2;
+    color: #fff;
   }
 </style>

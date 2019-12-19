@@ -17,8 +17,33 @@
       </template>
       <template slot="more">
         <div class="clearfix">
+          <SelectOrganization v-model="ruleForm.FullIDNew"></SelectOrganization>
           <el-form-item label="门店" prop="FullID">
             <select-store ref="selectStore" type="search" @change="handleStoreChange"></select-store>
+          </el-form-item>
+          <el-form-item label="门店人员" prop="EmpFullID">
+            <el-select
+              v-model="ruleForm.EmpFullID"
+              filterable
+              remote
+              reserve-keyword
+              placeholder="请输入出房人姓名或电话"
+              :remote-method="comPeopleRemoteMethod"
+              :disabled="!StoreKeyID"
+              :loading="comPeopleLoading"
+            >
+              <el-option
+                v-for="item in comPeopleResult"
+                :key="item.KeyID"
+                :label="item.UserName"
+                :value="item.FullID"
+              >
+                <span style="float: left">{{ item.UserName }}</span>
+                <span
+                  style="float: right; color: #8492a6; font-size: 13px;margin-right: 20px"
+                >{{ item.Tel }}</span>
+              </el-option>
+            </el-select>
           </el-form-item>
           <el-form-item label="租约状态" prop="RentLeaseStatus">
             <el-select v-model="ruleForm.RentLeaseStatus" placeholder="请选择租约状态">
@@ -55,9 +80,21 @@
               ></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="租期始末" prop="EntrustTime">
+          <el-form-item label-width="120px" label="租期开始时间" prop="EntrustTime1">
             <el-date-picker
-              v-model="ruleForm.EntrustTime"
+              v-model="ruleForm.EntrustTime1"
+              type="daterange"
+              align="right"
+              unlink-panels
+              :default-time="['00:00:00', '23:59:59']"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            ></el-date-picker>
+          </el-form-item>
+          <el-form-item label-width="120px" label="租期结束时间" prop="EntrustTime2">
+            <el-date-picker
+              v-model="ruleForm.EntrustTime2"
               type="daterange"
               align="right"
               unlink-panels
@@ -172,11 +209,15 @@
               @handleDetailClick="handleDetail(scope.row)"
               @handleDeleteClick="handleDelete(scope.row)"
               @handleRenewClick="handleRenew(scope.row)"
-              @handleCheckOutClick="handleCheckOut(scope.row)"
+              @handleCheckOutClick="handleCheckOut(scope.row, 0)"
+              @handleBreakCheckOutClick="handleCheckOut(scope.row, 1)"
               @handleSignUpClick="handleSignUp(scope.row)"
               @handleSubmitAuditClick="handleSubmitAudit(scope.row)"
               @handleWithdrawClick="handleWithdraw(scope.row)"
-              @handleCheckOutEditClick="handleCheckOutEdit(scope.row)"
+              @handleCheckOutDetailClick="handleCheckOutDetail(scope.row)"
+              @handleSubleaseClick="handleSublease(scope.row, 0)"
+              @handleSubleaseEditClick="handleSublease(scope.row, 1)"
+              @handleSubleaseDetailClick="handleSubleaseDetail(scope.row, 2)"
             ></table-buttons>
           </template>
         </el-table-column>
@@ -198,7 +239,8 @@
         <span>批量删除</span>
       </el-button>
     </bottom-tool-bar>
-    <settlement ref="settlement" :bus-type="1" @success="checkOutSuccess"></settlement>
+    <bills-preview ref="billsPreview" is-detail></bills-preview>
+    <sublease-template ref="subleaseTemplate" @submitSublease="submitSublease"></sublease-template>
   </div>
 </template>
 <style scoped lang="scss">
@@ -206,9 +248,11 @@
 </style>
 <script>
   import { deleteTenantContractByIDs, getContractList, tenantSubmitAudit, tenantWithDrawByID } from '@/api/tenant'
-  import { BottomToolBar, SearchPanel, SelectStore, Settlement, TableButtons } from '../../../components'
+  import { getEmployeeInfoList } from '../../../api/system'
+  import { BottomToolBar, SearchPanel, SelectStore, Settlement, TableButtons, SelectOrganization } from '../../../components'
+  // import { CheckoutBills } from './components'
   import { diffTime } from '../../../utils/dateFormat'
-
+  import { SubleaseTemplate, BillsPreview } from './components'
   export default {
     name: 'TenantContractList',
     components: {
@@ -216,7 +260,10 @@
       TableButtons,
       BottomToolBar,
       Settlement,
-      SelectStore
+      SelectStore,
+      SelectOrganization,
+      SubleaseTemplate,
+      BillsPreview
     },
     data() {
       return {
@@ -253,8 +300,13 @@
             type: 'success'
           },
           {
-            key: 'CheckOutEdit',
-            value: '修改退房',
+            key: 'BreakCheckOut',
+            value: '违约退房',
+            type: 'danger'
+          },
+          {
+            key: 'CheckOutDetail',
+            value: '退房详情',
             type: 'primary'
           },
           {
@@ -271,6 +323,21 @@
             key: 'Withdraw',
             value: '撤回',
             type: 'danger'
+          },
+          {
+            key: 'Sublease',
+            value: '转租',
+            type: 'primary'
+          },
+          {
+            key: 'SubleaseEdit',
+            value: '修改转租',
+            type: 'primary'
+          },
+          {
+            key: 'SubleaseDetail',
+            value: '查看转租',
+            type: 'primary'
           }
         ],
         ruleForm: {
@@ -280,14 +347,20 @@
           RentLeaseStatus: '',
           AuditStatus: '',
           PaperType: '',
-          EntrustTime: [],
+          EntrustTime1: [],
+          EntrustTime2: [],
           CreateTime: [],
           TenantPhone: '',
           CommunityName: '',
           ContractNumber: '',
           HouseNumber: '',
-          FullID: '' // 门店ID
-        }
+          FullID: '', // 门店ID
+          EmpFullID: '',
+          FullIDNew: ''
+        },
+        StoreKeyID: 0,
+        comPeopleLoading: false,
+        comPeopleResult: [] // 选择人员待选的数据
       }
     },
     computed: {
@@ -319,8 +392,11 @@
           }
         }
         this.listLoading = true
-        if (!this.ruleForm.EntrustTime) {
-          this.ruleForm.EntrustTime = []
+        if (!this.ruleForm.EntrustTime1) {
+          this.ruleForm.EntrustTime1 = []
+        }
+        if (!this.ruleForm.EntrustTime2) {
+          this.ruleForm.EntrustTime2 = []
         }
         if (!this.ruleForm.CreateTime) {
           this.ruleForm.CreateTime = []
@@ -330,11 +406,19 @@
           screen: {
             ...this.ruleForm,
             StartTime: this.$dateFormat(
-              this.ruleForm.EntrustTime[0],
+              this.ruleForm.EntrustTime1[0],
               'yyyy-MM-dd hh:mm:ss'
             ),
             EndTime: this.$dateFormat(
-              this.ruleForm.EntrustTime[1],
+              this.ruleForm.EntrustTime1[1],
+              'yyyy-MM-dd hh:mm:ss'
+            ),
+            EndStartTime: this.$dateFormat(
+              this.ruleForm.EntrustTime2[0],
+              'yyyy-MM-dd hh:mm:ss'
+            ),
+            EndEndTime: this.$dateFormat(
+              this.ruleForm.EntrustTime2[1],
               'yyyy-MM-dd hh:mm:ss'
             ),
             CreaterStartTime: this.$dateFormat(
@@ -362,6 +446,7 @@
         this.list.map(v => {
           this.filterList.push(this.filterTableDataItem(v))
         })
+        console.log('this.filterList:', this.filterList)
       },
       filterTableDataItem(v) {
         // Operation的判断操作
@@ -377,15 +462,23 @@
           if (v.AuditStatus === 1) {
             Operation = ['Detail', 'Withdraw']
           } else if (v.AuditStatus === 2) {
-            Operation = ['Detail', 'CheckOut', 'Renew', 'Edit']
+            Operation = ['Detail', 'CheckOut', 'BreakCheckOut', 'Sublease', 'Renew', 'Edit']
           } else if (v.AuditStatus === 3) {
             Operation = ['Detail', 'Withdraw']
           }
         } else if (v.RentLeaseStatus === 4) {
           if (v.AuditStatus === 1 || v.AuditStatus === 2) {
-            Operation = ['Detail']
+            Operation = ['Detail', 'CheckOutDetail']
           } else if (v.AuditStatus === 3) {
-            Operation = ['Detail', 'CheckOutEdit']
+            Operation = ['Detail', 'CheckOut', 'BreakCheckOut']
+          }
+        } else if (v.RentLeaseStatus === 5) {
+          Operation = ['Detail']
+        } else if (v.RentLeaseStatus === 6) {
+          if (v.AuditStatus === 1 || v.AuditStatus === 2) {
+            Operation = ['Detail', 'SubleaseDetail']
+          } else if (v.AuditStatus === 3) {
+            Operation = ['Detail', 'SubleaseEdit']
           }
         }
         return {
@@ -423,9 +516,31 @@
       handleStoreChange(val) {
         // 选择门店后的回调
         if (val) {
+          this.StoreKeyID = val.id
           this.ruleForm.FullID = val.fullID
         } else {
+          this.StoreKeyID = 0
           this.ruleForm.FullID = ''
+          this.ruleForm.EmpFullID = ''
+        }
+      },
+      comPeopleRemoteMethod(query) {
+        // 选择门店获取数据方法
+        if (query !== '') {
+          this.comPeopleLoading = true
+          getEmployeeInfoList({
+            parm: {
+              page: 1,
+              size: 10
+            },
+            Keyword: query,
+            SelectByID: this.StoreKeyID
+          }).then(({ Data }) => {
+            this.comPeopleLoading = false
+            this.comPeopleResult = Data
+          })
+        } else {
+          this.comPeopleResult = []
         }
       },
       submitForm() {
@@ -440,6 +555,8 @@
         this.ruleForm.HouseID = ''
         this.ruleForm.HouseKey = ''
         this.$refs.selectStore.reset()
+        this.comPeopleResult = []
+        this.StoreKeyID = 0
         this.$refs.bottomToolBar.search()
       },
       handleEdit(row) {
@@ -531,24 +648,25 @@
           })
         })
       },
-      handleCheckOut(row) {
-        this.$refs['settlement'].open({
-          BookKeepPara: {
-            ContractID: row.KeyID,
-            HouseID: row.HouseID,
+      handleCheckOut(row, type) {
+        // type 0 正常退房  1 违约退房
+        this.$router.push({
+          path: '/Tenant/CheckoutBill',
+          query: {
+            KeyID: row.KeyID,
+            type,
+            HouseName: row.HouseName,
             HouseKey: row.HouseKey,
-            HouseName: row.HouseName
+            HouseID: row.HouseID,
+            ContractNumber: row.ContractNumber,
+            CompanyAbbreviation: row.CompanyAbbreviation
           }
         })
       },
-      handleCheckOutEdit(row) {
-        this.$refs['settlement'].open({
-          BookKeepPara: {
-            KeyID: row.KeyID
-          },
-          type: 1,
-          detail: true,
-          checkOutEdit: true
+      handleCheckOutDetail(row) {
+        // 查看退房
+        this.$refs.billsPreview.open({
+          contractID: row.KeyID
         })
       },
       // 批量选择
@@ -582,18 +700,22 @@
           return false
         }
       },
-      checkOutSuccess({ BookKeepList }) {
-        // 修改合同状态为已退房
-        const KeyID = BookKeepList[0].ContractID
-        const index = this.list.findIndex(v => v.KeyID === KeyID)
-        const fIndex = this.filterList.findIndex(v => v.KeyID === KeyID)
-        this.list[index].RentLeaseStatus = 4
-        this.list[index].AuditStatus = 1
-        this.$set(
-          this.filterList,
-          fIndex,
-          this.filterTableDataItem(this.list[index])
-        )
+      handleSublease(row, type) {
+        this.$refs['subleaseTemplate'].open(row, type)
+      },
+      submitSublease(data) {
+        const newData = this.$deepCopy(data)
+        var CurIndex = 0
+        this.list.forEach((ele, index) => {
+          if (ele.KeyID === data.KeyID) {
+            CurIndex = index
+          }
+        })
+        this.$set(this.filterList, CurIndex, this.filterTableDataItem(newData))
+      },
+      handleSubleaseDetail(row, type) {
+        // 查看转租
+        this.$refs['subleaseTemplate'].open(row, type)
       }
     }
   }

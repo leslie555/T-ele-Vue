@@ -29,6 +29,9 @@ const user = {
         login(username, userInfo.password)
           .then(response => {
             const data = response.Data
+            if (!data.jurisdic.Data.Module.length) {
+              return reject('您没有登录权限')
+            }
             try {
               data.Module = data.jurisdic.Data.Module
               // 二级菜单兼容性修改
@@ -53,7 +56,8 @@ const user = {
                 'ModuleSort': '100',
                 'PID': -1,
                 'ModifyStatus': 0
-              }])
+              }
+            ])
               data.Action = data.jurisdic.Data.Action
               data.CompanyInfo = data.jurisdic.Data.CompanyInfo
               delete data.jurisdic
@@ -64,13 +68,18 @@ const user = {
             }
             cookieStorage.set('token', data.Token, 7)
             localStorage.set('userinfo', data)
+            if (userInfo.password === '000000') {
+              localStorage.set('isEasyPwd', 1)
+            } else {
+              localStorage.set('isEasyPwd', 0)
+            }
             commit('SET_TOKEN', data.Token)
             commit('SET_USERINFO', data)
             commit('SET_LOGOUTALERTED', true)
             resolve()
           })
-          .catch(error => {
-            reject(error)
+          .catch(() => {
+             reject()
           })
       })
     },
@@ -90,8 +99,8 @@ const user = {
             sessionStorage.remove('prevPath')
             resolve()
           })
-          .catch(error => {
-            reject(error)
+          .catch(() => {
+             reject()
           })
       })
     },

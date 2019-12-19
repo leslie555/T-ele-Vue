@@ -1,20 +1,26 @@
 <template>
   <div class="app-container data-list">
-    <search-panel :model="OwnerPaymentFrom" ref="ruleForm" label-width="80px" show>
+    <search-panel :model="OwnerPaymentForm" ref="ruleForm" label-width="80px" show>
       <template slot="search">
-        <el-form-item label="关键字">
-          <el-input
-            v-model="OwnerPaymentFrom.KeyWord"
-            autocomplete="off"
-            placeholder="银行名称/转款人/房源编号/电话/房主名字"
-            style="width: 300px"
-          ></el-input>
-        </el-form-item>
+        <div class="clearfix">
+          <el-form-item label="关键字">
+            <el-input
+              v-model="OwnerPaymentForm.KeyWord"
+              autocomplete="off"
+              placeholder="银行名称/转款人/房源编号/电话/房主名字"
+              style="width: 300px"
+            ></el-input>
+          </el-form-item>
+          <SelectOrganization v-model="OwnerPaymentForm.FullIDNew"></SelectOrganization>
+          <el-form-item label="门店选择">
+            <select-store ref="selectStore" @change="handleChange"></select-store>
+          </el-form-item>
+        </div>
       </template>
       <template slot="more">
         <el-form-item label="付款日期">
           <el-date-picker
-            v-model="OwnerPaymentFrom.date"
+            v-model="OwnerPaymentForm.date"
             type="daterange"
             align="right"
             unlink-panels
@@ -25,7 +31,7 @@
           ></el-date-picker>
         </el-form-item>
         <el-form-item label="付款方式">
-          <el-select v-model="OwnerPaymentFrom.PayType" placeholder="请选择">
+          <el-select v-model="OwnerPaymentForm.PayType" placeholder="请选择">
             <el-option
               v-for="item in PayType"
               :key="item.Value"
@@ -52,15 +58,20 @@
         height="100%"
         class="table-normal"
       >
-        <el-table-column label="房源编号" prop="ContractNumber" align="center" width="160px" fixed="left"></el-table-column>
+        <el-table-column
+          label="房源编号"
+          prop="ContractNumber"
+          align="center"
+          width="160px"
+          fixed="left"
+        ></el-table-column>
         <el-table-column label="房主" align="center" prop="OwnerName"></el-table-column>
         <el-table-column label="区域" align="center" prop="CityName"></el-table-column>
         <el-table-column label="物业地址" align="center" prop="HouseName" width="260"></el-table-column>
         <el-table-column label="联系电话" align="center" prop="OwnerPhone" width="180"></el-table-column>
         <el-table-column label="有效期" align="center" width="260">
-          <template
-            slot-scope="scope"
-          >{{ $dateFormat(scope.row.BillStartDate, 'yyyy/MM/dd') }}--{{ $dateFormat(scope.row.BillEndDate, 'yyyy/MM/dd')
+          <template slot-scope="scope">
+            {{ $dateFormat(scope.row.BillStartDate, 'yyyy/MM/dd') }}--{{ $dateFormat(scope.row.BillEndDate, 'yyyy/MM/dd')
             }}
           </template>
         </el-table-column>
@@ -87,7 +98,7 @@
 </template>
 
 <script>
-  import { SearchPanel, BottomToolBar } from '@/components'
+  import { SearchPanel, BottomToolBar, SelectStore, SelectOrganization } from '@/components'
   import PrintTemplate from '@/components/PrintTemplate' // 打印组件
   import { SelectOwnerPaymentList } from '@/api/report'
 
@@ -96,17 +107,21 @@
     components: {
       SearchPanel,
       BottomToolBar,
-      PrintTemplate
+      PrintTemplate,
+      SelectStore,
+      SelectOrganization
     },
     data() {
       return {
         isDisabled: true,
-        OwnerPaymentFrom: {
+        OwnerPaymentForm: {
           KeyWord: '',
           date: '',
           EndTime: '',
           StartTime: '',
-          PayType: 0
+          PayType: 0,
+          FullID: '',
+          FullIDNew: ''
         },
         downloadLoading: false,
         listLoading: false,
@@ -122,17 +137,16 @@
             page: 1
           }
         }
-        if (this.OwnerPaymentFrom.date !== null) {
-          this.OwnerPaymentFrom.StartTime = this.$dateFormat(this.OwnerPaymentFrom.date[0], 'yyyy-MM-dd 00:00:00')
-          this.OwnerPaymentFrom.EndTime = this.$dateFormat(this.OwnerPaymentFrom.date[1], 'yyyy-MM-dd 00:00:00')
+        if (this.OwnerPaymentForm.date !== null) {
+          this.OwnerPaymentForm.StartTime = this.$dateFormat(this.OwnerPaymentForm.date[0], 'yyyy-MM-dd 00:00:00')
+          this.OwnerPaymentForm.EndTime = this.$dateFormat(this.OwnerPaymentForm.date[1], 'yyyy-MM-dd 00:00:00')
         }
         this.listLoading = true
         return SelectOwnerPaymentList({
+          ...this.OwnerPaymentForm,
           parm: pages,
-          KeyWord: this.OwnerPaymentFrom.KeyWord,
-          PayType: this.OwnerPaymentFrom.PayType,
-          StartTime: !this.OwnerPaymentFrom.date ? '' : this.$dateFormat(this.OwnerPaymentFrom.date[0], 'yyyy-MM-dd 00:00:00'),
-          EndTime: !this.OwnerPaymentFrom.date ? '' : this.$dateFormat(this.OwnerPaymentFrom.date[1], 'yyyy-MM-dd 00:00:00'),
+          StartTime: !this.OwnerPaymentForm.date ? '' : this.$dateFormat(this.OwnerPaymentForm.date[0], 'yyyy-MM-dd 00:00:00'),
+          EndTime: !this.OwnerPaymentForm.date ? '' : this.$dateFormat(this.OwnerPaymentForm.date[1], 'yyyy-MM-dd 00:00:00'),
           isAll: false
         }).then(response => {
           if (response.Code === 0) {
@@ -144,15 +158,21 @@
           }
         })
       },
+      handleChange(val) {
+        this.OwnerPaymentForm.FullID = val.fullID
+      },
       search() {
         this.$refs.bottomToolBar.search()
       },
       reset() {
-        this.OwnerPaymentFrom.KeyWord = ''
-        this.OwnerPaymentFrom.StartTime = ''
-        this.OwnerPaymentFrom.EndTime = ''
-        this.OwnerPaymentFrom.PayType = 0
-        this.OwnerPaymentFrom.date = null
+        this.OwnerPaymentForm.KeyWord = ''
+        this.OwnerPaymentForm.FullID = ''
+        this.OwnerPaymentForm.FullIDNew = ''
+        this.OwnerPaymentForm.StartTime = ''
+        this.OwnerPaymentForm.EndTime = ''
+        this.OwnerPaymentForm.PayType = 0
+        this.OwnerPaymentForm.date = null
+        this.$refs.selectStore.reset()
         this.$refs.bottomToolBar.search()
       },
       printTemplate() {
@@ -160,10 +180,10 @@
           busType: 'OwnerPayment',
           busNum: 1,
           searchData: {
-            KeyWord: this.OwnerPaymentFrom.KeyWord,
-            PayType: this.OwnerPaymentFrom.PayType,
-            StartTime: !this.OwnerPaymentFrom.date ? '' : this.$dateFormat(this.OwnerPaymentFrom.date[0], 'yyyy-MM-dd 00:00:00'),
-            EndTime: !this.OwnerPaymentFrom.date ? '' : this.$dateFormat(this.OwnerPaymentFrom.date[1], 'yyyy-MM-dd 00:00:00')
+            KeyWord: this.OwnerPaymentForm.KeyWord,
+            PayType: this.OwnerPaymentForm.PayType,
+            StartTime: !this.OwnerPaymentForm.date ? '' : this.$dateFormat(this.OwnerPaymentForm.date[0], 'yyyy-MM-dd 00:00:00'),
+            EndTime: !this.OwnerPaymentForm.date ? '' : this.$dateFormat(this.OwnerPaymentForm.date[1], 'yyyy-MM-dd 00:00:00')
           },
           title: '房东付款'
         })
@@ -172,14 +192,14 @@
       download() {
         this.downloadLoading = true
         SelectOwnerPaymentList({
+          ...this.OwnerPaymentForm,
+          StartTime: !this.OwnerPaymentForm.date ? '' : this.$dateFormat(this.OwnerPaymentForm.date[0], 'yyyy-MM-dd 00:00:00'),
+          EndTime: !this.OwnerPaymentForm.date ? '' : this.$dateFormat(this.OwnerPaymentForm.date[1], 'yyyy-MM-dd 00:00:00'),
+          isAll: true,
           parm: {
-            size: this.records,
+            size: this.pageSize,
             page: 1
-          },
-          KeyWord: this.OwnerPaymentFrom.KeyWord,
-          PayType: this.OwnerPaymentFrom.PayType,
-          StartTime: !this.OwnerPaymentFrom.date ? '' : this.$dateFormat(this.OwnerPaymentFrom.date[0], 'yyyy-MM-dd 00:00:00'),
-          EndTime: !this.OwnerPaymentFrom.date ? '' : this.$dateFormat(this.OwnerPaymentFrom.date[1], 'yyyy-MM-dd 00:00:00')
+          }
         }).then(response => {
           if (response.Code === 0) {
             this.listLoading = false

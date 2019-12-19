@@ -46,7 +46,9 @@
                 <el-tree
                   highlight-current
                   :data="treeData"
+                  node-key="id"
                   @node-click="handleNodeClick"
+                  :default-expanded-keys="defaultExpanded"
                   :expand-on-click-node="false"
                 ></el-tree>
               </el-scrollbar>
@@ -123,6 +125,7 @@
     data() {
       return {
         treeData: [],
+        defaultExpanded: [], // 默认展开数组
         employList: [],
         popoverVisible: false,
         form: {},
@@ -215,6 +218,7 @@
           })
         } else {
           if (this.multi) {
+            this.initMutiData()
             const empIDs = this.catchedEmps.map(v => v.id)
             this.empTags = [...this.catchedEmps]
             this.$refs.tree.setCheckedKeys(empIDs)
@@ -256,6 +260,9 @@
             }
           })
         }
+        this.defaultExpanded = this.treeData.reduce((pre, cur) => {
+          return cur.children ? [...pre, ...cur.children.map(v => v.id)] : [...pre]
+        }, [])
       }
     },
     created() {

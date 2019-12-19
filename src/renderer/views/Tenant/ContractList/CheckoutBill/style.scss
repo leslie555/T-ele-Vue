@@ -1,0 +1,166 @@
+@import '../../../../styles/mixin.scss';
+.order-contract{
+  width: 1000px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 50px 0px;
+  // @include displayFlex(column, center, center);
+  .order-contract-title{
+    font-size: 22px;
+    margin: 20px 0px;
+    @include displayFlex(row, center, center);
+  }
+  .order-contract-num{
+    margin: 20px 0px;
+    text-align: left;
+    @include displayFlex(row, center, flex-start);
+  }
+  .order-contract-label p{
+    @include displayFlex(row, center, space-between);
+    label {
+      margin-right: 90px;
+    }
+  }
+  .order-contract-table1{
+    margin: 10px 0px;
+    width: 100%;
+    .order-contract-tab{
+      @include displayFlex(row, center, flex-start);
+      margin: 20px 0px;
+      span {
+        margin-right: 10px;
+        font-weight: bold;
+        font-size: 14px;
+      }
+    }
+  }
+  .order-contract-new{
+    @include displayFlex(row, center, flex-end);
+    margin: 10px 0px;
+  }
+  .order-contract-count{
+    margin: 20px 0px;
+    font-size: 14px;
+    color: #606266;
+    @include displayFlex(row, center, flex-start);
+    .el-input{
+      width: 120px;
+    }
+  }
+  .order-contract-info{
+    p {
+      text-indent: 2em;
+      span {
+        width: auto;
+        line-height: 14px;
+        position: relative;
+        display: inline-block;
+        border-bottom: 1px solid #333;
+        padding: 4px 10px;
+        text-indent: 0;
+      }
+      .el-input{
+        width: 140px;
+        text-indent: 0;
+      }
+    }
+  }
+  .order-contract-bank-info{
+    margin: 20px 0px;
+    @include displayFlex(row, center, flex-start);
+    .el-input{
+      width: 140px;
+      margin-right: 100px;
+      margin-left: 10px;
+      border: 0 none;
+    }
+    label {
+      display: inline-block;
+      // margin-right: 100px;
+      span {
+        width: auto;
+        line-height: 14px;
+        position: relative;
+        display: inline-block;
+        border-bottom: 1px solid #333;
+        padding: 4px 10px;
+        text-indent: 0;
+      }
+    }
+  }
+  .order-contract-client-info {
+    .el-input {
+      width: 200px;
+      padding-left: 30px;
+      margin-right: 30px;
+      margin-left: -60px;
+    }
+  }
+  .order-contract-signInfo{
+    overflow: hidden;
+    border-bottom: 1px dashed;
+    margin-bottom: 20px;
+    ul {
+      float: left;
+      list-style: none;
+      margin-right: 100px;
+      // margin-left: -40px;
+      li {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+        margin-bottom: 25px;
+      }
+    }
+    .order-contractImg-title {
+      float: left;
+    }
+    .order-contractImg-size {
+      width: 100px;
+      height: 100px;
+      // float: right;
+    }
+  }
+  .order-contract-footer{
+    margin-top: 20px;
+    text-indent: 2em;
+    line-height: 40px;
+    span {
+      width: auto;
+      line-height: 14px;
+      position: relative;
+      display: inline-block;
+      border-bottom: 1px solid #333;
+      padding: 4px 10px;
+      text-indent: 0;
+    }
+    .contractImg-size{
+      width: 100px;
+      height: 100px;
+    }
+  }
+  .order-contract-btn{
+    margin-top: 100px;
+  }
+  .contract-btn-box{
+    margin: 30px 0;
+  }
+  .el-date-editor--daterange {
+    width: 200px;
+  }
+}
+  .centerDiv {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .inputWidth {
+    width: 400px
+  }
+  .subph {
+    color: #999
+  }
+  .but {
+    display: flex;
+    justify-content: center
+  }

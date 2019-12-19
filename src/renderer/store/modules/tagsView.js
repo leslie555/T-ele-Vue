@@ -42,7 +42,6 @@ const tagsView = {
       }
     },
     DEL_CACHED_VIEW: (state, view) => {
-      debugger
       for (const i of state.cachedViews) {
         if (view.meta.routerKey && i === view.meta.routerKey || i === view.name) {
           const index = state.cachedViews.indexOf(i)

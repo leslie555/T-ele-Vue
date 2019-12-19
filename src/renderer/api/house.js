@@ -333,6 +333,31 @@ export function InsertOrderInfo(data) {
   })
 }
 
+// 修改房源预定
+export function UpdateOrderInfo(data) {
+  return request({
+    url: '/OperateMethod/UpdateOrderInfo',
+    method: 'post',
+    data
+  })
+}
+// 续定房源预定
+export function OrderMoneyExtension(data) {
+  return request({
+    url: '/OrderInfo/OrderMoneyExtension',
+    method: 'post',
+    data
+  })
+}
+// 转定房源预定
+export function TurnOrderinfo(data) {
+  return request({
+    url: '/OrderInfo/TurnOrderinfo',
+    method: 'post',
+    data
+  })
+}
+
 // 房源预约
 export function AddAppointmentInfo(data) {
   return request({
@@ -424,6 +449,38 @@ export function WithdrawRenovationApplication(data) {
 export function ApprovalRenovationApplication(data) {
   return request({
     url: '/CompanyMethod/RenovationApplyApproval',
+    method: 'post',
+    data
+  })
+}
+// 合同信息列表
+export function QueryContractDataExportList(data) {
+  return request({
+    url: '/OperateMethod/QueryContractDataExportList',
+    method: 'post',
+    data
+  })
+}
+// 导出数据条数
+export function QueryContractDataExportNumber(data) {
+  return request({
+    url: '/OperateMethod/QueryContractDataExportNumber',
+    method: 'post',
+    data
+  })
+}
+// 导出记录
+export function QueryDataExportRecordList(data) {
+  return request({
+    url: '/OperateMethod/QueryDataExportRecordList',
+    method: 'post',
+    data
+  })
+}
+// 签字
+export function QueryDataExportSignInfo(data) {
+  return request({
+    url: '/OperateMethod/QueryDataExportSignInfo',
     method: 'post',
     data
   })

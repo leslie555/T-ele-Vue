@@ -9,7 +9,8 @@
       </div>
     </div>
     <div class="pay-img">
-      <qrcode :value="payCodeUrl" :options="{ size: 200 }"></qrcode>
+      <qrcode :value="payCodeUrl" :options="{ size: 200 }" v-if="payMode==2&&payCodeUrl"></qrcode>
+      <img style="width: 200px;" :src="payCodeUrl" v-if="payMode==1&&payCodeUrl">
     </div>
     <div slot="footer" class="dialog-footer">
       <el-button :loading="loading" type="primary" @click="onSubmit">支付完成</el-button>
@@ -21,6 +22,7 @@
   import { GetPayCode, QueryPayStatus } from '../../api/pay'
   import Qrcode from '@xkeshi/vue-qrcode'
   import { priceFormat } from '../../utils/priceFormat'
+  import { baseURL } from '../../config'
 
   export default {
     name: 'ToPay',
@@ -46,6 +48,7 @@
       // 传入参数orderType,KeyID,支付金额
       // orderType 0:待收账单 1：记账本，2：收款单
       open(orderType, id, totalAmount, unPaidAmount, amount) {
+        this.payMode = '1'
         this.loading = false
         this.orderType = orderType
         this.billId = id
@@ -60,6 +63,7 @@
       },
 
       getPayCode() {
+        this.payCodeUrl = ''
         GetPayCode({
           orderType: this.orderType,
           bookID: this.billId,
@@ -68,7 +72,11 @@
           payChannelType: this.payMode === '1' ? 'W1' : 'A1'
         }).then(res => {
             if (res.Data) {
-              this.payCodeUrl = res.Data.QrcodeUrl
+              let url = res.Data.QrcodeUrl.replace('http://testservers', 'https://testservers')
+              url = url.replace('http://servers', 'https://servers')
+              url = url.replace('http://127.0.0.1:1920', baseURL)
+              url = url.replace('http://127.0.0.1:1921', baseURL)
+              this.payCodeUrl = url
               this.OrderId = res.Data.OrderId
             }
           }
@@ -117,7 +125,7 @@
             }
           }
         ).catch(() => {
-          this.$message.error('网络错误，请稍候再试')
+          // this.$message.error('网络错误，请稍候再试')
         })
       },
 
@@ -135,22 +143,25 @@
 
 <style lang="scss" scoped>
   @import "../../styles/mixin.scss";
+
   .pay-info {
     color: #666;
     font-size: 16px;
     margin-bottom: 50px;
     .pay-amount {
-      @include displayFlex(row,center,center)
+      @include displayFlex(row, center, center)
     }
     .pay-mode {
-      @include displayFlex(row,center,center)
+      @include displayFlex(row, center, center)
     }
     .pay-amount {
       margin-bottom: 40px;
     }
   }
+
   .pay-img {
-    @include displayFlex(row,center,center);
+    @include displayFlex(row, center, center);
     margin-bottom: 40px;
+    height: 200px;
   }
 </style>

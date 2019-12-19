@@ -6,6 +6,9 @@
     <detail-receipt-single ref="detailReceipt"></detail-receipt-single>
     <VerificationDetail ref="Verification"></VerificationDetail>
     <meter-reading-detail ref="detailMeterReading"></meter-reading-detail>
+    <FixPaperAndPurchaseDialog ref="addConfigBox"></FixPaperAndPurchaseDialog>
+    <bills-preview ref="billsPreview" is-detail></bills-preview>
+    <sublease-template ref="subleaseTemplate"></sublease-template>
   </div>
 </template>
 
@@ -14,6 +17,9 @@
   import DetailReceiptSingle from '../../views/Finance/ReceiptBill/components/DetailReceiptSingle'
   import VerificationDetail from '../../views/Finance/FinancialVerification/components/FinancialDetail'
   import MeterReadingDetail from '../../views/Service/WaterAndelectricityReading/components/MeterReadingDetail'
+  import FixPaperAndPurchaseDialog from '../../views/FixPurchase/PurchaseDepartment/FixPaper/components/FixPaperAndPurchaseDialog'
+  import { SubleaseTemplate, BillsPreview } from '../../views/Tenant/ContractList/components'
+
   import Settlement from '../Settlement'
   import HouseDecoration from '../HouseDecoration'
 
@@ -24,7 +30,10 @@
       DetailReceiptSingle,
       VerificationDetail,
       HouseDecoration,
-      Settlement
+      Settlement,
+      FixPaperAndPurchaseDialog,
+      SubleaseTemplate,
+      BillsPreview
     },
     data() {
       return {
@@ -33,10 +42,10 @@
     },
     methods: {
       open({
-             type = 0,
-             busId = 0,
-             auditId = 0
-           }) {
+        type = 0,
+        busId = 0,
+        auditId = 0
+      }) {
         // 不同审批类型实现不同跳转，具体视页面而定
         let url = ''
         let query = {}
@@ -105,13 +114,41 @@
             })
             break
           case 15: // 租客结账
-            this.settlementType = 1
-            this.$refs.settlement.open({
-              BookKeepPara: {
+            this.$refs.billsPreview.open({
+              contractID: busId
+            })
+            break
+          case 16: // 转租
+            this.$refs.subleaseTemplate.open({
+              KeyID: busId
+            }, 2)
+            break
+          case 17: // 维修
+            this.$router.push({
+              path: '/FixPurchase/RepairBillDetail',
+              query: {
+                MaintenanceCleaing: 0,
                 KeyID: busId
-              },
-              type: 1,
-              detail: true
+              }
+            })
+            break
+          case 18: // 搬家
+            this.$router.push({
+              name: 'MoveApplydetail',
+              query: {
+                KeyID: busId
+              }
+            })
+            break
+          case 19: // 装修
+            this.$refs.addConfigBox.open({ KeyID: busId }, { title: '装修单', titleID: 1 })
+            break
+          case 20: // 保洁
+            this.$router.push({
+              path: '/FixPurchase/CleaningPaperDetail',
+              query: {
+                KeyID: busId
+              }
             })
             break
         }
@@ -129,5 +166,4 @@
 </script>
 
 <style scoped>
-
 </style>

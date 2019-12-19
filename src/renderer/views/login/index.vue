@@ -40,14 +40,14 @@
                 :maxlength="20"
               ></el-input>
             </el-form-item>
+            <el-checkbox class="login-remember" v-model="loginForm.rememberPass">记住密码</el-checkbox>
             <el-form-item>
               <el-button
                 type="primary"
                 :loading="loading"
                 @click="handleLogin"
                 class="login-form-input login-form-button"
-              >登录
-              </el-button>
+              >登录</el-button>
             </el-form-item>
             <a :href="download" download class="download-pc">
               <el-button type="text" v-show="browser" class="download-btn">下载PC端</el-button>
@@ -70,7 +70,6 @@
     name: 'login',
     data() {
       const validateUsername = (rule, value, callback) => {
-        // console.log('2222', rule, value, callback)
         if (value === '') {
           callback(new Error('账号不能为空'))
         } else {
@@ -87,7 +86,8 @@
       return {
         loginForm: {
           username: '',
-          password: ''
+          password: '',
+          rememberPass: false
         },
         browser: process.browser,
         loginRules: {
@@ -96,6 +96,12 @@
         },
         loading: false,
         download: `${downloadUrl}弹窝 Setup ${packageJson.version}.exe`
+      }
+    },
+    created() {
+      const loginForm = localStorage.get('loginForm')
+      if (loginForm) {
+        this.loginForm = { ...loginForm }
       }
     },
     mounted() {
@@ -113,6 +119,11 @@
             this.$store
               .dispatch('Login', this.loginForm)
               .then(() => {
+                if (this.loginForm.rememberPass) {
+                  localStorage.set('loginForm', this.loginForm)
+                } else {
+                  localStorage.set('loginForm', null)
+                }
                 const mark = 'showAppDownLoad_' + this.loginForm.username
                 if (!localStorage.get(mark)) { // 0 或者没有 表示可以设置为显示  1 显示 2 不再显示
                   localStorage.set(mark, 1)
@@ -126,8 +137,11 @@
                 }
                 // 获取枚举类型数据
                 this.$store.dispatch('GetEnumList')
+                // 获取当前人员组织架构
+                this.$store.dispatch('initOrganization')
               })
-              .catch(() => {
+              .catch(err => {
+                if (err) this.$message.error(err)
                 this.loading = false
               })
           } else {

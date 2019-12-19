@@ -9,7 +9,8 @@
       <el-table-column align="center" label='账单期数' min-width="180">
         <template slot-scope="scope">
           <p>
-            <el-checkbox v-model="selectArr" :label="data[scope.row.pIndex].uuid" class="mr-10" :disabled="disabled">
+            <el-checkbox v-model="selectArr" :label="data[scope.row.pIndex].uuid" class="mr-10"
+                         :disabled="disabled||data[scope.row.pIndex].disableEdit">
               &nbsp;
             </el-checkbox>
             <span>账期{{nzhcn.encodeS(scope.row.pIndex+1)}}
@@ -23,12 +24,13 @@
             <!--style="width: 130px"></el-date-picker>-->
           </p>
           <p class="bill-item-total">合计 ：{{$priceFormat(data[scope.row.pIndex].BillAmount)}} <i
-            class="iconfont icon-tianjiamoren" @click="addBillItem(scope.row)" v-if="!disabled"></i></p>
+            class="iconfont icon-tianjiamoren" @click="addBillItem(scope.row)"
+            v-if="!disabled&&!data[scope.row.pIndex].disableEdit"></i></p>
         </template>
       </el-table-column>
       <el-table-column align="center" label='账单项目' min-width="240">
         <template slot-scope="scope">
-          <span v-if="!scope.row.CanOperate">{{scope.row.BillProjectName}}</span>
+          <span v-if="!scope.row.CanOperate || scope.row.disableEdit">{{scope.row.BillProjectName}}</span>
           <template v-else>
             <i class="iconfont icon-shanjianmoren" @click="deleteBillItem(scope.row)"
                :class="scope.row.isFirst?'same-hidden':''" v-if="!disabled"></i>
@@ -48,16 +50,19 @@
       </el-table-column>
       <el-table-column align="center" label='账单金额（元）' min-width="140">
         <template slot-scope="scope">
-          <el-input v-model="tableList[scope.$index].markAmount" style="width: 110px"
-                    @blur="amountChange(tableList[scope.$index])"
-                    type="number"
-                    :disabled="disabled"
-                    placeholder="金额"></el-input>
+          <span v-if="scope.row.disableEdit">{{tableList[scope.$index].markAmount}}</span>
+          <template v-else>
+            <el-input v-model="tableList[scope.$index].markAmount" style="width: 110px"
+                      @blur="amountChange(tableList[scope.$index])"
+                      type="number"
+                      :disabled="disabled"
+                      placeholder="金额"></el-input>
+          </template>
         </template>
       </el-table-column>
       <el-table-column align="center" label='收支类型' min-width="140">
         <template slot-scope="scope">
-          <span v-if="!scope.row.CanOperate">{{$EnumData.getEnumDesByValue('InOrOut', scope.row.InOrOut)}}</span>
+          <span v-if="!scope.row.CanOperate || scope.row.disableEdit">{{$EnumData.getEnumDesByValue('InOrOut', scope.row.InOrOut)}}</span>
           <el-select v-else v-model="tableList[scope.$index].InOrOut" placeholder="请选择收支类型"
                      @change="reCalcAmount"
                      :disabled="disabled"
@@ -69,7 +74,8 @@
               :key="item.Value"
             ></el-option>
           </el-select>
-          <el-button v-if="scope.row.CanOperate&&scope.row.pIndex==0" @click="useToOther(scope.row)" type="primary"
+          <el-button v-if="scope.row.CanOperate&&scope.row.pIndex==0&&!scope.row.disableEdit"
+                     @click="useToOther(scope.row)" type="primary"
                      size="mini">批量应用
           </el-button>
         </template>
@@ -82,7 +88,7 @@
             placeholder="选择日期"
             @focus="saveReceiveDateChange(scope.row.pIndex)"
             @change="receiveDateChange(scope.row.pIndex)"
-            :disabled="disabled"
+            :disabled="disabled || data[scope.row.pIndex].disableEdit"
             style="width: 150px;"
           ></el-date-picker>
         </template>
@@ -120,6 +126,7 @@
   import uuid from '../../../../../utils/uuid'
   import { getTreeNodeByValue } from '../../../../../utils/arrUtil'
   import nzhcn from 'nzh/cn'
+  import { calendar } from '../../../../../utils/dateFormat/nongli'
 
   export default {
     name: 'index',
@@ -174,7 +181,72 @@
       ...mapActions([
         'refreshBillItem'
       ]),
-      initData(data) {
+      initData(data, cloneData = []) {
+        if (data.length > 0) {
+          const initData = []
+          data.map((item, index) => {
+            const markItem = { ...item }
+            if (+markItem.BillAmount !== 0) {
+              const arr = item[this.childrenKey].filter(x => +x.Amount !== 0)
+              markItem[this.childrenKey] = arr
+              initData.push(markItem)
+            }
+          })
+          data = initData
+        }
+        if (cloneData.length > 0) {
+          const initData = []
+          cloneData.map((item, index) => {
+            const markItem = { ...item }
+            if (+markItem.BillAmount !== 0) {
+              const arr = item[this.childrenKey].filter(x => +x.Amount !== 0)
+              markItem[this.childrenKey] = arr
+              initData.push(markItem)
+            }
+          })
+          cloneData = initData
+        }
+        // 初始化或者新增
+        if (cloneData.length === 0) {
+          const initData = []
+          data.map((item, index) => {
+            const markItem = { ...item }
+            markItem[this.childrenKey] = []
+            const arr1 = item[this.childrenKey].filter(x => x.IsActual !== 0)
+            const arr2 = item[this.childrenKey].filter(x => x.IsActual === 0)
+            initData.push({
+              ...markItem,
+              [this.childrenKey]: arr1.length > 0 ? arr1 : arr2
+            })
+            if (arr1.length > 0 && arr2.length > 0) {
+              initData.push({
+                ...markItem,
+                [this.childrenKey]: arr2
+              })
+            }
+          })
+          data = initData
+        }
+        // 修改的时候
+        const extendData = []
+        if (cloneData.length > 0) {
+          cloneData.map((item) => {
+            const mark = []
+            item[this.childrenKey].map((cItem) => {
+              if (cItem.IsActual !== 0) {
+                mark.push({ ...cItem })
+              }
+            })
+            if (mark.length > 0) {
+              item.disableEdit = true
+              item[this.childrenKey] = mark
+              extendData.push({ ...item })
+            }
+          })
+        }
+        if (extendData.length > 0) {
+          data = [...extendData, ...data]
+        }
         this.refreshBillItem().then(() => {
           this.data.length = 0
           this.data.push(...data)
@@ -188,6 +260,10 @@
               cItem.isFirst = cIndex === 0
               if (!cItem.CanOperate) {
                 cItem.CanOperate = false
+              }
+              if (cItem.IsActual !== 0) {
+                cItem.disableEdit = true
+                item.disableEdit = true
               }
             })
           })
@@ -275,7 +351,7 @@
             pIndex: this.data.length - 1
           }, true)
         }
-        this.reCalcDate()
+        // this.reCalcDate()
       },
       deleteBill() {
         const cloneData = this.data.slice()
@@ -288,7 +364,7 @@
           this.data.push(...cloneData)
           this.resetData()
         }
-        this.reCalcDate()
+        // this.reCalcDate()
       },
       reCalcAmount() {
         // 业主 收入为负 租客 支出为负
@@ -331,7 +407,7 @@
         return new Promise((resolve, reject) => {
           for (let i = 0; i < this.data.length; i++) {
             const item = this.data[i]
-            if (!item.BillEndDate || !item.ReceivablesDate) {
+            if (!item.ReceivablesDate) {
               return reject()
             }
             for (let j = 0; j < item[this.childrenKey].length; j++) {
@@ -343,6 +419,21 @@
           }
           return resolve()
         })
+      },
+      validateHoliday() {
+        let str = ''
+        for (let i = 0; i < this.data.length; i++) {
+          const item = this.data[i]
+          const date = this.$dateFormat(item.ReceivablesDate)
+          const text = calendar.calcHoliday(...date.split('-'))
+          if (text) {
+            str += `账期 ${i + 1} 应付款日:${date} 为 <b>${text}</b><br>`
+          }
+        }
+        if (str) {
+          str += '是否进入下一步？'
+        }
+        return str
       },
       billProjectChange(item) {
         const billItem = getTreeNodeByValue(this.billItem.data, item.BillProjectIDMark[1], this.billItem.props)

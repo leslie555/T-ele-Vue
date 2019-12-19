@@ -165,14 +165,14 @@ export function DeleteProjectYWY(data) {
     data
   })
 }
-// 采购部 勘察装修单
-// export function ShowDecorationSheetDetails(data) {
-//   return request({
-//     url: '/CompanyMethod/ShowDecorationSheetDetails',
-//     method: 'post',
-//     data
-//   })
-// }
+// 采购部 勘察采购 供货商
+export function ShowSupplyCommodityProject(data) {
+  return request({
+    url: '/CompanyMethod/ShowSupplyCommodityProject',
+    method: 'post',
+    data
+  })
+}
 // 采购部 勘察采购单
 // export function ShowPurchasingOrderDetails(data) {
 //   return request({
@@ -253,6 +253,47 @@ export function SurveyedCommit(data) {
 //     data
 //   })
 // }
+// 维修列表
+export function Maintainbypage(data) {
+  return request({
+    url: '/CompanyMethod/Maintainbypage',
+    method: 'post',
+    data
+  })
+}
+// 指派和维修完成,以及转装修
+export function EditMaintain(data) {
+  return request({
+    url: '/CompanyMethod/EditMaintain',
+    method: 'post',
+    data
+  })
+}
+// 人员
+export function SelectPurchaseUser(data) {
+  return request({
+    url: '/SystemMethod/SelectPurchaseUser',
+    method: 'post',
+    data
+  })
+}
+// 维修详情
+export function SelectMaintainDetailByID(data) {
+  return request({
+    url: '/CompanyMethod/SelectMaintainDetailByID',
+    method: 'post',
+    data
+  })
+}
+// // 保洁详情
+// export function QueryCleningDetails(data) {
+//   return request({
+//     url: '/CompanyMethod/QueryCleningDetails',
+//     method: 'post',
+//     data
+//   })
+// }
+
 // 装修申请项目配置 - 查询表
 export function ShowRenovationApply(data) {
   return request({
@@ -428,6 +469,49 @@ export function AddRenovationApplyRecord(data) {
 export function UpdateRenovationApplyRecord(data) {
   return request({
     url: '/CompanyMethod/UpdateRenovationApplyRecord',
+    method: 'post',
+    data
+  })
+}
+
+// 采购部-保洁单-列表
+export function Cleaningbypage(data) {
+  return request({
+    url: '/CompanyMethod/Cleaningbypage',
+    method: 'post',
+    data
+  })
+}
+
+// 采购部-保洁单-指派/保洁完成
+export function EditCleaning(data) {
+  return request({
+    url: '/CompanyMethod/EditCleaning',
+    method: 'post',
+    data
+  })
+}
+
+// 采购部-保洁单-保洁详情
+export function QueryCleningDetails(data) {
+  return request({
+    url: '/CompanyMethod/QueryCleningDetails',
+    method: 'post',
+    data
+  })
+}
+// 采购部审核列表
+export function CGBApprovalList(data) {
+  return request({
+    url: '/CompanyMethod/CGBApprovalList',
+    method: 'post',
+    data
+  })
+}
+// 采购部审核按钮
+export function CGBApprovalOperation(data) {
+  return request({
+    url: '/CompanyMethod/CGBApprovalOperation',
     method: 'post',
     data
   })

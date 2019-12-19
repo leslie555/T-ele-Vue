@@ -19,9 +19,12 @@
       color: #389ef2;
     }
   }
+  .contract-template-iframe{
+    min-height: 500px;
+  }
 }
 
-.contract-header-content p span, .contract-list-content p span, .supply-list-content p span {
+.contract-header-content p span, .contract-list-content p span, .supply-list-content p span, .appendix-pay-date p span, .appendix-result p span {
   width: auto;
   line-height: 14px;
   position: relative;
@@ -112,6 +115,15 @@ div,p,span {
             .pay-left, .pay-right {
               flex: 1;
             }
+          }
+          .contract-list-table {
+            table {
+              text-align: center; border-collapse: collapse;
+            }
+            table tr th {
+              background-color: #f3f8fc;
+            }
+            table,table tr th, table tr td { border:1px solid #eee; }
           }
         }
       }
@@ -229,7 +241,14 @@ div,p,span {
         flex: 1;
         .sign-title {
           width: 150px;
+          height: 50px;
           text-align: right;
+        }
+        .jia-info{
+          // width: 100px;
+          text-align: left;
+          margin: 30px 0px;
+          padding-left: 38px;
         }
         .sign-text {
           margin-top: 40px;
@@ -365,7 +384,7 @@ div,p,span {
           width: 250px;
           @include displayFlex(column,flex-start,flex-start);
           .sign-title {
-            width: 120px;
+            width: 110px;
             @include displayFlex(row,center,flex-end);
           }
           .sign-text {
@@ -420,6 +439,25 @@ div,p,span {
         margin-bottom: 15px;
         font-weight: bold;
         font-size: 16px;
+      }
+      .appendix-pay-date{
+        width: 100%;
+        // border: 1px solid #333;
+        // border-top: none;
+        margin-bottom: 30px;
+        font-size: 14px;
+      }
+      .appendix-pay-item{
+        width: 100%;
+        height: 50px;
+        // border: 1px solid #333;
+        // border-left: none;
+        // border-right: none;
+        // border-bottom: none;
+      }
+      .appendix-pay-extra {
+        line-height: 30px;
+        font-size: 14px;
       }
       .appendix-table-container {
 
@@ -515,6 +553,15 @@ div,p,span {
         }
       }
     }
+    .appendix-result {
+      margin-top: 50px;
+    }
+    .appendix-center-title {
+      text-align: center;
+      font-weight: bolder;
+      margin-top: 50px;
+      font-size: 20px;
+    }
     .house-equipment {
 
     }
@@ -537,3 +584,30 @@ div,p,span {
     }
   }
 }
+.content-p {
+  font-weight: bold;
+  font-size: 14px;
+}
+.content-weight {
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: 20px;
+  .second-party-seal-img {
+    width: 200px;
+    height: 110px;
+    img {
+      max-height: 110px;
+      max-width: 200px;
+      cursor: zoom-in;
+    }
+  }
+}
+.contract-location p span {
+  width: auto;
+  line-height: 14px;
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px solid #333;
+  padding: 4px 10px;
+}
+

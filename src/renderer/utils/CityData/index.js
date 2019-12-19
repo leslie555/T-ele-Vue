@@ -1,4 +1,5 @@
 import CityData from './data'
+import menuData from './menuData'
 
 function findNextByCode(city, code) {
   const next = city.find(val => {
@@ -42,4 +43,12 @@ const getCityNameByCode = (code, type = 0) => {
   return type === 0 ? cityName : cityNameArr
 }
 
-export { CityData, getCityNameByCode, getCodeArrByCode }
+const getMenuDataByCityCode = (code) => {
+  for (let i = 0; i < menuData.length; i++) {
+    const item = menuData[i].children.find(y => y.value === code)
+    if (item) return item
+  }
+  return {}
+}
+
+export { CityData, getCityNameByCode, getCodeArrByCode, getMenuDataByCityCode }

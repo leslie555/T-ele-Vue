@@ -70,9 +70,9 @@
           <el-button type="primary" @click="handleRenew"
                      v-show="OwnerContractOperate.LeaseStatus==3&&OwnerContractOperate.AuditStatus==2">续约
           </el-button>
-          <el-button type="primary" @click="handleCheckOut"
-                     v-show="OwnerContractOperate.LeaseStatus==3&&OwnerContractOperate.AuditStatus==2">退房
-          </el-button>
+          <!--<el-button type="primary" @click="handleCheckOut"-->
+                     <!--v-show="OwnerContractOperate.LeaseStatus==3&&OwnerContractOperate.AuditStatus==2">退房-->
+          <!--</el-button>-->
         </template>
       </div>
     </div>

@@ -130,13 +130,13 @@ export function EditTenantResources(data) {
 }
 
 // 查询跟进详情
-// export function ShowFollowUpList(data) {
-//   return request({
-//     url: '/Resources/Resources/ShowFollowUpList',
-//     method: 'post',
-//     data
-//   })
-// }
+export function ShowFollowUpList(data) {
+  return request({
+    url: '/Resources/Resources/ShowFollowUpList',
+    method: 'post',
+    data
+  })
+}
 
 export function ShowOwnerOperationInfo(data) {
   return request({

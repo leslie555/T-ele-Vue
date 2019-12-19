@@ -207,6 +207,27 @@ export function getStaffAndPrincipal(data = {}) {
     data
   })
 }
+export function HouseEmployeeList(data = {}) {
+  return request({
+    url: '/SystemMethod/HouseEmployeeList',
+    method: 'post',
+    data
+  })
+}
+export function HouseEmployeeListByFullID(data = {}) {
+  return request({
+    url: '/SystemMethod/HouseEmployeeListByFullID',
+    method: 'post',
+    data
+  })
+}
+export function ShowChangeHouseInfoList(data = {}) {
+  return request({
+    url: '/MCommunity/ShowChangeHouseInfoList',
+    method: 'post',
+    data
+  })
+}
 export function addStaffData(data = {}) {
   return request({
     url: '/System/SystemMethod/addEmployeeInfo',
@@ -383,10 +404,127 @@ export function ShowOrganizationMeWireList(data = {}) {
     data
   })
 }
+// 获取共享房源门店
+export function ShowShareOrganizationMeWireList(data) {
+  return request({
+    url: '/SystemMethod/ShowShareOrganizationMeWireList',
+    method: 'post',
+    data
+  })
+}
 // 组织架构总接口
 export function ShowOrganization(data = {}) {
   return request({
     url: '/SystemMethod/ShowOrganization',
+    method: 'post',
+    data
+  })
+}
+
+// html生成pdf文件地址
+export function HtmlToPDF(data) {
+  return request({
+    url: '/SystemMethod/HtmlToPDF',
+    method: 'post',
+    data
+  })
+}
+
+// 配置组织时选择人员
+export function ShowStaffSysEmpList(data) {
+  return request({
+    url: '/SystemMethod/ShowStaffSysEmpList',
+    method: 'post',
+    data
+  })
+}
+// 查询组织
+export function ShowStaffSysList(data) {
+  return request({
+    url: '/SystemMethod/ShowStaffSysList',
+    method: 'post',
+    data
+  })
+}
+
+// 新增组织
+export function AddStaffSys(data) {
+  return request({
+    url: '/SystemMethod/AddStaffSys',
+    method: 'post',
+    data
+  })
+}
+// 修改组织
+export function UpdateStaffSys(data) {
+  return request({
+    url: '/SystemMethod/UpdateStaffSys',
+    method: 'post',
+    data
+  })
+}
+// 配置组织和人员关系
+export function UpdateEmployeeinfoStaffSys(data) {
+  return request({
+    url: '/SystemMethod/UpdateEmployeeinfoStaffSys',
+    method: 'post',
+    data
+  })
+}
+// 配置关系查询
+export function ShowStaffSysEmployeeinfopage(data) {
+  return request({
+    url: '/SystemMethod/ShowStaffSysEmployeeinfopage',
+    method: 'post',
+    data
+  })
+}
+// 新组织添加人员
+export function AddStaffSysEmployeeinfo(data) {
+  return request({
+    url: '/SystemMethod/AddStaffSysEmployeeinfo',
+    method: 'post',
+    data
+  })
+}
+// 新组织修改人员
+export function UpdateStaffSysEmployeeinfo(data) {
+  return request({
+    url: '/SystemMethod/UpdateStaffSysEmployeeinfo',
+    method: 'post',
+    data
+  })
+}
+// 根据ID查询人员管理的组织
+export function ShowStaffRelationIntoByEmployeeID(data) {
+  return request({
+    url: '/SystemMethod/ShowStaffRelationIntoByEmployeeID',
+    method: 'post',
+    data
+  })
+}
+
+// 查看当前登录人员管理的组织
+export function ConfigurationByID(data) {
+  return request({
+    url: '/SystemMethod/ConfigurationByID',
+    method: 'post',
+    data
+  })
+}
+
+// 人员选择要管理组织
+export function UpdateConfiguration(data) {
+  return request({
+    url: '/SystemMethod/UpdateConfiguration',
+    method: 'post',
+    data
+  })
+}
+// 删除组织
+export function DeleteStaffSys(data) {
+  return request({
+    url: '/SystemMethod/DeleteStaffSys',
     method: 'post',
     data
   })

@@ -198,6 +198,14 @@ export function QueryTransactionDetails(data) {
   })
 }
 // 删除收款单
+export function DeletePaymentNew(data) {
+  return request({
+    url: '/System/FinanceNew/DeletePaymentNew',
+    method: 'post',
+    data
+  })
+}
+// 删除付款单
 export function DeleteReceiptNew(data) {
   return request({
     url: '/System/FinanceNew/DeleteReceiptNew',

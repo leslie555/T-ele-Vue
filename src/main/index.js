@@ -57,6 +57,7 @@ app.on('activate', () => {
     createWindow()
   }
 })
+app.setAppUserModelId('org.simulatedgreg.electron-vue')
 
 /**
  * Auto Updater

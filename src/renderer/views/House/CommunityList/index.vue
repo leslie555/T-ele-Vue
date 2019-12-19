@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div class="app-container data-list">
     <search-panel :model="CommunityForm" label-width="80px">
       <template slot="search">
         <el-form-item label="地区">
@@ -15,8 +15,15 @@
         <el-button type="primary" @click="ClearData">重置</el-button>
       </template>
     </search-panel>
-    <el-row class="panel">
-      <el-table :data="tableData" border :header-cell-style="{background: '#F5FAFE'}">
+    <div class="panel data-list-table">
+      <el-table :data="tableData"
+                v-loading.body="listLoading"
+                element-loading-text="加载中"
+                border
+                fit
+                height="100%"
+                class="table-normal"
+      >
         <el-table-column label="小区名称" width="220" prop="CommunityName" align="center" fixed="left"></el-table-column>
         <el-table-column label="详细地址" prop="Location" align="center"></el-table-column>
         <el-table-column label="所属区域" align="center" prop="CityName"></el-table-column>
@@ -33,7 +40,7 @@
         </el-table-column>
       </el-table>
 
-    </el-row>
+    </div>
     <bottom-tool-bar ref="bottomToolBar" :page-size="pageSize" :handlePageChange="fetchData"
                      style="text-align: right"></bottom-tool-bar>
     <edit-form ref="editForm" @SubmitEditForm="SubmitEditForm"></edit-form>

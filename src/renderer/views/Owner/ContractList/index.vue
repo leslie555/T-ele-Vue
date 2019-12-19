@@ -17,8 +17,33 @@
       </template>
       <template slot="more">
         <div class="clearfix">
+          <SelectOrganization v-model="ruleForm.FullIDNew"></SelectOrganization>
           <el-form-item label="门店" prop="FullID">
             <select-store ref="selectStore" type="search" @change="handleStoreChange"></select-store>
+          </el-form-item>
+          <el-form-item label="门店人员" prop="EmpFullID">
+            <el-select
+              v-model="ruleForm.EmpFullID"
+              filterable
+              remote
+              reserve-keyword
+              placeholder="请输入出房人姓名或电话"
+              :remote-method="comPeopleRemoteMethod"
+              :disabled="!StoreKeyID"
+              :loading="comPeopleLoading"
+            >
+              <el-option
+                v-for="item in comPeopleResult"
+                :key="item.KeyID"
+                :label="item.UserName"
+                :value="item.FullID"
+              >
+                <span style="float: left">{{ item.UserName }}</span>
+                <span
+                  style="float: right; color: #8492a6; font-size: 13px;margin-right: 20px"
+                >{{ item.Tel }}</span>
+              </el-option>
+            </el-select>
           </el-form-item>
           <el-form-item label="租约状态" prop="LeaseStatus">
             <el-select v-model="ruleForm.LeaseStatus" placeholder="请选择租约状态">
@@ -55,9 +80,21 @@
               ></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="托管周期" prop="EntrustTime">
+          <el-form-item label-width="120px" label="托管开始时间" prop="EntrustTime1">
             <el-date-picker
-              v-model="ruleForm.EntrustTime"
+              v-model="ruleForm.EntrustTime1"
+              type="daterange"
+              align="right"
+              unlink-panels
+              range-separator="至"
+              :default-time="['00:00:00', '23:59:59']"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            ></el-date-picker>
+          </el-form-item>
+          <el-form-item label-width="120px" label="托管结束时间" prop="EntrustTime2">
+            <el-date-picker
+              v-model="ruleForm.EntrustTime2"
               type="daterange"
               align="right"
               unlink-panels
@@ -199,7 +236,9 @@
 </style>
 <script>
   import { deleteOwnerContractByIDs, getContractList, ownerSubmitAudit, ownerWithDrawByID } from '@/api/owner'
-  import { BottomToolBar, SearchPanel, Settlement, TableButtons, SelectStore } from '../../../components'
+  import { getEmployeeInfoList } from '../../../api/system'
+
+  import { BottomToolBar, SearchPanel, Settlement, TableButtons, SelectStore, SelectOrganization } from '../../../components'
   import { diffTime } from '../../../utils/dateFormat'
 
   export default {
@@ -209,7 +248,8 @@
       TableButtons,
       BottomToolBar,
       Settlement,
-      SelectStore
+      SelectStore,
+      SelectOrganization
     },
     data() {
       return {
@@ -271,13 +311,19 @@
           LeaseStatus: '',
           AuditStatus: '',
           PaperType: '',
-          EntrustTime: [],
+          EntrustTime1: [], // 托管开始
+          EntrustTime2: [], // 托管结束
           CreateTime: [],
           OwnerPhone: '',
           CommunityName: '',
           ContractNumber: '',
-          HouseNumber: ''
-        }
+          HouseNumber: '',
+          EmpFullID: '',
+          FullIDNew: ''
+        },
+        StoreKeyID: 0,
+        comPeopleLoading: false,
+        comPeopleResult: [] // 选择人员待选的数据
       }
     },
     computed: {
@@ -306,8 +352,11 @@
           }
         }
         this.listLoading = true
-        if (!this.ruleForm.EntrustTime) {
-          this.ruleForm.EntrustTime = []
+        if (!this.ruleForm.EntrustTime1) {
+          this.ruleForm.EntrustTime1 = []
+        }
+        if (!this.ruleForm.EntrustTime2) {
+          this.ruleForm.EntrustTime2 = []
         }
         if (!this.ruleForm.CreateTime) {
           this.ruleForm.CreateTime = []
@@ -317,11 +366,19 @@
           screen: {
             ...this.ruleForm,
             StartTime: this.$dateFormat(
-              this.ruleForm.EntrustTime[0],
+              this.ruleForm.EntrustTime1[0],
               'yyyy-MM-dd hh:mm:ss'
             ),
             EndTime: this.$dateFormat(
-              this.ruleForm.EntrustTime[1],
+              this.ruleForm.EntrustTime1[1],
+              'yyyy-MM-dd hh:mm:ss'
+            ),
+            EndStartTime: this.$dateFormat(
+              this.ruleForm.EntrustTime2[0],
+              'yyyy-MM-dd hh:mm:ss'
+            ),
+            EndEndTime: this.$dateFormat(
+              this.ruleForm.EntrustTime2[1],
               'yyyy-MM-dd hh:mm:ss'
             ),
             CreaterStartTime: this.$dateFormat(
@@ -377,6 +434,8 @@
           } else if (v.AuditStatus === 3) {
             Operation = ['Detail', 'CheckOutEdit']
           }
+        } else if (v.LeaseStatus === 5) {
+          Operation = ['Detail']
         }
         return {
           KeyID: v.KeyID,
@@ -413,12 +472,36 @@
       handleStoreChange(val) {
         // 选择门店后的回调
         if (val) {
+          this.StoreKeyID = val.id
           this.ruleForm.FullID = val.fullID
         } else {
+          this.StoreKeyID = 0
           this.ruleForm.FullID = ''
+          this.ruleForm.EmpFullID = ''
+        }
+      },
+      comPeopleRemoteMethod(query) {
+        // 选择门店获取数据方法
+        if (query !== '') {
+          this.comPeopleLoading = true
+          getEmployeeInfoList({
+            parm: {
+              page: 1,
+              size: 10
+            },
+            Keyword: query,
+            SelectByID: this.StoreKeyID
+          }).then(({ Data }) => {
+            this.comPeopleLoading = false
+            this.comPeopleResult = Data
+          })
+        } else {
+          this.comPeopleResult = []
         }
       },
       submitForm() {
+        console.log(this.ruleForm)
+        debugger
         this.$refs.ruleForm.validate(valid => {
           if (valid) {
             this.$refs.bottomToolBar.search()
@@ -428,6 +511,8 @@
       resetForm() {
         this.$refs.ruleForm.resetFields()
         this.$refs.selectStore.reset()
+        this.comPeopleResult = []
+        this.StoreKeyID = 0
         this.$refs.bottomToolBar.search()
       },
       handleEdit(row) {

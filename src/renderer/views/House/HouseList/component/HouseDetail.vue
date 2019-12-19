@@ -71,21 +71,21 @@
                 size="small"
                 class="dialogBtn"
                 @click="ToCompleteHouse"
-                v-setbtn:Detailed
+                v-setbtn:EditHouse
                 :showAll="true"
               >修改房源信息
               </el-button>
               <!-- <el-button type="danger" plain size="small" class="dialogBtn" @click="CompleteHouseInfo">完善房源</el-button> -->
-              <el-button
-                type="primary"
-                plain
-                size="small"
-                class="dialogBtn"
-                @click="openItemManage"
-                v-setbtn:Management
-                :showAll="true"
-              >物品/卡号管理
-              </el-button>
+              <!--<el-button-->
+                <!--type="primary"-->
+                <!--plain-->
+                <!--size="small"-->
+                <!--class="dialogBtn"-->
+                <!--@click="openItemManage"-->
+                <!--v-setbtn:Management-->
+                <!--:showAll="true"-->
+              <!--&gt;物品/卡号管理-->
+              <!--</el-button>-->
             </el-col>
           </el-row>
           <!-- 一键发布 -->
@@ -127,6 +127,9 @@
                 </el-form-item>
                 <el-form-item label="租约状态:">
                   <span>{{ $EnumData.getEnumDesByValue('RentLeaseStatus', dialogFormData.tenantInfoDetail.RentLeaseStatus) }}</span>
+                </el-form-item>
+                <el-form-item label="合同审核状态:">
+                  <span>{{ $EnumData.getEnumDesByValue('AuditStatus', dialogFormData.tenantInfoDetail.AuditStatus) }}</span>
                 </el-form-item>
                 <el-form-item label="承租人姓名:">
                   <span>{{ dialogFormData.tenantInfoDetail.TenantName }}</span>
@@ -184,8 +187,8 @@
                 plain
                 size="small"
                 class="dialogBtn"
-                v-if="!IsDecorated"
                 @click="TenantRemark"
+                v-setbtn:TenantRegistration
               >租客登记
               </el-button>
               <el-button
@@ -193,8 +196,9 @@
                 plain
                 size="small"
                 class="dialogBtn"
-                v-else
+                v-if="IsDecorated"
                 @click="TenantDetail"
+                v-setbtn:TenantDetail
               >租约详情
               </el-button>
               <el-button
@@ -203,6 +207,7 @@
                 size="small"
                 class="dialogBtn"
                 @click="OpenBooking"
+                v-setbtn:AddReservation
                 v-if="!dialogFormData.ReservationID"
               >添加预定
               </el-button>
@@ -211,16 +216,18 @@
                 plain
                 size="small"
                 class="dialogBtn"
+                v-setbtn:CancelReservation
                 @click="CancelOrder"
-                v-if="dialogFormData.ord&&dialogFormData.ReservationID&&dialogFormData.OrderStatus!=2"
+                v-if="dialogFormData.ord&&dialogFormData.ReservationID"
               >取消预定
               </el-button>
-              <el-button type="warning" plain size="small" class="dialogBtn" @click="OpenRev">添加预约</el-button>
+              <el-button type="warning" plain size="small" class="dialogBtn" @click="OpenRev" v-setbtn:AddSubscribe>添加预约</el-button>
               <el-button
                 type="warning"
                 plain
                 size="small"
                 class="dialogBtn"
+                v-setbtn:CheckTenant
                 @click="openContractList"
               >查看租约
               </el-button>
@@ -254,10 +261,10 @@
                 @click="OpenDecoration"
                 v-setbtn:SetDecorate
               >修改管房人</el-button>-->
-              <select-employee allCompany @select="ChangePeople" :existedEmp="existedEmp" tips="管房人" multi
-                               v-if="isShow">
-                <el-button type="primary" @click="popoverVisible = true" plain size="mini">修改管房人</el-button>
-              </select-employee>
+              <!--<select-employee allCompany @select="ChangePeople" :existedEmp="existedEmp" tips="管房人" multi-->
+                               <!--v-if="isShow">-->
+                <!--<el-button type="primary" @click="popoverVisible = true" plain size="mini">修改管房人</el-button>-->
+              <!--</select-employee>-->
             </el-col>
           </el-row>
           <!-- 房源状态 -->
@@ -275,15 +282,15 @@
               </el-row>
             </el-col>
             <el-col :span="8" class="dialogCol rowRight" style="height: 120px;">
-              <el-button
-                type="success"
-                plain
-                size="small"
-                class="dialogBtn"
-                @click="OpenDecoration"
-                v-setbtn:SetDecorate
-              >设置装修
-              </el-button>
+              <!--<el-button-->
+                <!--type="success"-->
+                <!--plain-->
+                <!--size="small"-->
+                <!--class="dialogBtn"-->
+                <!--@click="OpenDecoration"-->
+                <!--v-setbtn:SetDecorate-->
+              <!--&gt;设置装修-->
+              <!--</el-button>-->
             </el-col>
           </el-row>
           <!-- 账单信息 -->

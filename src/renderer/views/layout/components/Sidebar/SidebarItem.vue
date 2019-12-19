@@ -1,7 +1,7 @@
 <template>
   <div class="menu-wrapper">
     <template v-for="item in routes"
-              v-if="!(item.meta&&item.meta.hidden)&&item.children&&(item.children.length>0||item.meta.menu===2)">
+              v-if="!(item.meta&&item.meta.hidden)&&item.children&&(item.children.length>0)">
       <!-- classObject对象样式监察部动画效果    aria-expanded动画必须效果     mouseenter，mouseleave 鼠标滑动和滑出触发  item.meta.menu===2 为监察部 -->
       <el-menu-item :class="classObject" :aria-expanded = judge  @mouseenter.native="enter" @mouseleave.native="leave"  v-if="item.meta.menu===2" :index="item.name||item.path" :key="item.name">
         <router-link :to="item.path" :key="item.name">
@@ -66,6 +66,9 @@
   }
   .judge i{
     color: #389ef2 !important;
+  }
+  .judge:hover{
+    background-color: #f3f9fe !important
   }
 </style>
 <script>

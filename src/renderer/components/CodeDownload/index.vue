@@ -4,29 +4,29 @@
       <div class="code-dialog-cover" v-if="CodeShowing">
         <div class="code-dialog-box">
           <div class="code-background">
-            <img src="../../assets/Qrcode.png" alt="">
+            <img :src="imgBg" alt />
           </div>
           <div class="code-text">
             <p>弹窝APP版下载</p>
           </div>
-          <!--<div class="code-ios">-->
-            <!--<img src="../../assets/ios.png" width="160" height="160" alt="">-->
-          <!--</div>-->
-          <div class="code-android">
-            <img src="../../assets/download-code.png" width="160" height="160" alt="">
+          <div class="code-ios">
+            <img src="../../assets/gzh-code.png" width="160" height="160" alt />
           </div>
-          <!--<div class="code-text-ios common">ios</div>-->
-          <div class="code-text-android common">扫一扫下载</div>
+          <div class="code-android">
+            <img src="../../assets/download-code.png" width="160" height="160" alt />
+          </div>
+          <div class="code-text-ios common">公众号</div>
+          <div class="code-text-android common">App下载</div>
           <div class="code-Slogan">
             <p>测算小工具帮你轻松控制出房价、拿房价</p>
             <p>&nbsp;&nbsp;房源一键发布、分享，提高获客效率</p>
             <p style="text-indent: -30px">掌上在线预定、签约、催租、续约、退房轻松搞定</p>
           </div>
           <div class="code-cha" @click="closeCode">
-            <img src="../../assets/fuxuankuangxuanzhong-01.png" width="30" height="30" alt="">
+            <img src="../../assets/fuxuankuangxuanzhong-01.png" width="30" height="30" alt />
           </div>
           <div class="code-tips">
-            <el-checkbox v-model="NoPromptShowing" @change="changeValue">不再提示</el-checkbox>
+            <el-checkbox v-if="!isFestival" v-model="NoPromptShowing" @change="changeValue">不再提示</el-checkbox>
           </div>
         </div>
       </div>
@@ -46,11 +46,21 @@
       return {
         NoPromptShowing: false,
         mark: `showAppDownLoad_` + this.$store.getters.userinfo.LoginCode,
-        showDialog: false
+        showDialog: false,
+        imgBg: require('../../assets/Qrcode.png'),
+        isFestival: false
       }
     },
     created() {
-      const showAppDownLoad = localStorage.get(this.mark)
+      let showAppDownLoad = localStorage.get(this.mark)
+      const nowTime = new Date()
+      if (nowTime.getFullYear() === 2019 && nowTime.getMonth() === 8 && (nowTime.getDate() >= 1 && nowTime.getDate() <= 7)) {
+        this.isFestival = true
+        this.imgBg = require('../../assets/national.jpg')
+        if (showAppDownLoad === 2) {
+          showAppDownLoad = 1
+        }
+      }
       if (showAppDownLoad === 1) {
         this.showDialog = true
         localStorage.set(this.mark, 0)
@@ -76,15 +86,18 @@
 <style lang="scss" scoped>
   @import "style";
 
-  .scale-enter, .scale-leave-to {
-    transform: scale(0)
+  .scale-enter,
+  .scale-leave-to {
+    transform: scale(0);
   }
 
-  .scale-leave, .scale-enter-to {
-    transform: scale(1)
+  .scale-leave,
+  .scale-enter-to {
+    transform: scale(1);
   }
 
-  .scale-enter-active, .scale-leave-active {
-    transition: all .5s
+  .scale-enter-active,
+  .scale-leave-active {
+    transition: all 0.5s;
   }
 </style>

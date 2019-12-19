@@ -1,11 +1,11 @@
-@import "../../../styles/variables";
-@import "../../../styles/mixin";
+@import '../../../styles/variables';
+@import '../../../styles/mixin';
 $configOrange: #fd9258;
 $configGray: #dddddd;
 $configWhite: #fffcfa;
-.edit-contract{
+.edit-contract {
   .roomConfig {
-    @include displayFlex(row,center,flex-start);
+    @include displayFlex(row, center, flex-start);
     width: 600px;
     margin: 20px;
     border-radius: 4px;
@@ -14,7 +14,7 @@ $configWhite: #fffcfa;
     border: 1px solid $configGray;
     font-size: 14px;
     .roomConfigLeft {
-      @include displayFlex(row,center,center);
+      @include displayFlex(row, center, center);
       width: 36px;
       color: white;
 

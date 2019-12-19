@@ -27,6 +27,7 @@
 <script>
     import { ModifyPwd } from '../../api/usercenter'
     import { mapGetters } from 'vuex'
+    import { localStorage } from '@/utils/storage'
 
     export default {
         data() {
@@ -97,6 +98,11 @@
                                 message: '修改成功',
                                 type: 'success'
                             })
+                            if (this.form.NewPwd === '000000') {
+                              localStorage.set('isEasyPwd', 1)
+                            } else {
+                              localStorage.set('isEasyPwd', 0)
+                            }
                             this.$refs[formName].resetFields()
                             this.close()
                         })

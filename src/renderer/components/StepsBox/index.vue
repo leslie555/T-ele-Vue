@@ -1,8 +1,8 @@
 <template>
     <div class="steps-box">
-        <div class="steps-panel">
+        <div class="steps-panel" v-if="list.length>1">
             <div class="steps-herder">
-                <div class="step-item-title" v-for="(item, index) in list" :key="index"
+                <div class="step-item-title"  v-for="(item, index) in list" :key="index"
                      :class="currentStep>index?'active':''">
                     {{index+1}}.{{item.title}}
                 </div>

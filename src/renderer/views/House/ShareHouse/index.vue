@@ -1,5 +1,5 @@
   <template>
-  <div class="app-container">
+  <div class="app-container" v-loading="listLoading" element-loading-text="拼命加载房源中...">
     <!-- 筛选部分 -->
     <search-panel :model="ShareHouseForm" label-width>
       <template slot="search">
@@ -27,8 +27,9 @@
             clearable
           ></el-input>
         </el-form-item>
+        <SelectOrganization v-model="ShareHouseForm.FullIDNew" :type="2"></SelectOrganization>
         <el-form-item label="门店选择">
-          <select-store ref="selectStore" type="search" @change="handleChange"></select-store>
+          <select-store ref="selectStore" type="house" @change="handleChange"></select-store>
             <!-- <el-cascader
               ref="cascader"
               separator=">"
@@ -63,6 +64,17 @@
               :key="item.id"
               type="text"
               @click="addFilter(item, 8)"
+              :class="[item.isActive ? 'active' : '']"
+            >{{ item.text }}</el-button>
+          </el-form-item>
+        </div>
+        <div class="clearfix">
+          <el-form-item label="到期">
+            <el-button
+              v-for="item in filterLists.Expire"
+              :key="item.id"
+              type="text"
+              @click="addFilter(item, 10)"
               :class="[item.isActive ? 'active' : '']"
             >{{ item.text }}</el-button>
           </el-form-item>
@@ -134,6 +146,17 @@
           </el-form-item>
         </div>
         <div class="clearfix">
+          <el-form-item label="是否有图">
+            <el-button
+              v-for="item in filterLists.HaveImgList"
+              :key="item.id"
+              type="text"
+              @click="addFilter(item, 9)"
+              :class="[item.isActive ? 'active' : '']"
+            >{{ item.text }}</el-button>
+          </el-form-item>
+        </div>
+        <div class="clearfix">
           <!--  <el-form-item label="公司">
             <el-select v-model="ShareHouseForm.CompanyID" placeholder="请选择">
               <el-option
@@ -166,7 +189,7 @@
       </el-row>
     </transition>
     <!-- 展示部分 -->
-    <el-row class="panel data-list-table" v-loading="listLoading" element-loading-text="拼命加载房源中...">
+    <el-row class="panel data-list-table">
       <div class="ShareHouseContent">
         <div class="HouseCount">
           <h4>
@@ -204,8 +227,8 @@
                 <span class="start">{{ $EnumData.getEnumDesByValue('RentType', scope.row.RentType) }}</span>
                 <span>押{{ scope.row.PledgeNumber }}付{{ scope.row.PayNumber }}</span>
                 <span>{{ scope.row.RoomCount }}室{{ scope.row.HallCount }}厅</span>
-                <span>{{ scope.row.HouseArea }} m&sup2;</span>
-                <span class="end">业主到期: {{ $dateFormat(scope.row.OwnerEndTime, 'yyyy-MM-dd') }}</span>
+                <span class="end">{{ scope.row.HouseArea }} m&sup2;</span>
+                <!--<span class="end">业主到期: {{ $dateFormat(scope.row.OwnerEndTime, 'yyyy-MM-dd') }}</span>-->
               </div>
               <div class="tableHouseDate">
                 <span>地址: {{ scope.row.Location }}</span>
@@ -218,7 +241,7 @@
               <el-button type="primary" @click.stop="OpenBookingHouse(scope.row)" v-if="scope.row.ReserveStatus !== 3">预定</el-button>
               <!-- v-if="$store.state.user.userinfo.FullID === scope.row.FullID" -->
               <el-button type="primary" @click.stop="OpenReservationHouse(scope.row)">预约</el-button>
-              <el-button type="primary" @click.stop="AddTenant(scope.row)" v-if="scope.row.HouseStatus !== 5">租客登记</el-button>
+              <el-button type="primary" @click.stop="AddTenant(scope.row)">租客登记</el-button>
               <!--<el-button type="primary" @click.stop="SeeInfo(scope.row)">合同信息</el-button>-->
             </template>
           </el-table-column>
@@ -246,13 +269,11 @@
 import BookingHouse from '@/components/BookingHouse'
 import ReservationHouse from '@/components/ReservationHouse'
 import BottomToolBar from '@/components/BottomToolBar'
-import { SearchPanel, SelectStore } from '@/components'
-import getStructure from '@/utils/getStructure'
+import { SearchPanel, SelectStore, SelectOrganization } from '@/components'
 import ShowMore from '../ShareHouseDetail/components/ShowMore'
 import { CityData } from '@/utils/CityData'
-import { findNodeByArr } from '@/utils/getStructure/findNodeByArr'
-import { selectShareHouseInfoListPaging, showCompanyInfo } from '@/api/house'
-import { SelectBusinessDepList, ShowCompanyinfoCityCode } from '@/api/system'
+import { selectShareHouseInfoListPaging } from '@/api/house'
+import { ShowCompanyinfoCityCode } from '@/api/system'
 
 export default ({
   name: 'HouseShareHouse',
@@ -262,12 +283,11 @@ export default ({
     BottomToolBar,
     SearchPanel,
     ShowMore,
-    SelectStore
+    SelectStore,
+    SelectOrganization
   },
   data() {
     return {
-      // 组织架构源数据
-      treeData: [],
       showMoreVisible: false,
       houseInfo: {},
       houseID: '0',
@@ -331,6 +351,8 @@ export default ({
         value1: '',
         value2: '',
         HouseStatus: [],
+        IsHaveImage: 0,
+        IsChecked: false,
         CityCode: [],
         RentMoeny: [],
         RoomType: [],
@@ -339,7 +361,8 @@ export default ({
         RoomArea: [],
         Toward: [],
         CompanyID: null,
-        FullID: ''
+        FullID: '',
+        FullIDNew: ''
       },
       // 筛选列表数据
       filterLists: {
@@ -371,8 +394,20 @@ export default ({
           },
           {
             id: 4,
-            text: '2000以上',
-            value: '2000以上',
+            text: '1500-2000',
+            value: '1500-2000',
+            isActive: false
+          },
+          {
+            id: 5,
+            text: '2000-3000',
+            value: '2000-3000',
+            isActive: false
+          },
+          {
+            id: 6,
+            text: '3000以上',
+            value: '3000以上',
             isActive: false
           }
         ],
@@ -568,7 +603,31 @@ export default ({
             isActive: false
           }
         ],
-        CompanyList: []
+        HaveImgList: [
+          {
+            id: 1,
+            text: '有图片',
+            value: 1,
+            only: true,
+            isActive: false
+          },
+          {
+            id: 2,
+            text: '无图片',
+            value: 2,
+            only: true,
+            isActive: false
+          }
+        ],
+        Expire: [
+          {
+            id: 1,
+            text: '2个月内（租客）',
+            value: true,
+            only: true,
+            isActive: false
+          }
+        ]
       },
       // 表格数据
       rowStyle: { height: '150px', cursor: 'pointer' },
@@ -577,8 +636,6 @@ export default ({
   },
   created() {
     this.GetCityList()
-    this.GetCompanyInfo()
-    this.GetOrganization()
   },
   methods: {
     // search
@@ -589,6 +646,7 @@ export default ({
       this.ShareHouseForm.CommunityName = ''
       this.ShareHouseForm.HouseName = ''
       this.ShareHouseForm.RoomNumber = ''
+      this.ShareHouseForm.FullIDNew = ''
       this.$refs.selectStore.reset()
       this.deleteAllRes()
     },
@@ -630,6 +688,19 @@ export default ({
       obj.isActive = true
       var isExist = false
       let comIdx = -1 // filterRes数组里组织架构的index
+      if (obj.only) {
+        const item = this.filterRes.find(x => x.obj.value === obj.value)
+        if (item) {
+          return
+        } else {
+          const index = this.filterRes.findIndex(x => x.tag === 9)
+          if (index !== -1) {
+            const mark = this.filterRes[index]
+            this.filterRes.splice(index, 1)
+            this.filterLists.HaveImgList[mark.obj.value - 1].isActive = false
+          }
+        }
+      }
       this.filterRes.forEach((element, index) => {
         if (element.obj.isCompany === '1') {
           comIdx = index
@@ -675,6 +746,12 @@ export default ({
               break
             case 8:
               this.ShareHouseForm.HouseStatus.push(obj.value)
+              break
+            case 9:
+              this.ShareHouseForm.IsHaveImage = obj.value
+              break
+            case 10:
+              this.ShareHouseForm.IsChecked = obj.value
               break
           }
           if (tag === 7) {
@@ -722,6 +799,12 @@ export default ({
         case 8:
           this.deleteShareList(this.ShareHouseForm.HouseStatus, item.obj.value)
           break
+        case 9:
+          this.ShareHouseForm.IsHaveImage = 0
+          break
+        case 10:
+          this.ShareHouseForm.IsChecked = false
+          break
         case 7:
           this.structure = []
           this.ShareHouseForm.FullID = ''
@@ -747,6 +830,8 @@ export default ({
       this.ShareHouseForm.RoomArea = []
       this.ShareHouseForm.Toward = []
       this.ShareHouseForm.HouseStatus = []
+      this.ShareHouseForm.IsHaveImage = 0
+      this.ShareHouseForm.IsChecked = false
       this.structure = []
       this.ShareHouseForm.FullID = ''
       for (var i in this.filterLists) {
@@ -762,7 +847,7 @@ export default ({
     },
     // 预定按钮
     OpenBookingHouse(data) {
-      this.$refs.BookingHouseDialog.open(data)
+      this.$refs.BookingHouseDialog.open(data, this.ShareHouseForm.IsChecked)
     },
     // 预约按钮
     OpenReservationHouse(data) {
@@ -774,7 +859,9 @@ export default ({
         path: '/House/ShareHouseDetail',
         query: {
           id: row.HouseKey,
-          HouseID: row.HouseID
+          HouseID: row.HouseID,
+          ShareRentHouseID: row.HouseStatus === 5 ? row.HouseID : '',
+          IsChecked: this.ShareHouseForm.IsChecked
         }
       })
     },
@@ -829,20 +916,8 @@ export default ({
         this.HouseCount = response.Data.Param.records
         this.listLoading = false
         return response.Data
-      })
-    },
-    // 得到公司
-    GetCompanyInfo() {
-      showCompanyInfo({
-        // ZBID: this.$store.state.user.userinfo.BusinessID
-        ZBID: 1
-      }).then(response => {
-        this.filterLists.CompanyList = response.Data
-      })
-    },
-    GetOrganization() {
-      SelectBusinessDepList({ BusinessID: this.$store.getters.userinfo.BusinessID, Type: 3, MDLX: 1 }).then(res => {
-        this.treeData = getStructure(res.Bus, res.Data.ComList, res.Data.DepList)
+      }).catch(() => {
+        this.listLoading = false
       })
     },
     // 显示更多区县
@@ -852,32 +927,6 @@ export default ({
     handleChange(val) {
       this.ShareHouseForm.FullID = val.fullID
       console.log(val)
-      // this.getFullID(val)
-    },
-    handleParentChange(val) {
-      this.$refs.cascader.menu.$el.onclick = (e) => {
-        if (e.srcElement.nodeName === 'LI') {
-          if (findNodeByArr(this.treeData, val).children) { // val最后一项大于100000代表是部门,且如果为叶子节点则不添加onclick
-            this.$refs.cascader.handlePick(val)
-            this.$refs.cascader.menu.$el.onclick = null
-          }
-        }
-      }
-    },
-    getFullID(structArr) {
-      // let organization = ''
-      let type = 'CompanyID'
-      findNodeByArr(this.treeData, structArr, node => {
-        if (node.type === type) {
-          this.ShareHouseForm.FullID += '.' + node.id
-        } else {
-          this.ShareHouseForm.FullID += '-' + node.id
-          type = 'DepartmentID'
-        }
-        // organization = node.label
-      })
-      this.ShareHouseForm.FullID = this.$store.getters.userinfo.BusinessID + '-' + this.ShareHouseForm.FullID.slice(1)
-      // this.addFilter({ organization, fullID: this.ShareHouseForm.FullID, isCompany: '1' }, 7)
     }
   }
 })

@@ -377,18 +377,22 @@
       </el-col>
     </el-row>
     <add-remark ref="homeAddRemark" @changeData="GetRemark"></add-remark>
+    <reset-pwd ref="resetPwd"></reset-pwd>
   </div>
 </template>
 <script>
 import addRemark from './components/addForm'
+import ResetPwd from '@/components/ResetPwd'
 import { HomeReport, ShowHouseCustomerReport, FindMemo, DelMemoByID, SelectIncomeOrPayViewAll, SelectTakeOrOutRank, SelectTakeOroutPerformance } from '@/api/homePage'
 import { mapActions, mapGetters } from 'vuex'
+import { localStorage } from '@/utils/storage'
 var echarts = require('echarts')
 
 export default ({
   name: 'homePage',
   components: {
-    addRemark
+    addRemark,
+    ResetPwd
   },
   data() {
     return {
@@ -1510,6 +1514,17 @@ export default ({
     this.getRentData()
     // 今日代办
     this.GetRemark()
+    // 检测密码
+    // eslint-disable-next-line eqeqeq
+    if (localStorage.get('isEasyPwd') == 1) {
+      this.$confirm('系统检测到密码为初始密码，请您及时修改，避免出现不必要的麻烦。', '提示', {
+        confirmButtonText: '修改密码',
+        cancelButtonText: '稍后修改',
+        type: 'success'
+      }).then(() => {
+        this.$refs.resetPwd.open()
+      })
+    }
   },
   methods: {
     ...mapActions([

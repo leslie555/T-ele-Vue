@@ -30,7 +30,7 @@
     box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.1);
     border-radius: 4px;
     display: inline-block;
-    margin-right: 40px;
+    //margin-right: 40px;
     text-align: center;
     padding: 10px;
     box-sizing: border-box;
@@ -142,7 +142,7 @@
     border: 1px solid rgba(255, 90, 90, 0.8);
     box-shadow: 0 0 20px 0 rgba(255, 90, 90, 0.4);
   }
-  
+
   .active.ToAudit {
     border: 1px solid rgba(255, 90, 90, 0.8);
     box-shadow: 0 0 20px 0 rgba(255, 90, 90, 0.4);
@@ -164,10 +164,10 @@
   }
 
   .houseCardBox {
-    width: 180px;
+    width: 140px;
     height: 160px;
     padding-left: 10px;
-    padding-right: 16px;
+    //padding-right: 16px;
     margin-right: 2px;
     margin-bottom: 20px;
     display: flex;
@@ -176,7 +176,7 @@
     position: relative;
 
     .houseListCard {
-      margin-right: 10px;
+      //margin-right: 10px;
     }
   }
 

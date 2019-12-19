@@ -19,7 +19,7 @@
                                v-for="(item,index) in ContractTemplate" :key="index"></el-option>
                   </el-select>
                 </el-form-item>
-                <el-form-item label="合同编号" prop="ContractNumber" v-else>
+                <el-form-item label="合同编号" prop="ContractNumber" v-if="ContractInfo.PaperType==1||isEdit">
                   <el-input v-model="ContractInfo.ContractNumber" placeholder="请输入合同编号" maxlength="50"></el-input>
                 </el-form-item>
               </div>
@@ -47,13 +47,13 @@
               <div class="clearfix">
                 <el-form-item label="承租人姓名" prop="TenantName">
                   <el-input v-model="ContractInfo.TenantName" placeholder="请输入承租人姓名"
-                            maxlength="10"
+                            maxlength="14"
                             :disabled="IsSafeEdit"
                             @blur="changeLivePeople"></el-input>
                 </el-form-item>
                 <el-form-item label="承租人电话" prop="TenantPhone">
                   <el-input v-model="ContractInfo.TenantPhone" placeholder="请输入承租人电话"
-                            maxlength="20"
+                            maxlength="11"
                             :disabled="IsSafeEdit"
                             @blur="changeLivePeople"></el-input>
                 </el-form-item>
@@ -80,7 +80,7 @@
               <div class="clearfix">
                 <el-form-item label="紧急联系人姓名" prop="EmergencyContactName">
                   <el-input v-model="ContractInfo.EmergencyContactName"
-                            maxlength="10"
+                            maxlength="14"
                             :disabled="IsSafeEdit"
                             placeholder="请输入紧急联系人姓名" @blur="changeLivePeople"></el-input>
                 </el-form-item>
@@ -108,7 +108,7 @@
               </div>
               <div class="clearfix" v-if="ContractInfo.IsAgent">
                 <el-form-item label="代办人姓名" prop="AgentName">
-                  <el-input v-model="ContractInfo.AgentName" maxlength="10"
+                  <el-input v-model="ContractInfo.AgentName" maxlength="14"
                             :disabled="IsSafeEdit"
                             placeholder="请输入代办人姓名"></el-input>
                 </el-form-item>
@@ -466,6 +466,8 @@
         <template slot="4">
           <el-form :model="ContractInfo" :inline="true"
                    class="step2"
+                   :rules="rules.rule5"
+                   ref="ruleForm5"
                    :disabled="IsSafeEdit"
                    label-width="140px">
             <!--<template v-if="houseConfigList.length>0">-->
@@ -486,7 +488,7 @@
             <div class="panel-title">交割信息</div>
             <div class="panel-body">
               <div class="clearfix form-item-xs">
-                <el-form-item label="水底数" label-width="80px">
+                <el-form-item label="水底数" label-width="80px" prop="WaterBaseNumber">
                   <el-input v-model="ContractInfo.WaterBaseNumber"
                             min="0"
                             v-positive="ContractInfo.WaterBaseNumber"
@@ -496,7 +498,7 @@
                   ></el-input>
                   <span class="ml-5">吨</span>
                 </el-form-item>
-                <el-form-item label="电底数">
+                <el-form-item label="电底数" prop="ElectricityBaseNumber">
                   <el-input v-model="ContractInfo.ElectricityBaseNumber"
                             min="0"
                             v-positive="ContractInfo.ElectricityBaseNumber"
@@ -506,7 +508,7 @@
                   ></el-input>
                   <span class="ml-5">度</span>
                 </el-form-item>
-                <el-form-item label="气底数">
+                <el-form-item label="气底数" prop="GasBaseNumber">
                   <el-input v-model="ContractInfo.GasBaseNumber"
                             min="0"
                             v-positive="ContractInfo.GasBaseNumber"
@@ -554,7 +556,7 @@
             </div>
             <div class="clearfix">
               <el-form-item label="">
-                <el-button class="ml-20" plain type="primary" @click="createOrder('Preview')" :loading="orderLoading">
+                <el-button class="ml-20" plain type="primary" @click="createOrder('Preview',4)" :loading="orderLoading">
                   预览合同
                 </el-button>
               </el-form-item>
@@ -566,20 +568,20 @@
               <el-button type="primary" class="mr-20" @click="createOrder('TemporaryStorage',4)"
                          :loading="orderLoading">暂存
               </el-button>
-              <el-button type="primary" @click="createOrder('SignUp')" v-show="ContractInfo.PaperType==0"
+              <el-button type="primary" @click="createOrder('SignUp',4)" v-show="ContractInfo.PaperType==0"
                          :loading="orderLoading">
-                现场签字
+                {{!!query.SafeEdit?'保存':'现场签字'}}
               </el-button>
-              <el-button type="primary" @click="createOrder('Save')" v-show="ContractInfo.PaperType==1"
+              <el-button type="primary" @click="createOrder('Save',4)" v-show="ContractInfo.PaperType==1"
                          :loading="orderLoading">
                 保存
               </el-button>
-              <el-button type="primary" class="ml-20" @click="createOrder('SubmitAudit')"
+              <el-button type="primary" class="ml-20" @click="createOrder('SubmitAudit',4)"
                          v-show="ContractInfo.FirstInputTerminal===1&&TenantContractOperate.IsSigned==1"
                          :loading="orderLoading">提交审核
               </el-button>
             </template>
-            <el-button type="primary" @click="createOrder('Save')" v-else
+            <el-button type="primary" @click="createOrder('Save',4)" v-else
                        :loading="orderLoading">
               保存修改
             </el-button>
@@ -604,6 +606,7 @@
     getContractDetail,
     getTenantBillNew,
     insertTenantContract,
+    NewPreviewTenantContract,
     QueryHouseContractStatus,
     safeEditTenantContract
   } from '../../../api/tenant'
@@ -613,7 +616,7 @@
   import { BillPanel, BookKeeping, ContractTabs, InputNumber } from '../../Owner/EditContract/components'
   import { LivePeople } from './components'
   import { UploadFile } from '../../../components/UploadFile'
-  import { validatePhone } from '../../../utils/validate/rulevalidator'
+  import { validatePhone, validateCard } from '../../../utils/validate/rulevalidator'
   import uuid from '../../../utils/uuid'
   import { scrollToError } from '../../../utils/scrollToError'
   import { mapActions } from 'vuex'
@@ -710,6 +713,7 @@
         ContractInfo: {
           TenantPhone: '',
           TenantName: '',
+          TenantCard: '',
           HostTimeMark: [],
           PayStageTimeMark: [],
           IsPayStageMark: false,
@@ -724,7 +728,10 @@
           IncreaseFrequency: 1,
           TenantSex: 0,
           PassengerChannel: 0,
-          MaxLiverCount: 1
+          MaxLiverCount: 1,
+          WaterBaseNumber: '',
+          ElectricityBaseNumber: '',
+          GasBaseNumber: ''
         }, // 合同信息
         HouseInfo: {}, // 房源信息
         LivePeopleInfoList: [
@@ -753,7 +760,8 @@
           LivePeopleInfoList: [],
           ImageUpload: [],
           BookKeep: [],
-          OutRoomInfoList: []
+          OutRoomInfoList: [],
+          TenantBill: []
         }, // clone的旧数据
         billForm: {}, // 账单表单 用于对比是否修改了账单
         Decoration: [], // 所有装修情况数据
@@ -778,10 +786,12 @@
               { required: true, message: '请输入承租人姓名', trigger: 'blur' }
             ],
             TenantPhone: [
-              { required: true, message: '请输入承租人电话', trigger: 'blur' }
+              { required: true, message: '请输入承租人电话', trigger: 'blur' },
+              { validator: validatePhone, trigger: 'blur' }
             ],
             TenantCard: [
-              { required: true, message: '请输入承租人身份证号', trigger: 'blur' }
+              { required: true, message: '请输入承租人身份证号', trigger: 'blur' },
+              { validator: validateCard, trigger: 'blur' }
             ],
             TenantSex: [
               { required: true, message: '请选择承租人性别', trigger: 'change' }
@@ -806,7 +816,8 @@
               { validator: validatePhone, trigger: 'blur' }
             ],
             AgentCard: [
-              { required: true, message: '请输入代办人身份证', trigger: 'blur' }
+              { required: true, message: '请输入代办人身份证', trigger: 'blur' },
+              { validator: validateCard, trigger: 'blur' }
             ]
           },
           rule3: {
@@ -853,6 +864,17 @@
             ],
             OutRoomInfo: [
               { required: false, message: '请输入并选择出房人', trigger: 'blur' }
+            ]
+          },
+          rule5: {
+            WaterBaseNumber: [
+              { required: true, message: '水底数不能为空', trigger: 'blur' }
+            ],
+            ElectricityBaseNumber: [
+              { required: true, message: '电底数不能为空', trigger: 'blur' }
+            ],
+            GasBaseNumber: [
+              { required: true, message: '气底数不能为空', trigger: 'blur' }
             ]
           }
         }
@@ -919,20 +941,28 @@
         if (this.query.Renew) {
           TenantBill = []
           BookKeep = []
+          if (TenantContractInfo) {
+            TenantContractInfo.PaperType = 0
+          }
         }
         if (HouseInfo) {
           this.handleHouseSelect(HouseInfo)
         }
         if (TenantBill && TenantBill.length > 0) {
           this.$refs.billPanel.initData(TenantBill)
+          this.cloneData.TenantBill = TenantBill
         }
         if (ImageUpload) {
           this.ImageUpload = ImageUpload
-          this.cloneData.ImageUpload = this.$deepCopy(ImageUpload)
+          if (!this.query.Renew) {
+            this.cloneData.ImageUpload = this.$deepCopy(ImageUpload)
+          }
         }
         if (BookKeep && BookKeep.length > 0) {
           this.BookKeep = BookKeep
-          this.cloneData.BookKeep = this.$deepCopy(BookKeep)
+          if (!this.query.Renew) {
+            this.cloneData.BookKeep = this.$deepCopy(BookKeep)
+          }
         }
         if (TenantContractOperate) {
           this.TenantContractOperate = TenantContractOperate
@@ -945,10 +975,15 @@
             // 预定签合同 和房源签合同
             this.ContractInfo.TenantName = TenantContractInfo.TenantName
             this.ContractInfo.TenantPhone = TenantContractInfo.TenantPhone
+            this.ContractInfo.TenantCard = TenantContractInfo.TenantCard
             this.ContractInfo.HouseRent = TenantContractInfo.HouseRent
             this.ContractInfo.HouseDeposit = TenantContractInfo.HouseDeposit
-            this.ContractInfo.StartTime = this.$dateFormat(this.ContractInfo.StartTime, 'yyyy-MM-dd 00:00:00')
-            this.ContractInfo.EndTime = this.$dateFormat(this.ContractInfo.EndTime, 'yyyy-MM-dd 00:00:00')
+            this.ContractInfo.EntranceType = TenantContractInfo.EntranceType
+            this.ContractInfo.EntranceID = TenantContractInfo.EntranceID || 0
+            this.ContractInfo.PayModel = TenantContractInfo.PayModel || 3
+            this.ContractInfo.StartTime = this.$dateFormat(TenantContractInfo.StartTime, 'yyyy-MM-dd 00:00:00')
+            this.ContractInfo.EndTime = this.$dateFormat(TenantContractInfo.EndTime, 'yyyy-MM-dd 00:00:00')
+            this.ContractInfo.HostTimeMark = [this.ContractInfo.StartTime, this.ContractInfo.EndTime]
             this.changeLivePeople()
             return
           }
@@ -1015,7 +1050,9 @@
           this.saveBillForm()
         }
         if (LivePeopleInfoList && LivePeopleInfoList.length > 0) {
-          this.cloneData.LivePeopleInfoList = this.$deepCopy(LivePeopleInfoList)
+          if (!this.query.Renew) {
+            this.cloneData.LivePeopleInfoList = this.$deepCopy(LivePeopleInfoList)
+          }
           // 排序将承租人放在第一个
           LivePeopleInfoList.sort((a, b) => b.IsTenant - a.IsTenant)
           // 设置入住人的按钮信息
@@ -1039,7 +1076,9 @@
           this.OutRoomInfoResult = OutRoominfoList
           this.ContractInfo.OutRoomCompanyID = 0 // OutRoominfoList[0].CompanyID
           this.ContractInfo.OutRoomInfo = OutRoominfoList.map(v => v.KeyID)
-          this.cloneData.OutRoomInfoList = this.$deepCopy(OutRoominfoList)
+          if (!this.query.Renew) {
+            this.cloneData.OutRoomInfoList = this.$deepCopy(OutRoominfoList)
+          }
         }
         if (TenDecoration && TenDecoration.length > 0) {
           this.TenDecoration = TenDecoration.map(x => {
@@ -1089,6 +1128,17 @@
       stepChange(step) {
         if (step === 2) {
           this.resetBillForm()
+        } else if (step === 3) {
+          if (this.query.OrderID || this.query.Renew) {
+            let str = ''
+            str += `<div style="text-align: center">该合同为<b>【${this.query.Renew ? '续约' : '预定'}】</b>合同<br/>`
+            str += `您可能需要在第一期中添加一个明细<br/>`
+            str += `<b>【支出-租客-${this.query.Renew ? '续约转押金' : '定金转租金'}】</b></div>`
+            this.$alert(str, '温馨提示', {
+              dangerouslyUseHTMLString: true,
+              confirmButtonText: '我知道了'
+            })
+          }
         }
       },
       next(index) {
@@ -1135,7 +1185,18 @@
             break
           case 2:
             this.$refs.billPanel.validate().then(() => {
-              this.$refs.steps.nextStep()
+              const text = this.$refs.billPanel.validateHoliday()
+              if (text) {
+                this.$confirm(text, '温馨提示', {
+                  dangerouslyUseHTMLString: true,
+                  confirmButtonText: '下一步',
+                  cancelButtonText: '返回修改'
+                }).then(() => {
+                  this.$refs.steps.nextStep()
+                })
+              } else {
+                this.$refs.steps.nextStep()
+              }
             }).catch(() => {
               this.$message.error('请检查账单信息是否填写完整！')
             })
@@ -1289,6 +1350,7 @@
             UserName: item.UserName,
             Tel: item.Tel,
             FullID: item.FullID,
+            FullIDNew: item.FullIDNew,
             CompanyID: item.CompanyID
           })
         }
@@ -1350,7 +1412,7 @@
         getTenantBillNew(this.ContractInfo).then(({ Data, BusCode, Msg }) => {
           this.billLoading = false
           if (BusCode === 0) {
-            this.$refs.billPanel.initData(Data)
+            this.$refs.billPanel.initData(Data, this.cloneData.TenantBill)
             this.$refs.steps.nextStep()
             this.saveBillForm()
           } else {
@@ -1385,6 +1447,16 @@
               }).catch(() => {
                 flag = true
                 this.$message.error('账单信息填写完整才能暂存哦！')
+              })
+            }
+            break
+          case 4:
+            if (type === 'SignUp' || type === 'Save' || type === 'SubmitAudit') {
+              this.$refs['ruleForm5'].validate((a, b) => {
+                if (!a) {
+                  scrollToError(b, this.$refs['ruleForm5'], -10)
+                  flag = true
+                }
               })
             }
             break
@@ -1456,7 +1528,8 @@
             TenDecoration,
             TenantConTractQuipment
           },
-          buttonType: type === 'Preview' ? 'TemporaryStorage' : type
+          buttonType: type === 'Preview' ? 'TemporaryStorage' : type,
+          TenantPreviewID: JSON.parse(sessionStorage.getItem('tenantPreviewID')) || 0
         }
         let fn = insertTenantContract
         if (this.isEdit) {
@@ -1467,17 +1540,45 @@
         }
         this.orderLoading = true
         if (type === 'Preview') {
-          // 预览了就存起来了
-          this.setTenantPreview(param).then(() => {
-            this.orderLoading = false
-            this.$router.push({
-              path: '/Tenant/ContractPreview'
-            })
-          }).catch(() => {
-            this.orderLoading = false
+          NewPreviewTenantContract(param).then(res => {
+            if (res.Code === 0 && res.Data) {
+              this.orderLoading = false
+              this.PreviewID = res.Data.KeyID
+              sessionStorage.setItem('tenantPreviewID', this.PreviewID)
+              this.$router.push({
+                path: '/Tenant/ContractPreview',
+                query: {
+                  KeyID: res.Data.KeyID
+                }
+              })
+            } else {
+              this.orderLoading = false
+              console.log('预览合同失败:')
+            }
+            console.log('租客res:', res)
           })
+          // // 预览了就存起来了
+          // this.setTenantPreview(param).then(() => {
+          //   this.orderLoading = false
+          //   this.$router.push({
+          //     path: '/Tenant/ContractPreview',
+          //     query: {
+          //       KeyID: this.query.KeyID
+          //     }
+          //   })
+          // }).catch((error) => {
+          //   console.log('error:', error)
+          //   this.orderLoading = false
+          // })
         } else {
-          fn(param).then(({ Data }) => {
+          fn(param).then(({ Data, BusCode, Msg }) => {
+            if (BusCode === 2) {
+              this.$alert(Msg, '温馨提示', {
+                confirmButtonText: '我知道了'
+              })
+              this.orderLoading = false
+              return
+            }
             if (type === 'Save') {
               this.$message.success('保存合同成功')
               this.delView(this.$route)
@@ -1491,18 +1592,25 @@
                 path: '/Tenant/ContractList'
               })
             } else if (type === 'SignUp') {
-              this.$message.success('保存合同成功,正在进行现场签字')
               this.delView(this.$route)
-              this.$router.push({
-                path: '/Tenant/ContractSign',
-                query: {
-                  Mobile: this.ContractInfo.TenantPhone,
-                  IDCard: this.ContractInfo.TenantCard,
-                  Name: this.ContractInfo.TenantName,
-                  ContractID: Data,
-                  type: 1
-                }
-              })
+              if (this.query.SafeEdit) {
+                this.$message.success('保存合同成功')
+                this.$router.push({
+                  path: '/Tenant/ContractList'
+                })
+              } else {
+                this.$message.success('保存合同成功,正在进行现场签字')
+                this.$router.push({
+                  path: '/Tenant/ContractSign',
+                  query: {
+                    Mobile: this.ContractInfo.TenantPhone,
+                    IDCard: this.ContractInfo.TenantCard,
+                    Name: this.ContractInfo.TenantName,
+                    ContractID: Data,
+                    type: 1
+                  }
+                })
+              }
             } else if (type === 'SubmitAudit') {
               this.$message.success('保存合同成功,合同已提交审核')
               this.delView(this.$route)

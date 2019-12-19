@@ -47,7 +47,7 @@
                       element-loading-text="加载中"
                       border
                       fit
-                      min-height="700px"
+                      height="100%"
                       class="table-normal">
               <el-table-column align="center" label="房源名称" min-width="180" prop="HouseName"></el-table-column>
               <el-table-column align="center" label='地址' min-width="180" prop="Location">
@@ -65,11 +65,10 @@
                   <span>{{filterStatus(scope.row.SheetStatus)}}</span>
                 </template>
               </el-table-column>
-              <el-table-column align="center" label='备注' min-width="120" prop="BZ"></el-table-column>
+              <el-table-column align="center" label='备注' min-width="120" prop="ZXBZ"></el-table-column>
               <el-table-column align="center" label="操作" fixed="right" min-width="120">
                 <template slot-scope="scope">
                   <table-buttons
-                    :showAll="true"
                     :options="operationButton"
                     :condition="scope.row.conditionBtn"
                     @handleDetailClick="handleDetail(scope.row)"
@@ -112,7 +111,9 @@ export default {
         { value: 0, label: '全部' },
         { value: 1, label: '未入场' },
         { value: 2, label: '已入场' },
-        { value: 3, label: '已结束' }
+        { value: 3, label: '已结束' },
+        { value: 4, label: '待审批（经理）' },
+        { value: 5, label: '待审批（采购部）' }
       ],
       list: [],
       filterList: [],
@@ -207,7 +208,7 @@ export default {
         KeyLocation: item.KeyLocation,
         CreaterTime: item.CreaterTime,
         SheetStatus: item.SheetStatus,
-        BZ: item.BZ,
+        ZXBZ: item.ZXBZ,
         conditionBtn: itemChooseStatus
       }
     },
@@ -232,6 +233,7 @@ export default {
       }).then(res => {
         row.SheetStatus = 2
         row.conditionBtn = ['Detail', 'DecorationEnd']
+        this.$refs.bottomToolBar.search()
         console.log('已入场', res)
       })
       console.log('row', row)
@@ -244,6 +246,7 @@ export default {
       }).then(res => {
         row.SheetStatus = 3
         row.conditionBtn = ['Detail']
+        this.$refs.bottomToolBar.search()
         console.log('装修结束', res)
       })
       console.log('row', row)

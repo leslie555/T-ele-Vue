@@ -242,10 +242,7 @@
           this.filterList[index].IsDisable = '关闭'
           this.filterList[index].Operation.splice(3, 1, 'Able')
         }).catch(() => {
-          this.$message({
-            message: '关闭失败',
-            type: 'success'
-          })
+          //
         })
       },
 
@@ -262,10 +259,7 @@
           this.filterList[index].IsDisable = '开启'
           this.filterList[index].Operation.splice(3, 1, 'DisAble')
         }).catch(() => {
-          this.$message({
-            message: '开启失败',
-            type: 'success'
-          })
+          //
         })
       }
     }

@@ -46,13 +46,13 @@
               </el-form-item>
             </div>
             <div class="clearfix form-item-md">
-              <el-form-item label="所属门店" :label-width="formLabelWidth" prop="Store">
-                <el-select v-model="form.Store" multiple filterable placeholder="请选择">
+              <el-form-item label="所属区域" :label-width="formLabelWidth" prop="CityCode">
+                <el-select v-model="form.CityCode" multiple placeholder="请选择">
                   <el-option
-                    v-for="item in StoreOptions"
-                    :key="item.KeyID"
-                    :label="item.CompanyName"
-                    :value="item.KeyID">
+                    v-for="item in cityData"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
                   </el-option>
                 </el-select>
               </el-form-item>
@@ -88,7 +88,8 @@
 
 <script>
   import { UploadFile } from '../../../../components/'
-  import { InsertAccountInfo, UpdateAccountInfo, QueryAccountInfoCompanyList } from '../../../../api/finance'
+  import { InsertAccountInfo, UpdateAccountInfo } from '../../../../api/finance'
+  import menuData from '../../../../utils/CityData/menuData'
 
   export default {
     name: 'EditAccountInfo',
@@ -97,8 +98,6 @@
     },
     data() {
       return {
-        StoreOptions: [],
-        SelectStores: [],
         modalVisibility: false,
         loading: false,
         form: {
@@ -110,7 +109,6 @@
           BeginningBalance: '',
           Account: '',
           CreateAccountTime: '',
-          Store: [],
           HuifuMemberId: '',
           ImageUpload: [],
           Remark: ''
@@ -138,16 +136,28 @@
             { required: true, message: '请输入账号', trigger: 'blur' },
             { min: 2, max: 22, message: '长度在 2 到 22 个字符', trigger: 'blur' }
           ],
-          Store: [
+          CityCode: [
             { required: true, message: '请选择分店', trigger: 'blur' }
           ],
           Remark: [
             { min: 0, max: 150, message: '长度在 0 到 150 个字符', trigger: 'blur' }
           ]
-        }
+        },
+        cityData: []
       }
     },
-
+    mounted() {
+      const arr = []
+      menuData.forEach(x => {
+        x.children.forEach(y => {
+          arr.push({
+            label: x.label + '->' + y.label,
+            value: y.value
+          })
+        })
+      })
+      this.cityData = arr
+    },
     methods: {
       open(editData) {
         this.loading = false
@@ -156,27 +166,15 @@
       },
 
       initData(editData) {
-        QueryAccountInfoCompanyList().then(res => {
-          if (res) {
-            const resArr = res.Data.filter(item => {
-              return !item.Status || editData.Store.includes(item.KeyID)
-            })
-            this.StoreOptions = resArr.map(item => {
-              return {
-                CompanyName: item.CompanyName,
-                KeyID: item.KeyID
-              }
-            })
+        this.form = this.$deepCopy(editData)
+        this.form.CityCode = editData.CityCode ? editData.CityCode.split(',') : []
+        this.IsEdit = editData.KeyID > 0
+        this.IsBankType = editData.AccountType === 1
+        this.accountTypeList = this.$EnumData.getEnumListByKey('AccountType').map(item => {
+          return {
+            KeyID: item.Value,
+            Name: item.Description
           }
-          this.form = this.$deepCopy(editData)
-          this.IsEdit = editData.KeyID > 0
-          this.IsBankType = editData.AccountType === 1
-          this.accountTypeList = this.$EnumData.getEnumListByKey('AccountType').map(item => {
-            return {
-              KeyID: item.Value,
-              Name: item.Description
-            }
-          })
         })
       },
 
@@ -190,7 +188,7 @@
           Account: '',
           CreateAccountTime: '',
           CompanyInfo: [],
-          Store: [],
+          CityCode: [],
           HuifuMemberId: '',
           ImageUpload: [],
           Remark: ''
@@ -213,7 +211,7 @@
           AccountType: item.AccountType,
           AccountName: item.AccountName,
           Account: item.Account,
-          Store: item.Store,
+          CityCode: item.CityCode.join(','),
           Remark: item.Remark,
           HuifuMemberId: item.HuifuMemberId
         }
@@ -237,15 +235,13 @@
       onSubmit() {
         this.$refs['ruleForm'].validate((valid) => {
           if (valid) {
-            if (this.form.Store.length <= 0) {
-              this.$message.error('请选择分店！')
+            if (this.form.CityCode.length <= 0) {
+              this.$message.error('请选择区域！')
             }
             this.loading = true
             const postData = this.getSubmitData()
             if (this.form.KeyID) {
               UpdateAccountInfo(postData).then(() => {
-                postData.CompanyInfo = this.StoreOptions.filter(v =>
-                  postData.Store.includes(v.KeyID))
                 this.$emit('editAccountInfo', postData)
                 this.$message({
                   message: '修改成功!',

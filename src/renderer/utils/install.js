@@ -5,6 +5,8 @@ import EnumData from './enumData'
 import ImgUnit from './imgUnit'
 import { positive, positiveUtil, setbtn } from './directives'
 import getActions from './getActions'
+import webNotification from './webNotification'
+import store from '../store'
 
 const install = function(Vue) {
   if (install.installed) return
@@ -65,6 +67,16 @@ const install = function(Vue) {
     $getActions: {
       get() {
         return getActions
+      }
+    },
+    $webNotification: {
+      get() {
+        return webNotification
+      }
+    },
+    $isCompanyBoss: {
+      get() {
+        return store.getters.userinfo.EmpID === 100000129
       }
     }
   })

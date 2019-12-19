@@ -13,6 +13,7 @@ import currentPage from './modules/currentPage'
 import contract from './modules/contract'
 import logOutAlerted from './modules/logOutAlerted'
 import examine from './modules/examine'
+import organizationTree from './modules/organizationTree'
 
 Vue.use(Vuex)
 
@@ -29,7 +30,8 @@ const store = new Vuex.Store({
     currentPage,
     contract,
     logOutAlerted,
-    examine
+    examine,
+    organizationTree
   },
   getters
 })

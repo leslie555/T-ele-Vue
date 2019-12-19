@@ -86,7 +86,6 @@
               <el-table-column align="center" label="操作" fixed="right" width="180">
                 <template slot-scope="scope">
                   <table-buttons
-                     :showAll="true"
                     :options="operationButton"
                     :condition="['Edit', 'Delete']"
                     @handleEditClick="handleUpdate(scope.row)"
@@ -189,9 +188,10 @@ export default {
     // 新增
     configAdd() {
       let editData = {}
+      const kID = this.filterConfigMenu.find(val => val.isActive === true)
       if (this.filterConfigMenu.length > 0) {
         editData = {
-         CategoryID: this.filterConfigMenu[0].KeyID,
+         CategoryID: kID.KeyID,
          ProjectName: '',
          Model: '',
          Unit: '',
@@ -230,7 +230,6 @@ export default {
       })
       this.filterConfigMenu[index].isActive = true
       this.fetchData()
-      this.$refs.bottomToolBar.search()
       console.log('切换栏目', row)
     },
     // 编辑类别
@@ -273,10 +272,17 @@ export default {
             message: '删除成功!'
           })
           this.filterConfigMenu[this.filterConfigMenu.length - 1 ].isActive = true
+          this.$refs.bottomToolBar.search()
           console.log('类别——删除res', res)
         })
       })
     },
+    // 查询所有类别
+    // initAllColumn() {
+    //    return ShowAllSupplierCategory().then(res => {
+    //       this.configMenu = res.Data
+    //    })
+    // },
     // 添加
     addMenu() {
       this.isAddColumn = false
@@ -285,29 +291,39 @@ export default {
           CategoryName: this.addColumnName
         }).then(res => {
           console.log('添加类别', res)
-          const filterObject = {
-          KeyID: res.Data,
-          CategoryName: this.addColumnName,
-          isActive: false,
-          isEditing: false
-        }
-        this.filterConfigMenu.push(filterObject)
-        // 切换选中状态到新增栏目上
-        this.changeMenu(filterObject)
-        this.addColumnName = ''
+          if (res.Data === -1) {
+            this.$message({
+              type: 'warning',
+              message: '请勿重复添加类别!'
+            })
+            return
+          } else {
+            const filterObject = {
+              KeyID: res.Data,
+              CategoryName: this.addColumnName,
+              isActive: false,
+              isEditing: false
+            }
+            this.filterConfigMenu.push(filterObject)
+            // 切换选中状态到新增栏目上
+            this.changeMenu(filterObject)
+            // this.initAllColumn()
+            this.addColumnName = ''
+          }
         })
       }
       console.log('addColumnName', this.addColumnName)
     },
     // 表格——修改
     handleUpdate(row) {
+      const typeTitle = { type: 'update', typeName: '修改' }
       this.columnList = this.filterConfigMenu.map(item => {
         return {
           CategoryName: item.CategoryName,
           KeyID: item.KeyID
         }
       })
-      this.$refs.addConfigBox.open(row, { type: 'update', typeName: '修改' }, this.columnList, this.unitData)
+      this.$refs.addConfigBox.open(row, typeTitle, this.columnList, this.unitData)
       console.log('修改', row)
     },
     // 表格——删除
@@ -360,14 +376,8 @@ export default {
         CategoryID: pID,
         ProjectName: this.ruleForm.Keyword
       }).then(response => {
-        //  response.Data.rows.map(res => {
-        //    console.log(res)
-        //    res.Unit = this.$EnumData.getEnumDesByValue('RenovationUnit', res.Unit)
-        //    return res
-        //  })
         this.filterList = response.Data.rows
         console.log(response)
-      //   this.filterTableData()
         this.listLoading = false
         return response.Data
       }).catch(() => {

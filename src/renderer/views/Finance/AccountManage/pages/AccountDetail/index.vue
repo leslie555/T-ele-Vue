@@ -20,17 +20,17 @@
         <el-form-item label="房间号" prop="RoomNumber">
           <el-input placeholder="请输入房间号" v-model="searchForm.RoomNumber"></el-input>
         </el-form-item>
-        <el-form-item label="门店" prop="CompanyID">
-          <el-select v-model="searchForm.CompanyID" clearable placeholder="请选择">
-            <el-option
-              v-for="item in companyInfo"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            ></el-option>
-          </el-select>
-          <!-- <select-store ref="selectStore" type="search" @change="handleStoreChange"></select-store> -->
-        </el-form-item>
+        <!--<el-form-item label="门店" prop="CompanyID">-->
+          <!--<el-select v-model="searchForm.CompanyID" clearable placeholder="请选择">-->
+            <!--<el-option-->
+              <!--v-for="item in companyInfo"-->
+              <!--:key="item.value"-->
+              <!--:label="item.label"-->
+              <!--:value="item.value"-->
+            <!--&gt;</el-option>-->
+          <!--</el-select>-->
+          <!--&lt;!&ndash; <select-store ref="selectStore" type="search" @change="handleStoreChange"></select-store> &ndash;&gt;-->
+        <!--</el-form-item>-->
       </template>
       <template slot="more">
         <div class="clearfix">
@@ -100,11 +100,13 @@
           <el-table-column label="主管" width="80" align="center">
             <template slot-scope="scope">{{scope.row.ExecutiveDirector}}</template>
           </el-table-column>
+          <el-table-column align="center" label="店名" prop="CompanyName" min-width="120"></el-table-column>
           <el-table-column class-name="status-col" label="门店经理" width="80" align="center">
             <template slot-scope="scope">{{scope.row.manager}}</template>
           </el-table-column>
           <el-table-column align="center" prop="CommunityName" label="小区" min-width="120"></el-table-column>
           <el-table-column align="center" prop="RoomNumber" label="房间号" min-width="120"></el-table-column>
+          <el-table-column align="center" label="客户姓名" prop="TenantName" min-width="100"></el-table-column>
           <el-table-column align="center" prop="ExpensesAndReceipts" label="收支类型" min-width="80">
             <template
               slot-scope="scope"
@@ -207,8 +209,8 @@
           if (res.Code === 0) {
             this.downloadLoading = true
             import('@/vendor/Export2Excel').then(excel => {
-              const tHeader = ['序号', '日期', '合同编号', '出房人/经手人', '主管', '门店经理', '收支', '小区名称', '房间号', '明细', '收入', '支出', '结余', '备注']
-              const filament = ['Num', 'DataTime', 'ContractNumber', 'Tenant', 'ExecutiveDirector', 'manager', 'ExpensesAndReceipts', 'CommunityName', 'RoomNumber', 'Detailed', 'Income', 'Outcome', 'Rest', 'Remark']
+              const tHeader = ['序号', '日期', '合同编号', '出房人/经手人', '主管', '店名', '门店经理', '收支', '小区名称', '房间号', '客户姓名', '明细', '收入', '支出', '结余', '备注']
+              const filament = ['Num', 'DataTime', 'ContractNumber', 'Tenant', 'ExecutiveDirector', 'CompanyName', 'manager', 'ExpensesAndReceipts', 'CommunityName', 'RoomNumber', 'TenantName', 'Detailed', 'Income', 'Outcome', 'Rest', 'Remark']
               const data = this.formatJson(filament, res.Data || [])
               excel.export_json_to_excel({
                 header: tHeader,
@@ -266,14 +268,6 @@
           Value: ''
         })
         return enumData
-      },
-      companyInfo() { // 门店信息
-        const info = JSON.parse(this.$route.query.CompanyInfo)
-        const company = info.map(v => ({
-          value: v.KeyID,
-          label: v.CompanyName
-        }))
-        return company
       }
     }
   }
@@ -281,9 +275,10 @@
 
 <style lang="scss" scoped>
   .content-container {
+    -ms-flex: 1;
+    flex: 1;
+    min-height: 0;
     padding: 0;
-    margin: 0;
-    flex: 1 1 0%;
     display: -ms-flexbox;
     display: flex;
     -ms-flex-direction: column;

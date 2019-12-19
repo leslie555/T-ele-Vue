@@ -116,7 +116,7 @@
                   v-for="(btn, index) in HouseInfoData"
                   :key="btn.HouseId"
                   size="small"
-                  :disabled="btn.ReservationID || btn.HouseStatus === 5"
+                  :disabled="(!!btn.ReservationID || btn.HouseStatus === 5)&&+btn.HouseID!==+ShareRentHouseID"
                   :class="{ 'btnActive': btnActive === index}"
                   @click="changeRoom(index, btn.ReserveStatus,btn.RenovationStatus, btn.HouseStatus)"
                 >{{btn.RoomName === '' ? '整租' : btn.RoomName }}{{ btn.RoomName === ''? '' : '(' + $EnumData.getEnumDesByValue('RoomType', btn.RoomType) + ')'}}</el-button>
@@ -134,9 +134,9 @@
               </el-row>
               <!-- 按钮组 -->
               <el-row style="margin-top: 20px;">
-                <el-button type="primary" @click="OpenBooking(CurName)" :disabled="HouseInfoData[HouseInfoIndex].ReservationID">预定</el-button>
+                <el-button type="primary" @click="OpenBooking(CurName)" :disabled="!!HouseInfoData[HouseInfoIndex].ReservationID">预定</el-button>
                 <el-button type="primary" @click="OpenReservation(CurName)">预约</el-button>
-                <el-button type="primary" @click="AddTenant" :disabled="HouseInfoData[HouseInfoIndex].ReservationID">租客登记</el-button>
+                <el-button type="primary" @click="AddTenant">租客登记</el-button>
                 <!--<el-button type="primary" @click="SeeInfo">合同信息</el-button>-->
               </el-row>
             </el-row>
@@ -271,7 +271,8 @@ export default ({
       RoomList: [],
       infoTableData: [],
       infoTableData2: [],
-      PublicList: []
+      PublicList: [],
+      ShareRentHouseID: this.$route.query.ShareRentHouseID || ''
     }
   },
   created() {
@@ -324,7 +325,7 @@ export default ({
     },
     // 开启弹窗
     OpenBooking() {
-      this.$refs.BookingHouseDialog.open(this.HouseInfoData[this.HouseInfoIndex])
+      this.$refs.BookingHouseDialog.open(this.HouseInfoData[this.HouseInfoIndex], this.$route.query.IsChecked)
     },
     OpenReservation() {
       this.$refs.ReservationHouseDialog.open(this.HouseInfoData[this.HouseInfoIndex])

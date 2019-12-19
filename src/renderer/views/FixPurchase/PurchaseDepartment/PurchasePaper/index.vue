@@ -47,7 +47,7 @@
                       element-loading-text="加载中"
                       border
                       fit
-                      min-height="700px"
+                      height="100%"
                       class="table-normal">
               <el-table-column align="center" label="房源名称" min-width="180" prop="HouseName"></el-table-column>
               <el-table-column align="center" label='地址' min-width="180" prop="Location">
@@ -65,8 +65,8 @@
                   <span>{{filterStatus(scope.row.PurchasingtStatus)}}</span>
                 </template>
               </el-table-column>
-              <el-table-column align="center" label='备注' min-width="120" prop="BZ"></el-table-column>
-              <el-table-column align="center" label="操作" fixed="right" min-width="120">
+              <el-table-column align="center" label='备注' min-width="120" prop="CGBZ"></el-table-column>
+              <el-table-column align="center" label="操作" fixed="right" min-width="200">
                 <template slot-scope="scope">
                   <table-buttons
                     :showAll="true"
@@ -74,6 +74,7 @@
                     :condition="scope.row.conditionBtn"
                     @handleDetailClick="handleDetail(scope.row)"
                     @handleDecorationEndClick="handleDecorationEnd(scope.row)"
+                    @handleQrcodeClick="handleQrcode(scope.row)"
                   ></table-buttons>
                 </template>
               </el-table-column>
@@ -81,6 +82,7 @@
           </div>
             <bottom-tool-bar ref="bottomToolBar" :page-size="pageSize" :handlePageChange="fetchData"></bottom-tool-bar>
             <div>
+              <qrcode ref="qrcode"></qrcode>
                 <FixPaperAndPurchaseDialog ref="addConfigBox" @editConfigInfo="editConfigInfo"></FixPaperAndPurchaseDialog>
             </div>
     </div>
@@ -89,6 +91,7 @@
 import { SearchPanel, TableButtons, BottomToolBar, SelectStore } from '@/components'
 import FixPaperAndPurchaseDialog from '../FixPaper/components/FixPaperAndPurchaseDialog'
 import { ShowPurchasingOrder, UpdatePurchasingOrderStatus } from '@/api/purchase'
+import qrcode from '../../components/qrcode'
 export default {
   name: 'PurchasePaperList',
   components: {
@@ -96,7 +99,8 @@ export default {
     SearchPanel,
     BottomToolBar,
     SelectStore,
-    FixPaperAndPurchaseDialog
+    FixPaperAndPurchaseDialog,
+    qrcode
   },
   data() {
     return {
@@ -112,7 +116,9 @@ export default {
       procureList: [
         { value: 0, label: '全部' },
         { value: 1, label: '未安装' },
-        { value: 2, label: '已安装' }
+        { value: 2, label: '已安装' },
+        { value: 3, label: '待审批（经理）' },
+        { value: 4, label: '待审批（采购部）' }
       ],
       filterList: [],
       list: [],
@@ -125,6 +131,11 @@ export default {
         {
           key: 'DecorationEnd',
           value: '安装完成',
+          type: 'primary'
+        },
+        {
+          key: 'Qrcode',
+          value: '分享',
           type: 'primary'
         }
       ]
@@ -192,7 +203,7 @@ export default {
     filterTableDataItem(item) {
       let itemChooseStatus = []
       switch (item.PurchasingtStatus) {
-        case 1: itemChooseStatus = ['Detail', 'DecorationEnd']; break
+        case 1: itemChooseStatus = ['Detail', 'DecorationEnd', 'Qrcode']; break
         case 2: itemChooseStatus = ['Detail']; break
         default: itemChooseStatus = []
       }
@@ -205,7 +216,7 @@ export default {
         KeyLocation: item.KeyLocation,
         CreaterTime: item.CreaterTime,
         PurchasingtStatus: item.PurchasingtStatus,
-        BZ: item.BZ,
+        CGBZ: item.CGBZ,
         conditionBtn: itemChooseStatus
       }
     },
@@ -214,15 +225,20 @@ export default {
       this.$refs.addConfigBox.open(row, typeTitle)
       console.log('row', row)
     },
+    handleQrcode(row) {
+        this.$refs.qrcode.open(row, 'purchaseSingle')
+    },
     handleDecorationEnd(row) {
+      console.log('row', row)
       UpdatePurchasingOrderStatus({
         KeyID: row.KeyID, // 查询时获取到的主键ID
-        PurchasingtStatus: row.PurchasingtStatus // 装修单状态
+        PurchasingtStatus: 2 // 装修单状态
       }).then(res => {
         if (res.Code === 0 && res.Data === 1) {
           console.log('采购单-安装完成', res)
           row.PurchasingtStatus = 2
           row.conditionBtn = ['Detail']
+          this.$refs.bottomToolBar.search()
           console.log('row', row)
         } else {
           alert('采购单-安装失败', res)

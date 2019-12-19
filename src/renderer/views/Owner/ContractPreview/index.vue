@@ -2,7 +2,8 @@
   <div class="app-container contract-sign fixed-box">
     <div class="contract-sign-box">
       <el-scrollbar class="vertical-scroll">
-        <contract-template class="contract-sign-template"></contract-template>
+        <!-- 112321 -->
+        <contract-template class="contract-sign-template" :id="id" preview="preview"></contract-template>
       </el-scrollbar>
     </div>
   </div>
@@ -13,7 +14,9 @@
 
   export default {
     data() {
-      return {}
+      return {
+        id: this.$route.query.KeyID
+      }
     },
     components: {
       ContractTemplate

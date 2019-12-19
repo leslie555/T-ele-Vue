@@ -1,6 +1,6 @@
 <template>
       <div class="app-container">
-          <div class="panel edit-contract" v-loading="detailLoading">
+          <div class="panel" v-loading="detailLoading">
               <div class="leftWidth">
                 <div class="TopTittle">
                     <span></span>
@@ -24,7 +24,7 @@
                         <div class="conList">
                             <div class="detail-conList">
                                 <p>产权面积：</p>
-                                <p>{{ detailsList.RoomArea }}</p>
+                                <p>{{ detailsList.RoomArea === 0 ? '' : detailsList.RoomArea + 'm²' }}</p>
                             </div>
                             <div class="detail-conList">
                                 <p>业务员：</p>
@@ -46,13 +46,15 @@
                             </div>
                         </div>
                     </div>
-                    <div v-if="purchaseOrfitment === 0" style="margin-top:15px;">
+                    <div v-if="purchaseOrfitment === 0 && detailsList.Status !== 6" style="margin-top:15px;">
                         <span class="fitmentItem">装修项目</span>
-                        <el-button size="small" @click="addItem" plain>添加项目</el-button>
+                        <el-button size="small" plain type="primary" @click="addItem">添加项目</el-button>
                     </div>
                     <el-table
                         :data="tableData"
                         border
+                        fit
+                        class="table-normal"
                         style="width: 100%;margin-top:30px;">
                         <el-table-column
                         v-if="purchaseOrfitment === 1"
@@ -74,7 +76,7 @@
                                     v-model="scope.row.arrId"
                                     :options="projectData"
                                     :props="{ expandTrigger: 'hover' }"
-                                    @change="projectChange(...arguments, scope.$index)">
+                                    @change="projectChange(...arguments, scope.$index, scope.row)">
                                 </el-cascader>
                             </template>
                         </el-table-column>
@@ -84,15 +86,25 @@
                         label="内部单价"
                         min-width="120">
                             <template slot-scope="scope">
-                                <span>{{scope.row.InsidePrice}}{{scope.row.Unit}}</span>
+                                <span>{{scope.row.InsidePrice}}元/{{scope.row.Unit}}</span>
                             </template>
                         </el-table-column>
                         <el-table-column
+                        v-if="purchaseOrfitment === 0"
                         prop="ExternalPrice"
                         label="外部单价"
                         min-width="120">
                             <template slot-scope="scope">
-                                <span>{{scope.row.ExternalPrice}}{{scope.row.Unit}}</span>
+                                <span>{{scope.row.ExternalPrice}}元/{{scope.row.Unit}}</span>
+                            </template>
+                        </el-table-column>
+                         <el-table-column
+                         v-if="purchaseOrfitment === 1"
+                        prop="ExternalPrice"
+                        label="单价"
+                        min-width="120">
+                            <template slot-scope="scope">
+                                <span>{{scope.row.ExternalPrice}}元/{{scope.row.Unit}}</span>
                             </template>
                         </el-table-column>
                         <el-table-column
@@ -101,7 +113,7 @@
                         min-width="120">
                             <template slot-scope="scope">
                                 <span v-if="scope.row.ids">{{scope.row.Number}}</span>
-                                <el-input @input="getCurrentRow(scope.row.Number, scope.$index, scope.row)"  v-else size="small" v-model="scope.row.Number"></el-input>
+                                <el-input type="number" @input="getCurrentRow(scope.row.Number, scope.$index, scope.row)"  v-else size="small" v-model="scope.row.Number"></el-input>
                             </template>
                         </el-table-column>
                         <el-table-column
@@ -114,6 +126,7 @@
                             </template>
                         </el-table-column>
                         <el-table-column
+                        v-if="purchaseOrfitment === 0"
                         prop="ExternalPriceTotalAmount"
                         label="外部总金额"
                         width="120">
@@ -122,7 +135,16 @@
                             </template>
                         </el-table-column>
                         <el-table-column
-                        v-if="purchaseOrfitment === 0"
+                        v-if="purchaseOrfitment === 1"
+                        prop="ExternalPriceTotalAmount"
+                        label="总金额"
+                        width="120">
+                            <template slot-scope="scope">
+                                <span>{{scope.row.ExternalPriceTotalAmount}}元</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column
+                        v-if="purchaseOrfitment === 0 && detailsList.Status !== 6"
                         fixed="right"
                         label="操作"
                         min-width="120">
@@ -134,7 +156,7 @@
                         </template>
                         </el-table-column>
                     </el-table>
-                    <el-form label-width="80px"  :inline="false" ref="FormImg" style="margin-top:20px;">
+                    <el-form label-width="80px"  :inline="false" ref="FormImg" style="margin-top:20px;overflow:hidden;">
                             <el-form-item label="装修图片:">
                             <div class="upload-img-Box">
                                 <div
@@ -165,8 +187,16 @@
                             <div class="fl"></div>
                             <div class="fl">
                                 <p style="font-size: 15px;">{{ item.Category }}</p>
-                                <p style="font-size: 14px;">{{ item.Content }}</p>
-                                <p style="font-size: 12px;color:gray;">{{ $dateFormat(item.CreaterTime) }}</p>
+                                <p style="font-size: 14px;color:gray;">
+                                    <el-input
+                                    disabled="true"
+                                    type="textarea"
+                                    class="textareaBoder"
+                                    :autosize="{ minRows: 0, maxRows: 10}"
+                                    v-model="item.Content">
+                                    </el-input>
+                                </p>
+                                <p style="font-size: 12px;color:gray;">{{ $dateFormat(item.CreaterTime,'yyyy-MM-dd hh:mm:ss') }}</p>
                             </div>
                         </div>
                     </div>
@@ -217,6 +247,15 @@
         },
         // 保存按钮
         SaveClick(row, index) {
+            console.log(row)
+            if (row.ProjectName === '') {
+                this.$message.error('请填写项目名称')
+                return
+            }
+            if (row.Number === '' || row.Number === '0' || row.Number === 0) {
+                this.$message.error('请填写数量')
+                return
+            }
             // 有row.KeyID为修改，无为新增
             if (row.KeyID || row.KeyID === 0) {
                this.$confirm('确定修改这条数据？, 是否继续？', '提示', {
@@ -239,6 +278,7 @@
                   cancelButtonText: '取消',
                   type: 'warning'
               }).then(() => {
+                  console.log(row)
                   AddProjectYWY(row).then(({ Data, BusCode, Msg }) => {
                       // 新增成功 ids变为true 后台返回KeyID赋予这行数据
                       this.tableData[index].ids = !this.tableData[index].ids
@@ -286,7 +326,7 @@
         // 新增按钮
         addItem() {
             const additem = {
-                ProjectNameCopy: '',
+                ProjectName: '',
                 InsidePrice: '',
                 ExternalPrice: '',
                 Number: '',
@@ -298,9 +338,15 @@
             this.tableData.push(additem)
         },
         // 监听数量变化 然后计算出内部总金额和外部总金额
-        getCurrentRow(val, index, row) {
-          this.tableData[index].InsidePriceTotalAmount = val * Number(row.InsidePrice)
-          this.tableData[index].ExternalPriceTotalAmount = val * Number(row.ExternalPrice)
+        getCurrentRow(val, index, row, num) {
+            // num为1 表示下拉框选择过后再次计算  否则表示输入数量后改变计算
+            if (num === 1) {
+                this.tableData[index].InsidePriceTotalAmount = row.Number * Number(row.InsidePrice)
+                this.tableData[index].ExternalPriceTotalAmount = row.Number * Number(row.ExternalPrice)
+            } else {
+                this.tableData[index].InsidePriceTotalAmount = val * Number(row.InsidePrice)
+                this.tableData[index].ExternalPriceTotalAmount = val * Number(row.ExternalPrice)
+            }
         },
         SelectApi() {
           this.initData()
@@ -346,7 +392,7 @@
           return Status === 0 ? '全部' : Status === 1 ? '暂存' : Status === 2 ? '待审批' : Status === 3 ? '待勘察' : Status === 4 ? '已勘察' : Status === 5 ? '装修中' : '装修结束'
         },
         // 二级联动选中 赋值给内部单价和外部单价
-        projectChange(data, index) {
+        projectChange(data, index, row) {
           const item = findNodeByArr(this.projectData, data)
           this.tableData[index].ExternalPrice = item.ExternalPrice
           this.tableData[index].InsidePrice = item.InsidePrice
@@ -356,6 +402,8 @@
           this.tableData[index].Unit = item.Unit
           this.tableData[index].RenovationApplyRecordID = this.KeyID
           this.tableData[index].RenovationApplyConfigueID = data[1]
+          // 修改再次计算总金额
+          this.getCurrentRow(item, index, row, 1)
         }
     },
     created() {
@@ -364,9 +412,13 @@
       // 下拉框的Api
       this.SelectApi()
       // 获取详情接口
-      this.getDetailData(this.$route.query.row.KeyID)
+      this.getDetailData(this.$route.query.KeyID)
       // 获取详情KeyID
-      this.KeyID = this.$route.query.row.KeyID
+      this.KeyID = this.$route.query.KeyID
+    },
+    mounted() {
+        // var getDom = document.getElementById('textarea')
+        // console.log(getDom)
     },
       // 判断那个页面进入的详情
     beforeRouteEnter(to, from, next) {
@@ -381,7 +433,17 @@
     }
   }
 </script>
-
+<style lang="scss">
+    .textareaBoder .el-textarea__inner{
+        border: none;
+        resize: none;
+        background-color: white !important;
+        color: gray !important;
+    }
+    .textareaBoder .el-textarea__inner:hover{
+        cursor: default;
+    }
+</style>
 <style lang="scss" scoped>
   @import "../../../../styles/mixin.scss";
   .detail-content {
@@ -468,5 +530,17 @@
             }
         }
       }
+  }
+  .upload-img-Box{
+      overflow: hidden;
+  }
+  .upload-img{
+    float: left;
+    margin-right: 10px;
+  }
+  .comments {
+    width:100%;/*自动适应父布局宽度*/
+    overflow:auto;
+    word-break:break-all;
   }
 </style>

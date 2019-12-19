@@ -12,8 +12,12 @@
         <el-button type="primary" @click="EditFormOpen()"  v-setbtn:Add>新增+</el-button>
       </template>
     </search-panel>
-    <el-row class="panel data-list-table">
-      <el-table :data="tableData" border :header-cell-style="{background: '#F5FAFE'}">
+    <div class="panel data-list-table">
+      <el-table :data="tableData"
+                border
+                fit
+                height="100%"
+                class="table-normal">
         <el-table-column label="员工" width="220" prop="UserName" align="center" fixed="left"></el-table-column>
         <el-table-column label="所属部门" prop="DepartmentName" align="center" width="500"></el-table-column>
         <el-table-column label="负责门店" prop="ComInfoList" align="center">
@@ -31,7 +35,7 @@
           </template>
         </el-table-column>
       </el-table>
-    </el-row>
+    </div>
     <bottom-tool-bar
       ref="bottomToolBar"
       :page-size="pageSize"

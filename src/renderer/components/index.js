@@ -21,6 +21,7 @@ import PayBox from './PayBox'
 import SelectPayAmount from './SelectPayAmount'
 import fixPurchaseSurver from './fixPurchaseSurver' // 采购勘察
 import StoreHouse from './StoreHouse' // 库房弹框
+import SelectOrganization from './SelectOrganization' // 库房弹框
 export {
   Settlement,
   UploadFile,
@@ -45,5 +46,6 @@ export {
   PayBox,
   SelectPayAmount,
   fixPurchaseSurver,
-  StoreHouse
+  StoreHouse,
+  SelectOrganization
 }

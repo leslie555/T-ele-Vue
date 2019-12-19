@@ -40,7 +40,7 @@
                             ></el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item label="证件号码">
+                    <el-form-item label="证件号码" prop="CardID">
                         <el-input
                                 v-model="LivePeopleData.CardID"
                                 maxlength="18"
@@ -96,7 +96,7 @@
 </template>
 
 <script>
-  import { validatePhone } from '../../../../../utils/validate/rulevalidator'
+  import { validatePhone, validateCard } from '../../../../../utils/validate/rulevalidator'
 
   export default {
     computed: {
@@ -133,6 +133,9 @@
           ],
           LiverPhone: [
             { validator: validatePhone, trigger: 'blur' }
+          ],
+          CardID: [
+            { validator: validateCard, trigger: 'blur' }
           ],
           EmergencyContactPhone: [
             { validator: validatePhone, trigger: 'blur' }

@@ -3,17 +3,23 @@
     v-model="houseName"
     filterable
     remote
-    placeholder="请输入房源关键词"
+    :placeholder="type!==12?'请输入房源关键词':'请输入房源关键词或合同号'"
     @change="handleHouseSelect"
     @input="handleInput"
     :remote-method="querySearchAsync"
     :disabled="disabled"
-    :loading="loading">
+    :loading="loading"
+  >
     <el-option
       v-for="item in resultList"
-      :key="item.KeyID"
+      :key="item[keyWord]"
       :label="item.HouseName"
-      :value="item.KeyID">
+      :value="item[keyWord]"
+    >
+      <template v-if="type===12">
+        <span style="float: left">{{ item.HouseName }}</span>
+        <span style="float: right; color: #8492a6; font-size: 13px">{{ item.TenantName }}</span>
+      </template>
     </el-option>
   </el-select>
 </template>
@@ -31,6 +37,10 @@
         type: String,
         default: ''
       },
+      keyWord: {
+        type: String,
+        default: 'KeyID'
+      },
       disabled: Boolean
     },
     watch: {
@@ -41,8 +51,7 @@
         immediate: true
       }
     },
-    created() {
-    },
+    created() {},
     data() {
       return {
         houseName: '',
@@ -52,7 +61,7 @@
     },
     methods: {
       handleHouseSelect(val) {
-        const resultItem = this.resultList.find(v => v.KeyID === val)
+        const resultItem = this.resultList.find(v => v[this.keyWord] === val)
         this.$emit('select', resultItem)
       },
       querySearchAsync(queryString) {
@@ -63,24 +72,28 @@
             HouseName: queryString,
             Type: this.type,
             para: { page: 1, size: 20 }
-          }).then(({ Data }) => {
-            this.loading = false
-            this.resultList = Data || []
-          }).catch(() => {
-            this.loading = false
           })
+            .then(({ Data }) => {
+              this.loading = false
+              this.resultList = Data || []
+            })
+            .catch(() => {
+              this.loading = false
+            })
         } else {
           this.resultList = []
         }
       },
       handleInput(val) {
-        const resultItem = this.resultList.find(v => v.KeyID === val)
+        const resultItem = this.resultList.find(v => v[this.keyWord] === val)
         this.$emit('input', resultItem.HouseName)
+      },
+      clear() {
+        this.resultList = []
       }
     }
   }
 </script>
 
 <style scoped>
-
 </style>

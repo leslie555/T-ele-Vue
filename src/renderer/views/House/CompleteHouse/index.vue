@@ -408,6 +408,7 @@
                 <span
                   v-for="(goods, goodsIndex) in item.Equ"
                   :key="goodsIndex"
+                  v-if="goods.ModifyStatus!==3"
                 >{{ goods.EquipmentName }}</span>
               </div>
             </div>
@@ -1099,6 +1100,7 @@ export default {
       console.log(this.GoodsSum)
       this.$refs['itemManage'].open({
         HouseKey: this.$route.query.HouseKey,
+        HouseName: this.HouseInfoForm.HouseName,
         HouseConfigInfo: this.$deepCopy(this.GoodsSum),
         HouseUtiliti: this.$deepCopy(this.EuSum)
       })
