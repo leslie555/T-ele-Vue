@@ -1,10 +1,10 @@
 <template>
-  <div class="image-container">
+  <div class="image-container" v-viewer="{url: 'data-src'}">
     <div class="image-wrap" v-for="img in imgs" :key="img.KeyID">
       <img
         class="image-item"
         :src="$ImgUnit.getThumbImgUrl(img.ImageLocation)"
-        @click="$seeImage($ImgUnit.getImgUrl(img.ImageLocation))"
+        :data-src="$ImgUnit.getImgUrl(img.ImageLocation)"
       >
     </div>
   </div>

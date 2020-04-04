@@ -14,11 +14,15 @@
       element-loading-text="加载中"
       border
       fit
-      min-height="100%"
+      height="400px"
       class="table-normal"
     >
       <el-table-column align="center" label="小区" min-width="100" prop="CommunityName"></el-table-column>
-      <el-table-column align="center" label="数据合计" min-width="100" prop="Number"></el-table-column>
+      <el-table-column align="center" label="数据合计" min-width="100">
+        <template slot-scope="scope">
+          {{scope.row.Number + '条'}}
+        </template>
+      </el-table-column>
     </el-table>
   </div>
   <div class="export-info">
@@ -57,10 +61,7 @@ export default {
       this.showFormDialog = true
       this.listTable = []
       this.rowData = row
-      this.listTable.push({
-        CommunityName: row.CommunityName,
-        Number: row.Number + '条'
-      })
+      this.listTable = row.ExportCommunityNumber
       console.log('row:', row)
     }
   }

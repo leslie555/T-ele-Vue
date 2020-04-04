@@ -1,0 +1,30 @@
+@import "../../styles/variables";
+@import "../../styles/mixin";
+.select-panel{
+  .el-form-item{
+    margin-bottom: 12px;
+  }
+  .select-header{
+    // @include displayFlex(row,center,flex-start);
+    .select-header-left{
+      margin-top: -12px;
+      .el-form-item{
+        margin-bottom: 0;
+        margin-top: 12px;
+      }
+    }
+    .select-header-left{
+      float: left;
+    }
+    .select-header-right{
+      float: right;
+      margin-top: 7px;
+      // margin-left: 150px;
+    }
+  }
+  .select-content{
+    padding-left: 30px;
+    margin-top: 12px;
+    margin-bottom: -12px;
+  }
+}

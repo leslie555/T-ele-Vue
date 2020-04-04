@@ -55,8 +55,16 @@
                     separator=""
                     :disabled="CommunityInfo.CommunityName==CommunityInfo.CommunityNameMark"
                     filterable
+                    @change="changeCity"
                     v-model="CommunityInfo.CityCodeMark">
                   </el-cascader>
+                </el-form-item>
+                <el-form-item label="街道" prop="Street">
+                  <search-street 
+                  v-model="CommunityInfo.Street"
+                  :city-code="CommunityInfo.CityCodeMark[2]"
+                  :disabled="CommunityInfo.CityCodeMark.length === 0"
+                  ></search-street>
                 </el-form-item>
               </div>
               <div class="clearfix">
@@ -73,16 +81,17 @@
             </el-form>
             <el-form :model="HouseInfo" :inline="true" :rules="rules.rule2" status-icon ref="ruleForm2"
                      class="step1"
-                     :disabled="IsInverseAudit||!!query.SafeEdit"
                      label-width="140px">
               <div class="clearfix">
                 <el-form-item label="栋" prop="Building">
                   <el-input v-model="HouseInfo.Building"
                             maxlength="10"
+                            :disabled="IsInverseAudit||!!query.SafeEdit"
                             placeholder="请输入几栋"></el-input>
                 </el-form-item>
                 <el-form-item label="单元" prop="UnitNumber">
                   <el-input v-model="HouseInfo.UnitNumber" placeholder="请输入几单元"
+                            :disabled="IsInverseAudit||!!query.SafeEdit"
                             type="number"
                             min="1"
                             max="1000"
@@ -91,7 +100,7 @@
               </div>
               <div class="clearfix">
                 <el-form-item label="房间号" prop="RoomNumber">
-                  <el-input maxlength="10" v-model="HouseInfo.RoomNumber" placeholder="请输入房间号"></el-input>
+                  <el-input maxlength="10" v-model="HouseInfo.RoomNumber" :disabled="IsInverseAudit||!!query.SafeEdit" placeholder="请输入房间号"></el-input>
                 </el-form-item>
                 <el-form-item label="建筑面积" prop="HouseArea">
                   <el-input v-model="HouseInfo.HouseArea" placeholder="请输入建筑面积"
@@ -103,6 +112,77 @@
                 </el-form-item>
               </div>
             </el-form>
+            <el-form :model="ContractInfo" :inline="true" :rules="rules.rule6" status-icon ref="ruleForm6"
+                     class="step1"
+                     label-width="140px">
+              <div class="clearfix form-item-xs">
+                <el-form-item label="房屋户型">
+                  <el-input-number
+                    v-model="ContractInfo.RoomCount"
+                    :min="0"
+                    :max="26"
+                    controls-position="right"
+                  ></el-input-number> 室&emsp;
+                </el-form-item>
+                <el-form-item label-width="0">
+                  <el-input-number
+                    v-model="ContractInfo.HallCount"
+                    :min="0"
+                    :max="26"
+                    controls-position="right"
+                  ></el-input-number> 厅&emsp;
+                </el-form-item>
+                <el-form-item label-width="0">
+                  <el-input-number
+                    v-model="ContractInfo.ToiletCount"
+                    :min="0"
+                    :max="26"
+                    controls-position="right"
+                  ></el-input-number> 卫&emsp;
+                </el-form-item>
+              </div>
+              <div class="clearfix form-item-lg">
+                <el-form-item label="产权地址" prop="ProductionLicenseAddress">
+                  <el-input v-model="ContractInfo.ProductionLicenseAddress"
+                            placeholder="请输入产权地址"
+                            maxlength="50"></el-input>
+                </el-form-item>
+              </div>
+              <div class="clearfix">
+                <el-form-item label="权属状况" prop="OwnershipStatus">
+                  <el-select v-model="ContractInfo.OwnershipStatus" placeholder="请选择权属状况">
+                    <el-option
+                      :label="item.Description"
+                      :value="item.Value"
+                      v-for="item in OwnershipStatusList"
+                      :key="item.Value"
+                    ></el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="所有权证书编号" prop="ProductionLicenseNumber">
+                  <el-input v-model="ContractInfo.ProductionLicenseNumber"
+                            placeholder="请输入所有权证书编号" maxlength="50"></el-input>
+                </el-form-item>
+              </div>
+              <div class="clearfix">
+                <el-form-item label="抵押状况" prop="MortgageStatus">
+                  <el-select v-model="ContractInfo.MortgageStatus" placeholder="请选择抵押状况">
+                    <el-option
+                      :label="item.Description"
+                      :value="item.Value"
+                      v-for="item in MortgageStatusList"
+                      :key="item.Value"
+                    ></el-option>
+                  </el-select>
+                </el-form-item>
+              </div>
+              <upload-file
+                ref="uploadFileProperty"
+                title="上传产权证明"
+                :img-list="ContractInfo.NoMoveOwn"
+                notice="请上传不动产证或产权证，请使用png,jpg,jpeg等格式图片上传"
+              ></upload-file>
+            </el-form>
           </div>
           <div class="panel-title">业主信息</div>
           <div class="panel-body form-item-sm">
@@ -110,28 +190,67 @@
                      class="step1"
                      label-width="140px">
               <div class="clearfix" v-for="(v,i) in OwnerInfos" :key="i">
-                <el-form-item :label="`业主${i+1}: 姓名`" required class="form-item-xs">
-                  <el-input v-model="v.OwnerName" placeholder="请输入业主姓名"
-                            maxlength="14" :disabled="IsSafeEdit"></el-input>
-                </el-form-item>
-                <el-form-item label="电话" required label-width="100px">
-                  <el-input v-model="v.OwnerPhone" placeholder="请输入业主电话" maxlength="11"
-                            :disabled="IsSafeEdit"></el-input>
-                </el-form-item>
-                <el-form-item label="身份证" required label-width="120px">
-                  <el-input v-model="v.OwnerIDCard" placeholder="请输入身份证号码"
-                            maxlength="18" :disabled="IsSafeEdit"></el-input>
-                </el-form-item>
-                <el-button size="mini" class="owner-btn" type="primary" v-if="i==0" @click="handleOwnerAdd()">新增
-                </el-button>
-                <el-button size="mini" class="owner-btn" type="danger" v-if="OwnerInfos.length>1"
-                           @click="handleOwnerDelete(i)">删除
-                </el-button>
+                <upload-file
+                  ref="uploadFileCardIDImg"
+                  :title="`业主${i+1}: 身份证`"
+                  upload-text="正面(头像面)"
+                  single
+                  :required="ContractInfo.PaperType==0"
+                  @watchImgList="CardIDImgChange(arguments[0],v,'CardIDFront')"
+                  :img-list="v.CardIDFront"
+                >
+                  <upload-file-single 
+                  upload-text="背面(国徽面)"
+                  class="ml-20"
+                  :img-list="v.CardIDBack"
+                  @watchImgList="CardIDImgChange(arguments[0],v,'CardIDBack')"
+                  ></upload-file-single>
+                </upload-file>
+                <div class="clearfix">
+                  <el-form-item label="姓名" required class="form-item-xs">
+                    <el-input v-model="v.OwnerName" placeholder="请输入业主姓名"
+                              maxlength="14" :disabled="IsSafeEdit"></el-input>
+                  </el-form-item>
+                  <el-form-item label="电话" required label-width="100px">
+                    <el-input v-model="v.OwnerPhone" placeholder="请输入业主电话" maxlength="11"
+                              :disabled="IsSafeEdit"></el-input>
+                  </el-form-item>
+                  <el-form-item label="身份证" required label-width="120px">
+                    <el-input v-model="v.OwnerIDCard" placeholder="请输入身份证号码"
+                              maxlength="18" :disabled="IsSafeEdit"></el-input>
+                  </el-form-item>
+                  <el-button size="mini" class="owner-btn" type="primary" v-if="i==0" @click="handleOwnerAdd()">新增
+                  </el-button>
+                  <el-button size="mini" class="owner-btn" type="danger" v-if="OwnerInfos.length>1"
+                            @click="handleOwnerDelete(i)">删除
+                  </el-button>
+                </div>
+                <div class="clearfix">
+                  <el-form-item label="性别" required class="form-item-xs">
+                    <el-select v-model="v.OwnerSex" placeholder="请选择性别" :disabled="IsSafeEdit">
+                      <el-option
+                        :label="item.Description"
+                        :value="item.Value"
+                        v-for="item in Sex"
+                        :key="item.Value"
+                      ></el-option>
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item label="通讯地址" label-width="100px" class="form-item-lg">
+                    <el-input v-model="v.ContractAddress" placeholder="请输入通讯地址"
+                              maxlength="50" :disabled="IsSafeEdit"></el-input>
+                  </el-form-item>
+                </div>
               </div>
-              <div class="clearfix form-item-lg">
-                <el-form-item label="通讯地址" prop="ContractAddress">
-                  <el-input v-model="ContractInfo.ContractAddress" placeholder="请输入通讯地址"
-                            maxlength="50" :disabled="IsSafeEdit"></el-input>
+              <div class="clearfix">
+                <el-form-item label="邮编" prop="Postcode">
+                  <el-input v-model="ContractInfo.Postcode"
+                            placeholder="请输入邮编" maxlength="14" :disabled="IsSafeEdit"></el-input>
+                </el-form-item>
+                <el-form-item label="电子邮箱" prop="Email">
+                  <el-input v-model="ContractInfo.Email"
+                            maxlength="30"
+                            placeholder="请输入电子邮箱" :disabled="IsSafeEdit"></el-input>
                 </el-form-item>
               </div>
               <div class="clearfix">
@@ -160,6 +279,23 @@
               <div class="clearfix contract-agent">
                 <el-checkbox v-model="ContractInfo.IsAgent" :disabled="IsSafeEdit">是否代办</el-checkbox>
               </div>
+              <upload-file
+                  v-if="ContractInfo.IsAgent"
+                  ref="uploadFileAgentCardID"
+                  :title="`代办人身份证`"
+                  upload-text="正面(头像面)"
+                  single
+                  :required="ContractInfo.PaperType==0"
+                  @watchImgList="AgentCardIDImgChange(arguments[0],'AgentCardIDFront')"
+                  :img-list="ContractInfo.AgentCardIDFront"
+                >
+                  <upload-file-single 
+                  upload-text="背面(国徽面)"
+                  class="ml-20"
+                  :img-list="ContractInfo.AgentCardIDBack"
+                  @watchImgList="AgentCardIDImgChange(arguments[0],'AgentCardIDBack')"
+                  ></upload-file-single>
+                </upload-file>
               <div class="clearfix" v-if="ContractInfo.IsAgent">
                 <el-form-item label="代办人姓名" prop="AgentName">
                   <el-input v-model="ContractInfo.AgentName" placeholder="请输入代办人姓名"
@@ -174,9 +310,15 @@
                             maxlength="18" :disabled="IsSafeEdit"></el-input>
                 </el-form-item>
               </div>
+              <div class="clearfix form-item-lg" v-if="ContractInfo.IsAgent">
+                <el-form-item label="代办人通讯地址">
+                  <el-input v-model="ContractInfo.AgentAddress" placeholder="请输入代办人通讯地址"
+                            maxlength="50" :disabled="IsSafeEdit"></el-input>
+                </el-form-item>
+              </div>
               <div class="clearfix">
                 <el-form-item label="收款方式" prop="CollectionType">
-                  <el-select v-model="ContractInfo.CollectionType" placeholder="请选择收款方式">
+                  <el-select v-model="ContractInfo.CollectionType" @change="changeCollectionType" placeholder="请选择收款方式">
                     <el-option
                       :label="item.Description"
                       :value="item.Value"
@@ -206,6 +348,7 @@
                   <el-form-item label="银行账号" prop="BankAccount" class="form-item-md">
                     <el-input v-model="ContractInfo.BankAccount" placeholder="请输入银行账号"
                               @input="changeBankAccount"
+                              @blur="searchBankName"
                               maxlength="23"></el-input>
                   </el-form-item>
                 </div>
@@ -226,7 +369,7 @@
                   </el-form-item>
                   <el-form-item label="开户行" prop="OpenBankName">
                     <el-input v-model="ContractInfo.OpenBankName" placeholder="请输入开户行"
-                              maxlength="20"></el-input>
+                              maxlength="50"></el-input>
                   </el-form-item>
                 </div>
               </div>
@@ -236,7 +379,7 @@
             </div>
           </div>
         </template>
-        <template slot="2">
+         <template slot="2">
 
           <div class="panel-title">托管信息</div>
           <div class="panel-body form-item-sm">
@@ -249,6 +392,7 @@
                     v-model="ContractInfo.HostTimeMark"
                     :day="1"
                     range-separator="至"
+                    @change="HostTimeMarkChange"
                     start-placeholder="托管开始日期"
                     end-placeholder="托管结束日期">
                   </date-picker-range>
@@ -256,7 +400,7 @@
               </div>
               <div class="clearfix">
                 <el-form-item label="付款周期" prop="PayCycle">
-                  <el-select v-model="ContractInfo.PayCycle" placeholder="请选择">
+                  <el-select v-model="ContractInfo.PayCycle" @change="PayCycleChange" placeholder="请选择">
                     <el-option
                       :label="item.Description"
                       :value="item.Value"
@@ -264,12 +408,6 @@
                       :key="item.Value"
                     ></el-option>
                   </el-select>
-                </el-form-item>
-                <el-form-item class="ml-10">
-                  <el-checkbox-group v-model="ContractInfo.StagingModelMark">
-                    <el-checkbox :label="1" @change="StagingModelChange(1)">年付分期</el-checkbox>
-                    <!--<el-checkbox :label="2" @change="StagingModelChange(2)">公司年付</el-checkbox>-->
-                  </el-checkbox-group>
                 </el-form-item>
               </div>
               <div class="clearfix">
@@ -285,104 +423,42 @@
                     提示：该价格超过系统测算拿房价格
                   </div>
                 </el-form-item>
-                <el-form-item label="房屋押金">
-                  <el-input v-model="ContractInfo.HouseDeposit" placeholder="请输入房屋押金"
-                            min="0"
-                            max="100000"
-                            v-positive="ContractInfo.HouseDeposit"
-                            type="number"></el-input>
-                  <span class="ml-5">元</span>
-                </el-form-item>
               </div>
               <div class="clearfix">
-                <el-form-item label="免租模式" prop="FreePay">
-                  <el-select v-model="ContractInfo.FreePay" placeholder="请选择">
+                <el-form-item label="拿房模式" prop="PayModel">
+                  <el-select v-model="ContractInfo.PayModel" @change="PayModelChange" placeholder="请选择">
                     <el-option
-                      :label="item.Description"
-                      :value="item.Value"
-                      v-for="item in FreePay"
-                      :key="item.Value"
+                      :label="item.label"
+                      :value="item.value"
+                      v-for="item in PayModelList"
+                      :key="item.value"
                     ></el-option>
                   </el-select>
                 </el-form-item>
-                <el-form-item label="免租期限（根据免租模式）" prop="FreeDays" label-width="277px"
-                              v-if="showFreeDays"
-                              class="form-item-xs">
-                  <el-input v-model="ContractInfo.FreeDays"
+                <div class="item-notice" v-show="PayModelMsg">
+                  提示：{{PayModelMsg}}
+                </div>
+              </div>
+              <div class="clearfix">
+                <el-form-item label="改造期" prop="Transformation"
+                              v-if="ContractInfo.PayModel===4 || ContractInfo.PayModel===5">
+                  <el-input v-model="ContractInfo.Transformation" placeholder="请输入改造期"
                             min="1"
                             max="100"
-                            v-positive.int="ContractInfo.FreeDays"
-                            type="number"></el-input>
-                  <span>月</span>
-                </el-form-item>
-                <el-form-item class="form-item-md ml-40"
-                              v-if="showBillPattern">
-                  <el-radio-group v-model="ContractInfo.BillPattern">
-                    <el-radio :label="1">{{BillPatternText[0]}}</el-radio>
-                    <el-radio :label="2">{{BillPatternText[1]}}</el-radio>
-                  </el-radio-group>
-                </el-form-item>
-              </div>
-              <div class="clearfix" v-if="ContractInfo.FreePay==1">
-                <el-form-item label="前置模式" prop="ForwardType">
-                  <el-radio-group v-model="ContractInfo.ForwardType" @change="changeForwardType">
-                    <el-radio :label="1" class="contract-pay-time form-item-xs">
-                      <span class="contract-pay-time-span">免租前置先付</span>
-                      <el-input v-model="ContractInfo.ForwardPrePayTheMonth"
-                                min="0"
-                                max="100"
-                                v-positive.int="ContractInfo.ForwardPrePayTheMonth"
-                                type="number"
-                                :disabled="ContractInfo.ForwardType!=1"></el-input>
-                      <span>个月</span>
-                    </el-radio>
-                    <el-radio :label="2" class="contract-pay-time form-item-xs">
-                      <span class="contract-pay-time-span">免租前置第一年免</span>
-                      <el-input v-model="ContractInfo.ForwardFirstYearTheMonth"
-                                min="1"
-                                max="100"
-                                v-positive.int="ContractInfo.ForwardFirstYearTheMonth"
-                                type="number"
-                                :disabled="ContractInfo.ForwardType!=2"></el-input>
-                      <span>个月</span>
-                      <span class="ml-20">免租前置第二年免</span>
-                      <el-input v-model="ContractInfo.ForwardSecondYearTheMonth"
-                                min="1"
-                                max="100"
-                                v-positive.int="ContractInfo.ForwardSecondYearTheMonth"
-                                type="number"
-                                :disabled="ContractInfo.ForwardType!=2"></el-input>
-                      <span>个月</span>
-                    </el-radio>
-                  </el-radio-group>
-                </el-form-item>
-              </div>
-              <div class="clearfix form-item-xs contract-model">
-                <el-form-item label="付款模式">
-                  <el-checkbox-group v-model="ContractInfo.PayModelMark">
-                    <el-checkbox :label="1" v-if="showPayModelFirst"
-                                 @change="PayModelChange(1)">首付10%
-                    </el-checkbox>
-                    <el-checkbox :label="2" @change="PayModelChange(2)">第一年不付</el-checkbox>
-                  </el-checkbox-group>
-                </el-form-item>
-                <el-form-item class="ml-5" prop="NoPayMonth" v-if="showNoPayMonth">
-                  <el-input v-model="ContractInfo.NoPayMonth"
-                            min="1"
-                            max="12"
-                            v-positive.int="ContractInfo.NoPayMonth"
+                            v-positive.int="ContractInfo.Transformation"
                             type="number"></el-input>
                   <span class="ml-5">月</span>
                 </el-form-item>
-              </div>
-              <div class="clearfix">
-                <el-form-item label="少付金额">
-                  <el-input v-model="ContractInfo.PayLessMoney"
-                            min="0"
-                            max="100000"
-                            v-positive="ContractInfo.PayLessMoney"
+                <div class="item-notice" v-show="ContractInfo.PayModel===4">
+                  提示：每年免租一个月
+                </div>
+                <el-form-item label="免租期" prop="FreeDays" v-if="ContractInfo.PayModel===5">
+                  <el-input v-model="ContractInfo.FreeDays" placeholder="请输入免租期"
+                            :min="ContractInfo.FreeDaysMin"
+                            max="100"
+                            v-positive.int="ContractInfo.FreeDays"
                             type="number"></el-input>
-                  <span class="ml-5">元</span>
+                  <span class="ml-5">月</span>
                 </el-form-item>
               </div>
               <div class="clearfix">
@@ -402,6 +478,7 @@
                     <el-select v-model="ContractInfo.IncreaseFrequency">
                       <el-option label="一次" :value="1"></el-option>
                       <el-option label="每年" :value="2"></el-option>
+                      <el-option label="每2年" :value="3"></el-option>
                     </el-select>
                   </el-form-item>
                   <el-form-item class="form-item-xs ml-40" prop="IncreaseNum">
@@ -420,9 +497,40 @@
                               max="100000"
                               v-positive="ContractInfo.IncreaseMoney"
                               type="number"></el-input>
-                    <span>{{ContractInfo.IncreaseType==3?'%':'元'}}/年</span>
+                    <span>{{ContractInfo.IncreaseType==3?'%':'元'}}/次</span>
                   </el-form-item>
                 </template>
+              </div>
+              <div class="clearfix">
+                <el-form-item label="首年空置期" prop="FirstYearVacant">
+                  <el-input v-model="ContractInfo.FirstYearVacant" placeholder="请输入天数"
+                            min="0"
+                            max="366"
+                            v-positive="ContractInfo.FirstYearVacant"
+                            type="number"></el-input>
+                  <span class="ml-5">天</span>
+                </el-form-item>
+                <el-form-item label="次年起每年空置期" prop="SecondYearVacant" label-width="180px">
+                  <el-input v-model="ContractInfo.SecondYearVacant" placeholder="请输入天数"
+                            min="0"
+                            max="366"
+                            v-positive="ContractInfo.SecondYearVacant"
+                            type="number"></el-input>
+                  <span class="ml-5">天</span>
+                </el-form-item>
+              </div>
+              <div class="clearfix">
+                <el-form-item label="维护服务费" prop="ServiceFee">
+                  <el-input v-model="ContractInfo.ServiceFee" placeholder="请输入金额"
+                            min="0"
+                            max="366"
+                            v-positive="ContractInfo.ServiceFee"
+                            type="number"></el-input>
+                  <span class="ml-5">元/月</span>
+                  <div class="item-notice">
+                    提示：房东需每月支付该笔费用，从账单中扣除
+                  </div>
+                </el-form-item>
               </div>
               <div class="clearfix">
                 <el-form-item label="最晚付款日" prop="PayTimeType">
@@ -473,7 +581,7 @@
             </el-form>
             <div class="clearfix block-center contract-btn-box">
               <el-button type="primary" @click="prev(1)" class="mr-20">上一步</el-button>
-              <el-button type="primary" class="mr-20" @click="createOrder('TemporaryStorage',2)" v-if="!IsSafeEdit"
+              <el-button type="primary" class="mr-20" @click="createOrder('TemporaryStorage',2)" v-if="!query.SafeEdit"
                          :loading="orderLoading">暂存
               </el-button>
               <el-button type="primary" @click="next(1)" :loading="billLoading">下一步</el-button>
@@ -483,20 +591,12 @@
         <template slot="3">
           <div class="panel-title">账单计划</div>
           <div class="panel-body">
-            <bill-panel ref="billPanel" :data="BillList" :contract="ContractInfo" :type="0"
-                        :disabled="IsSafeEdit"></bill-panel>
-          </div>
-          <div class="panel-title">
-            <span>其他记账</span>
-            <el-button class="ml-30" plain type="primary" @click="handleSettlementAdd" v-if="!IsSafeEdit">记一笔账
-            </el-button>
-          </div>
-          <div class="panel-body">
-            <book-keeping :list="BookKeep" :disabled="IsSafeEdit"></book-keeping>
+            <bill-panel ref="billPanel" :childrenKey="childrenKey" :data="BillList" :contract="ContractInfo" :type="0"
+                        :disabled="!!this.query.SafeEdit"></bill-panel>
           </div>
           <div class="clearfix block-center contract-btn-box">
             <el-button type="primary" @click="prev(2)" class="mr-20">上一步</el-button>
-            <el-button type="primary" class="mr-20" @click="createOrder('TemporaryStorage',3)" v-if="!IsSafeEdit"
+            <el-button type="primary" class="mr-20" @click="createOrder('TemporaryStorage',3)" v-if="!query.SafeEdit"
                        :loading="orderLoading">暂存
             </el-button>
             <el-button type="primary" @click="next(2)">下一步</el-button>
@@ -540,6 +640,14 @@
                   <span class="ml-5">立方米</span>
                 </el-form-item>
               </div>
+              <div class="clearfix">
+                <el-form-item label="是否有宽带" prop="IsBroadband">
+                  <el-radio-group v-model="ContractInfo.IsBroadband" :disabled="IsSafeEdit">
+                    <el-radio :label="1">是</el-radio>
+                    <el-radio :label="0">否</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+              </div>
               <input-number :list="ContractEquipments" ref="inputNumber" :disabled="IsSafeEdit"></input-number>
             </div>
             <div class="panel-title">其他信息</div>
@@ -561,6 +669,15 @@
                   <el-input v-model="ContractInfo.DoorCardNumber" :disabled="IsSafeEdit" maxlength="20"></el-input>
                 </el-form-item>
               </div>
+              <div class="clearfix">
+                <el-form-item label="电表峰">
+                  <el-input v-model="ContractInfo.ElectricMeterPeak" :disabled="IsSafeEdit"
+                            maxlength="20"></el-input>
+                </el-form-item>
+                <el-form-item label="电表谷">
+                  <el-input v-model="ContractInfo.ElectricMeterValley" :disabled="IsSafeEdit" maxlength="20"></el-input>
+                </el-form-item>
+              </div>
               <div class="clearfix form-item-lg">
                 <el-form-item label="附加条款">
                   <el-input
@@ -577,7 +694,7 @@
                 ref="uploadFile"
                 title="上传附件"
                 :img-list="ImageUpload"
-                notice="请上传业主证件正反面，房屋所有权证和证明，如有代办人需代办人证件照，请使用png,jpg,jpeg,gif等格式图片上传"
+                notice="请上传业主房屋所有权证和证明，如有代办人需代办人证件照，请使用png,jpg,jpeg等格式图片上传"
               ></upload-file>
               <div class="clearfix">
                 <el-form-item label=" ">
@@ -589,7 +706,7 @@
           </el-form>
           <div class="clearfix block-center contract-btn-box">
             <el-button type="primary" @click="prev()" class="mr-20">上一步</el-button>
-            <template v-if="!IsSafeEdit">
+            <template v-if="!query.SafeEdit">
               <el-button type="primary" class="mr-20" @click="createOrder('TemporaryStorage',4)"
                          :loading="orderLoading">暂存
               </el-button>
@@ -615,7 +732,6 @@
         </template>
       </steps-box>
     </div>
-    <settlement ref="settlement" :bus-type="2" :api-type="0" @success="checkOutSuccess"></settlement>
   </div>
 </template>
 <style scoped lang="scss">
@@ -636,13 +752,13 @@
   } from '../../../api/owner'
   import { ShowCompanyinfoCityCode, StateOwnerContract } from '../../../api/system'
   import StepsBox from '../../../components/StepsBox'
-  import { BillPanel, BookKeeping, ContractTabs, InputNumber } from './components'
-  import { Settlement, UploadFile } from '../../../components'
-  import { validatePhone, validateCard } from '../../../utils/validate/rulevalidator'
+  import { BillPanel, ContractTabs, InputNumber, SearchStreet } from './components'
+  import { Settlement, UploadFile, UploadFileSingle } from '../../../components'
+  import { validatePhone, validateCard, validateEmail } from '../../../utils/validate/rulevalidator'
   import { CityData, getCityNameByCode, getCodeArrByCode } from '../../../utils/CityData'
-  import uuid from '../../../utils/uuid'
   import { scrollToError } from '../../../utils/scrollToError'
   import { mapActions } from 'vuex'
+  import BIN from 'bankcardinfo'
 
   export default {
     components: {
@@ -651,8 +767,9 @@
       InputNumber,
       UploadFile,
       BillPanel,
-      BookKeeping,
-      Settlement
+      Settlement,
+      SearchStreet,
+      UploadFileSingle
     },
     computed: {
       PassengerChannel() {
@@ -665,61 +782,40 @@
         PaymentMethod.shift()
         return PaymentMethod
       },
+      OwnershipStatusList() {
+        const OwnershipStatusList = this.$EnumData.getEnumListByKey('OwnershipStatus').slice()
+        OwnershipStatusList[0].Description = '请选择'
+        return OwnershipStatusList
+      },
+      MortgageStatusList() {
+        const MortgageStatusList = this.$EnumData.getEnumListByKey('MortgageStatus').slice()
+        MortgageStatusList[0].Description = '请选择'
+        return MortgageStatusList
+      },
+      /**
+       * @return {string}
+       */
+      PayModelMsg() {
+        const item = this.PayModelList.find(x => x.value === this.ContractInfo.PayModel)
+        if (item) {
+          return item.Description
+        } else {
+          return ''
+        }
+      },
       PayCycle() {
         return this.$EnumData.getEnumListByKey('PayCycle')
-      },
-      FreePay() {
-        const FreePay = this.$EnumData.getEnumListByKey('FreePay').slice()
-        FreePay.splice(2, 1) // 删除掉免租后置
-        return FreePay
-      },
-      BillPattern() {
-        return this.$EnumData.getEnumListByKey('BillPattern')
       },
       IncreaseType() {
         const IncreaseType = this.$EnumData.getEnumListByKey('IncreaseType').slice()
         IncreaseType.splice(1, 1) // 删除掉不规则递增
         return IncreaseType
       },
-      showPayModelFirst() {
-        // 季付和 免租模式为无或者平摊到每年才能选择10%
-        const flag = this.ContractInfo.PayCycle === 1 && (this.ContractInfo.FreePay === 0 || this.ContractInfo.FreePay === 3)
-        if (!flag) return false
-        // 3年及以上租期才能选择 10%
-        let start = this.$dateFormat(this.ContractInfo.HostTimeMark[0], 'yyyy/MM/dd') || '1970/01/01'
-        let end = this.$dateFormat(this.ContractInfo.HostTimeMark[1], 'yyyy/MM/dd') || '1970/01/01'
-        start = new Date(start)
-        end = new Date(end)
-        start.setFullYear(start.getFullYear() + 3)
-        start.setDate(start.getDate() - 1)
-        if (start.getTime() > end.getTime()) {
-          return false
-        }
-        return true
-      },
-      showBillPattern() {
-        return this.ContractInfo.FreePay === 3 && this.ContractInfo.PayCycle !== 0
-      },
-      showNoPayMonth() {
-        // 选择第一年不付才显示少付月份
-        const index = this.ContractInfo.PayModelMark.findIndex(v => v === 2)
-        return index !== -1
-      },
-      showFreeDays() {
-        return this.ContractInfo.FreePay !== 0 && this.ContractInfo.FreePay !== 1 || (this.ContractInfo.FreePay === 1 && this.ContractInfo.ForwardType !== 2)
-      },
-      BillPatternText() {
-        switch (this.ContractInfo.PayCycle) {
-          case 1:
-            return ['3个月付2个月', '4个月付3个月']
-          case 2:
-            return ['6个月付5个月', '7个月付6个月']
-          case 3:
-            return ['12个月付11个月', '13个月付12个月']
-        }
-      },
       IsSafeEdit() {
         return !!this.query.SafeEdit && false
+      },
+      Sex() {
+        return this.$EnumData.getEnumListByKey('Sex')
       }
     },
     data() {
@@ -732,15 +828,6 @@
           callback(new Error('请填写日期'))
         } else if (value === 3 && !this.ContractInfo.PayDaysMark[3]) {
           callback(new Error('请填写日期'))
-        } else {
-          callback()
-        }
-      }
-      const validateForward = (rule, value, callback) => {
-        if (value === 1 && this.ContractInfo.ForwardPrePayTheMonth === '') {
-          callback(new Error('请填写前置规则'))
-        } else if (value === 2 && (!this.ContractInfo.ForwardFirstYearTheMonth || !this.ContractInfo.ForwardSecondYearTheMonth)) {
-          callback(new Error('请填写前置规则'))
         } else {
           callback()
         }
@@ -775,45 +862,86 @@
           HostTimeMark: [],
           PayDaysMark: ['0', '15', '15', '15'],
           PayTimeType: 0,
-          PayModelMark: [],
-          StagingModelMark: [],
           PayCycle: 0,
-          FreePay: 0,
+          InitialPrice: '',
+          OldPayModel: 6,
+          PayModel: 6,
           IncreaseType: 0,
           IncreaseFrequency: 1,
-          BillPattern: 1,
-          ForwardType: 1,
           PaperType: 0,
           CollectionType: 1,
           PassengerChannel: 0,
           WaterNumber: '',
           ElectricityNumber: '',
-          GasNumber: ''
+          GasNumber: '',
+          Transformation: 1,
+          FreeDays: 1,
+          FreeDaysMin: 1,
+          AgentAddress: '',
+          FirstYearVacant: '',
+          SecondYearVacant: '',
+          ServiceFee: '',
+          IsBroadband: '',
+          NoMoveOwn: [],
+          AgentCardIDFront: [],
+          AgentCardIDBack: [],
+          ReceivePeopleName: '',
+          ReceiveAccount: '',
+          BankAccount: '',
+          BankName: '',
+          OpenBankName: '',
+          RoomCount: 0,
+          HallCount: 0,
+          ToiletCount: 0,
+          ProductionLicenseAddress: '',
+          OwnershipStatus: 0,
+          ProductionLicenseNumber: '',
+          MortgageStatus: 0
         }, // 合同信息
         HouseInfo: {}, // 房源信息
         CommunityInfo: {
           Location: '',
           CityCodeMark: [],
-          CommunityName: ''
+          CommunityName: '',
+          Street: ''
         }, // 小区信息
         ContractEquipments: [], // 房屋设备信息
         ImageUpload: [],
         ContractTemplate: [], // 合同模板
         BillList: [], // 账单信息
-        BookKeep: [], // 其他记账
         OwnerInfos: [], // 业主列表
         OwnerContractOperate: {}, // 合同操作表
         oldCommunityList: [], // 上次搜索
         oldCommunitySearchKey: '', // 上次搜索
         cloneData: {
           ImageUpload: [],
-          BookKeep: [],
           ContractEquipments: [],
           OwnerInfos: [],
-          OwnerBill: []
+          OwnerBill: [],
+          NoMoveOwn: [],
+          AgentCardIDFront: [],
+          AgentCardIDBack: []
         }, // clone的旧数据
+        childrenKey: 'OwnerBillDetail',
         billForm: {}, // 账单表单 用于对比是否修改了账单
         bankList: ['中国工商银行', '中国农业银行', '中国银行', '中国建设银行', '交通银行', '中国邮政储蓄银行', '招商银行', '浦发银行', '中信银行', '中国光大银行', '华夏银行', '中国民生银行', '广发银行', '兴业银行', '平安银行', '浙商银行', '恒丰银行', '渤海银行'],
+        PayModelList: [
+          {
+            Description: '',
+            value: 4,
+            label: '10%10%'
+          },
+          {
+            Description: '',
+            value: 5,
+            label: '5+1'
+          },
+          {
+            Description: '需要自己手动添加账单,并且需要审核',
+            value: 6,
+            label: '非正常拿房'
+          }
+        ],
         rules: {
           rule0: {
             ContractTemplateName: [
@@ -830,6 +958,9 @@
             CityCodeMark: [
               { required: true, message: '请选择地区', trigger: 'change' }
             ],
+            Street: [
+              { required: true, message: '请输入或选择街道', trigger: 'change' }
+            ],
             Location: [
               { required: true, message: '请输入详细地址', trigger: 'blur' }
             ]
@@ -845,23 +976,12 @@
               { required: true, message: '请输入房间号', trigger: 'blur' }
             ],
             HouseArea: [
-              { required: false }
+              { required: true, message: '请输入建筑面积', trigger: 'blur' }
             ]
           },
           rule3: {
-            OwnerName: [
-              { required: true, message: '请输入业主姓名', trigger: 'blur' }
-            ],
-            OwnerPhone: [
-              { required: true, message: '请输入业主电话', trigger: 'blur' },
-              { validator: validatePhone, trigger: 'blur' }
-            ],
-            OwnerIDCard: [
-              { required: true, message: '请输入业主身份证号', trigger: 'blur' },
-              { validator: validateCard, trigger: 'blur' }
-            ],
-            ContractAddress: [
-              { required: false }
+            Email: [
+              { validator: validateEmail, trigger: 'blur' }
             ],
             EmergencyContactName: [
               { required: false }
@@ -912,14 +1032,14 @@
             InitialPrice: [
               { required: true, message: '请输入拿房价格', trigger: 'blur' }
             ],
-            NoPayMonth: [
-              { required: true, message: '请输入少付月份', trigger: 'blur' }
-            ],
-            FreePay: [
-              { required: true, message: '请选择免租模式', trigger: 'change' }
+            Transformation: [
+              { required: true, message: '请输入改造期', trigger: 'blur' }
             ],
             FreeDays: [
               { required: true, message: '请输入免租期限', trigger: 'blur' }
+            ],
+            PayModel: [
+              { required: true, message: '请选择拿房模式', trigger: 'change' }
             ],
             IncreaseType: [
               { required: true, message: '请选择递增方式', trigger: 'change' }
@@ -935,9 +1055,6 @@
             ],
             PayTimeType: [
               { validator: validatePayTime, trigger: 'change' }
-            ],
-            ForwardType: [
-              { validator: validateForward, trigger: 'blur' }
             ]
           },
           rule5: {
@@ -949,6 +1066,9 @@
             ],
             GasNumber: [
               { required: true, message: '天然气读数不能为空', trigger: 'blur' }
+            ],
+            IsBroadband: [
+              { required: true, message: '宽带信息不能为空', trigger: 'change' }
             ]
           }
         }
@@ -979,6 +1099,7 @@
           return
         }
         window.initMap = () => {
+          console.log('owner-map ready')
           this.mapObj = new AMap.Map('owner-map')
           this.mapObj.on('click', this.mapClick)
           if (type === 1) {
@@ -1013,14 +1134,15 @@
               const item = result.tips[0]
               this.mapSearchResult = item
               this.$nextTick(() => {
+                console.log(result)
                 this.CommunityInfo.CityCode = item.adcode
                 this.CommunityInfo.CityCodeMark = getCodeArrByCode(item.adcode)
                 this.CommunityInfo.CityName = item.district
                 this.CommunityInfo.Longitude = item.location && item.location.lng
                 this.CommunityInfo.Latitude = item.location && item.location.lat
                 // 之前没有经纬度的搜索的重置，点击的不重置
-                if (type === 1) {
-                  if (typeof item.address === 'string') {
+                if (typeof item.address === 'string') {
+                  if (!this.CommunityInfo.Location || type === 1) {
                     this.CommunityInfo.Location = item.address
                   }
                 }
@@ -1087,17 +1209,20 @@
         this.OwnerInfos.push({
           OwnerName: '',
           OwnerPhone: '',
-          OwnerIDCard: ''
+          OwnerIDCard: '',
+          ContractAddress: '',
+          CardIDFront: [],
+          CardIDBack: [],
+          OwnerSex: 0
         })
       },
-      initPageData({ ContractTemplate, OwnerContract, HouseInfo, CommunityInfo, ImageUpload, OwnerEquipments, OwnerBill, BookKeep, OwnerContractOperate, OwnerInfos }) {
+      initPageData({ ContractTemplate, OwnerContract, HouseInfo, CommunityInfo, ImageUpload, OwnerEquipments, OwnerBill, OwnerContractOperate, OwnerInfos }) {
         this.ContractTemplate = ContractTemplate || []
         // this.ContractInfo.ContractTemplateName = ContractTemplate[0].ContractTemplateName // 默认合同模板
         this.ContractInfo = { ...this.ContractInfo, ContractTemplateName: ContractTemplate[0].ContractTemplateName }
         /* 续签删除账期和记账 */
         if (this.query.Renew) {
           OwnerBill = []
-          BookKeep = []
           if (OwnerContract) {
             OwnerContract.PaperType = 0
           }
@@ -1115,12 +1240,6 @@
           this.ImageUpload = ImageUpload
           if (!this.query.Renew) {
             this.cloneData.ImageUpload = this.$deepCopy(ImageUpload)
-          }
-        }
-        if (BookKeep && BookKeep.length > 0) {
-          this.BookKeep = BookKeep
-          if (!this.query.Renew) {
-            this.cloneData.BookKeep = this.$deepCopy(BookKeep)
           }
         }
         if (OwnerBill && OwnerBill.length > 0) {
@@ -1141,7 +1260,17 @@
           this.OwnerContractOperate = OwnerContractOperate
         }
         if (OwnerContract) {
+          if (OwnerContract.NoMoveOwn && OwnerContract.NoMoveOwn.length > 0) {
+            this.cloneData.NoMoveOwn = this.$deepCopy(OwnerContract.NoMoveOwn)
+          }
+          if (OwnerContract.AgentCardIDFront && OwnerContract.AgentCardIDFront.length > 0) {
+            this.cloneData.AgentCardIDFront = this.$deepCopy(OwnerContract.AgentCardIDFront)
+          }
+          if (OwnerContract.AgentCardIDBack && OwnerContract.AgentCardIDBack.length > 0) {
+            this.cloneData.AgentCardIDBack = this.$deepCopy(OwnerContract.AgentCardIDBack)
+          }
           this.ContractInfo = { ...this.ContractInfo, ...OwnerContract }
+          debugger
           // 合同模板可能是空
           if (!this.ContractInfo.ContractTemplateName) {
             this.ContractInfo.ContractTemplateName = ContractTemplate[0].ContractTemplateName
@@ -1175,19 +1304,26 @@
               this.ContractInfo.HostTimeMark = [this.ContractInfo.HostStartTime, this.ContractInfo.HostEndTime]
             }
           }
+          // 付款模式 兼容老数据 0 1 2 -》6
+          if (this.ContractInfo.PayModel < 3) {
+            this.ContractInfo.PayModel = 6
+          }
+          if (this.ContractInfo.HostTimeMark[0] && this.ContractInfo.HostTimeMark[1] && this.ContractInfo.PayModel === 5) {
+            const years = this.diffYear(this.ContractInfo.HostTimeMark)
+            this.ContractInfo.FreeDaysMin = years
+          }
+          this.ContractInfo.OldPayModel = this.ContractInfo.PayModel
           // 最晚付款日
           this.ContractInfo.PayDaysMark[this.ContractInfo.PayTimeType] = this.ContractInfo.PayDays
-          // 分期模式
-          this.ContractInfo.StagingModelMark = [this.ContractInfo.StagingModel]
-          // 付款模式
-          this.ContractInfo.PayModelMark = [this.ContractInfo.PayModel]
           this.saveBillForm()
         }
         if (!OwnerInfos || OwnerInfos && OwnerInfos.length === 0) {
           this.OwnerInfos.push({
             OwnerName: this.ContractInfo.OwnerName,
             OwnerPhone: this.ContractInfo.OwnerPhone,
-            OwnerIDCard: this.ContractInfo.OwnerIDCard
+            OwnerIDCard: this.ContractInfo.OwnerIDCard,
+            ContractAddress: this.ContractInfo.ContractAddress,
+            OwnerSex: this.ContractInfo.OwnerSex || 0
           })
           if (this.isEdit) {
             // 兼容之前的数据，、、、不用 没得keyid 不会有bug
@@ -1205,39 +1341,26 @@
           'HostStartTime',
           'HostEndTime',
           'InitialPrice',
-          'HouseDeposit',
-          'PayCycle',
-          'PayModel',
-          'PayModelName',
-          'PayLessMoney',
-          'NoPayMonth',
-          'FreePay',
+          'Transformation',
           'FreeDays',
-          'BillPattern',
+          'PayModel',
+          'PayCycle',
           'IncreaseType',
           'IncreaseFrequency',
           'IncreaseNum',
           'IncreaseMoney',
           'PayTimeType',
           'PayDays',
-          'StagingModel',
-          'ForwardType',
-          'ForwardPrePayTheMonth',
-          'ForwardFirstYearTheMonth',
-          'ForwardSecondYearTheMonth'
+          'FirstYearVacant',
+          'SecondYearVacant',
+          'ServiceFee'
         ]
         keys.map(v => {
           this.billForm[v] = this.ContractInfo[v]
         })
       },
       resetBillForm() {
-        if (this.ContractInfo.BillPattern === 0) {
-          this.ContractInfo.BillPattern = 1
-        }
-        if (this.ContractInfo.ForwardType === 0) {
-          this.ContractInfo.ForwardType = 1
-        }
-        if (this.ContractInfo.IncreaseFrequency === 0) {
+       if (this.ContractInfo.IncreaseFrequency === 0) {
           this.ContractInfo.IncreaseFrequency = 1
         }
       },
@@ -1247,6 +1370,10 @@
         }
       },
       next(index) {
+        // if (index > -6) {
+        //   this.$refs.steps.nextStep()
+        //   return
+        // }
         let flag = -1
         switch (index) {
           case 0:
@@ -1289,6 +1416,12 @@
                 }
                 const msg2 = validateCard(null, v.OwnerIDCard)
                 if (msg2) throw new Error(`业主${i + 1}${msg2}`)
+                if (!(v.CardIDFront && v.CardIDFront.length > 0) && this.ContractInfo.PaperType === 0) {
+                  throw new Error(`请上传业主${i + 1}身份证正面照！`)
+                }
+                if (!(v.CardIDBack && v.CardIDBack.length > 0) && this.ContractInfo.PaperType === 0) {
+                  throw new Error(`请上传业主${i + 1}身份证背面照！`)
+                }
               })
             } catch (err) {
               this.$message.error(err.message)
@@ -1339,6 +1472,15 @@
           cb([])
         }
       },
+      changeCity() {
+        this.CommunityInfo.Street = ''
+      },
+      CardIDImgChange(val, data, type) {
+        data[type] = val
+      },
+      AgentCardIDImgChange(val, type) {
+        this.ContractInfo[type] = val
+      },
       queryBankSearchAsync(queryString, cb) {
         const arr = []
         if (!queryString) {
@@ -1360,7 +1502,8 @@
           Longitude: item.Longitude,
           Latitude: item.Latitude,
           Location: item.Location,
-          KeyID: item.KeyID
+          KeyID: item.KeyID,
+          Street: item.Street
         }
         this.CommunityInfo.CommunityNameMark = item.CommunityName
         this.CommunityInfo.CityCodeMark = getCodeArrByCode(this.CommunityInfo.CityCode)
@@ -1368,6 +1511,16 @@
         if (type === 0) {
           this.setCenterAndMark()
         }
+      },
+      handleStreetSelect(item) {
+        this.CommunityInfo.Street = item.CommunityName
+      },
+      changeCollectionType() {
+        this.ContractInfo.ReceivePeopleName = ''
+        this.ContractInfo.ReceiveAccount = ''
+        this.ContractInfo.BankAccount = ''
+        this.ContractInfo.BankName = ''
+        this.ContractInfo.OpenBankName = ''
       },
       handleBankSelect(item) {
         this.ContractInfo.BankName = item
@@ -1380,6 +1533,94 @@
           }
         }, 400)
       },
+      HostTimeMarkChange(val) {
+        if (val[0] && val[1]) {
+          const flag = this.isFullYear(val)
+          if (!flag && this.ContractInfo.PayModel !== 6) {
+            this.ContractInfo.PayModel = ''
+            this.ContractInfo.OldPayModel = ''
+          }
+          if (flag) {
+            if (this.ContractInfo.PayModel === 5) {
+              const years = this.diffYear(val)
+              if (this.ContractInfo.FreeDays < years) {
+                this.ContractInfo.FreeDays = years
+              }
+              this.ContractInfo.FreeDaysMin = years
+            }
+          } else {
+            this.ContractInfo.FreeDays = 1
+            this.ContractInfo.FreeDaysMin = 1
+          }
+        }
+      },
+      PayCycleChange(val) {
+        if (val !== 0 && this.ContractInfo.PayModel === 3 || val >= 2 && this.ContractInfo.PayModel !== 6) {
+          this.ContractInfo.PayModel = ''
+          this.ContractInfo.OldPayModel = ''
+        }
+      },
+      PayModelChange(val) {
+        // 修改免租期和改造期的值
+        let flag = false
+        switch (val) {
+          case 3:
+            this.ContractInfo.FreeDays = 0
+            this.ContractInfo.Transformation = 0
+            break
+          case 4:
+            this.ContractInfo.FreeDays = 1
+            this.ContractInfo.Transformation = 1
+            break
+          case 5:
+            flag = true
+            this.ContractInfo.FreeDays = 1
+            // this.ContractInfo.Transformation = 1
+            break
+          case 6:
+            this.ContractInfo.FreeDays = 0
+            this.ContractInfo.Transformation = 0
+            break
+        }
+        if (val !== 6) {
+          if (val === 3 && this.ContractInfo.PayCycle !== 0) {
+            this.$alert('付款周期为<b>月付</b>才能选择该模式', '温馨提示', {
+              confirmButtonText: '我知道了',
+              dangerouslyUseHTMLString: true
+            })
+            this.ContractInfo.PayModel = this.ContractInfo.OldPayModel
+          } else if (this.ContractInfo.HostTimeMark[0] && this.ContractInfo.HostTimeMark[1]) {
+            if (this.isFullYear(this.ContractInfo.HostTimeMark) && this.ContractInfo.PayCycle < 2) {
+              this.ContractInfo.OldPayModel = val
+              if (flag) {
+                this.ContractInfo.FreeDays = this.diffYear(this.ContractInfo.HostTimeMark)
+              }
+            } else {
+              this.$alert('托管时间必须为<b>整年</b><br/>并且付款周期为<b>月付</b>或者<b>季付</b></br>才能选择该模式', '温馨提示', {
+                confirmButtonText: '我知道了',
+                dangerouslyUseHTMLString: true
+              })
+              this.ContractInfo.PayModel = this.ContractInfo.OldPayModel
+            }
+          }
+        }
+      },
+      diffYear(timeArr) {
+        const time1 = new Date(timeArr[0])
+        const time2 = new Date(timeArr[1])
+        time2.setDate(time2.getDate() + 1)
+        return Math.abs(time1.getFullYear() - time2.getFullYear())
+      },
+      isFullYear(timeArr) {
+        const time1 = new Date(timeArr[0])
+        const time2 = new Date(timeArr[1])
+        time2.setDate(time2.getDate() + 1)
+        if (this.$dateFormat(time1, 'MM-dd') === this.$dateFormat(time2, 'MM-dd')) {
+          return true
+        } else {
+          return false
+        }
+      },
       changePayTime(val) {
         this.ContractInfo.PayDaysMark.map((v, i) => {
           if (i !== val) {
@@ -1387,66 +1628,32 @@
           }
         })
       },
-      changeForwardType(val) {
-        if (val === 1) {
-          this.ContractInfo.ForwardFirstYearTheMonth = ''
-          this.ContractInfo.ForwardSecondYearTheMonth = ''
-        } else if (val === 2) {
-          this.ContractInfo.ForwardPrePayTheMonth = ''
-        }
-      },
-      StagingModelChange(val) {
-        if (this.ContractInfo.StagingModelMark.length === 2) {
-          const index = this.ContractInfo.StagingModelMark.findIndex(v => v !== val)
-          this.ContractInfo.StagingModelMark.splice(index, 1)
-        }
-      },
-      PayModelChange(val) {
-        if (this.ContractInfo.PayModelMark.length === 2) {
-          const index = this.ContractInfo.PayModelMark.findIndex(v => v !== val)
-          this.ContractInfo.PayModelMark.splice(index, 1)
-        }
-      },
       changeBankAccount(e) {
         if (e.length === 4 || e.length === 9 || e.length === 14 || e.length === 19) {
           this.ContractInfo.BankAccount += ' '
         }
+      },
+      searchBankName(e) {
+        let num = this.ContractInfo.BankAccount.replace(/\s/g, '')
+        if (num.length < 19) {
+          const arr = new Array(19 - num.length).fill(8)
+          num = num + arr.join('')
+        }
+        console.log(num)
+        BIN.getBankBin(num).then((data) => {
+            console.log(data)
+            this.ContractInfo.BankName = data.bankName
+          })
+          .catch((err) => {
+            console.log(err)
+          })
       },
       buildBillData() {
         // 组装数据
         const model = this.ContractInfo
         model.HostStartTime = this.$dateFormat(model.HostTimeMark[0], 'yyyy-MM-dd 00:00:00')
         model.HostEndTime = this.$dateFormat(model.HostTimeMark[1], 'yyyy-MM-dd 00:00:00')
-        model.StagingModel = model.StagingModelMark[0] || 0
-        model.PayModel = model.PayModelMark[0] || 0
         model.PayDays = model.PayDaysMark[model.PayTimeType]
-        // 有 10% 时才能赋值 不然重置
-        if (!this.showPayModelFirst && model.PayModel === 1) {
-          model.PayModel = 0
-        }
-        // 付款模式选择10% 不能有少付月数
-        if (model.PayModel !== 2) {
-          model.NoPayMonth = 0
-        }
-        // 免租模式无时 不能有免租期限和账单模式 为前置后置时没有账单模式
-        if (!this.showBillPattern) {
-          model.BillPattern = 0
-        }
-        if (model.FreePay === 0) {
-          model.FreeDays = 0
-        }
-        // 免租模式为前置时 才有前置模式
-        if (this.ContractInfo.FreePay !== 1) {
-          this.ContractInfo.ForwardType = 0
-        }
-        if (this.ContractInfo.ForwardType === 1) {
-          this.ContractInfo.ForwardFirstYearTheMonth = 0
-          this.ContractInfo.ForwardSecondYearTheMonth = 0
-        } else if (this.ContractInfo.ForwardType === 2) {
-          this.ContractInfo.ForwardPrePayTheMonth = 0
-          // 这种方式下 免租期限为这两个加起来
-          this.ContractInfo.FreeDays = +this.ContractInfo.ForwardFirstYearTheMonth + +this.ContractInfo.ForwardSecondYearTheMonth
-        }
         // 递增方式为不递增 不规则递增时 不能有 递增次数 递增年 递增值
         if (model.IncreaseType < 2) {
           model.IncreaseFrequency = 0
@@ -1461,7 +1668,7 @@
             if (Object.keys(this.billForm).length === 0 || this.BillList.length === 0) {
               // 新增、续签、没有账单的时候
               this.getBillList()
-            } else if (this.$isDiffObj(this.billForm, this.ContractInfo)) {
+            } else if (this.$isDiffObj(this.billForm, this.ContractInfo) && !this.query.SafeEdit) {
               // 修改的时候有变动
               this.$confirm('系统检测到表单发生变动,确认后将重新生成账单', '提示').then(() => {
                 this.getBillList()
@@ -1481,7 +1688,7 @@
         getOwnerBill(this.ContractInfo).then(({ Data, BusCode, Msg }) => {
           this.billLoading = false
           if (BusCode === 0) {
-            this.$refs.billPanel.initData(Data, this.cloneData.OwnerBill)
+            this.$refs.billPanel.initData(Data)
             this.$refs.steps.nextStep()
             this.saveBillForm()
           } else {
@@ -1530,6 +1737,8 @@
             }
             break
         }
+        debugger
+        console.log(this.BillList)
         if (flag) return
         if ((type === 'Save' || type === 'SignUp' || type === 'SubmitAudit')) {
           if (!this.$refs.inputNumber.validate()) {
@@ -1556,12 +1765,25 @@
         const ImageUpload = this.$DiffArrFn(this.cloneData.ImageUpload, this.ImageUpload, [
           'ImageLocation'
         ])
-        const BookKeep = this.$DiffArrFn(this.cloneData.BookKeep, this.BookKeep)
         const OwnerInfos = this.$DiffArrFn(this.cloneData.OwnerInfos, this.OwnerInfos)
         // 重置合同中默认业主信息
         this.ContractInfo.OwnerName = OwnerInfos[0].OwnerName
         this.ContractInfo.OwnerPhone = OwnerInfos[0].OwnerPhone
         this.ContractInfo.OwnerIDCard = OwnerInfos[0].OwnerIDCard.toUpperCase()
+        this.ContractInfo.ContractAddress = OwnerInfos[0].ContractAddress
+        this.ContractInfo.OwnerSex = OwnerInfos[0].OwnerSex
+        const NoMoveOwn = this.$DiffArrFn(this.cloneData.NoMoveOwn, this.ContractInfo.NoMoveOwn, [
+          'ImageLocation'
+        ])
+        const AgentCardIDFront = this.$DiffArrFn(this.cloneData.AgentCardIDFront, this.ContractInfo.AgentCardIDFront, [
+          'ImageLocation'
+        ])
+        const AgentCardIDBack = this.$DiffArrFn(this.cloneData.AgentCardIDBack, this.ContractInfo.AgentCardIDBack, [
+          'ImageLocation'
+        ])
+        this.ContractInfo.NoMoveOwn = NoMoveOwn
+        this.ContractInfo.AgentCardIDFront = AgentCardIDFront
+        this.ContractInfo.AgentCardIDBack = AgentCardIDBack
         const OwnerBill = this.$refs.billPanel.getValue()
         // 强制修改 InputTerminal
         this.ContractInfo.InputTerminal = 0
@@ -1581,7 +1803,7 @@
             OwnerBill,
             OwnerEquipments,
             ImageUpload,
-            BookKeep,
+            BookKeep: [],
             OwnerInfos
           },
           buttonType: type === 'Preview' ? 'TemporaryStorage' : type,
@@ -1661,6 +1883,7 @@
                     Mobile: this.ContractInfo.OwnerPhone,
                     IDCard: this.ContractInfo.OwnerIDCard,
                     Name: this.ContractInfo.OwnerName,
+                    Img: this.OwnerInfos[0].CardIDFront[0].ImageLocation,
                     ContractID: Data,
                     type: 0
                   }
@@ -1676,34 +1899,6 @@
           }).catch(() => {
             this.orderLoading = false
           })
-        }
-      },
-      handleSettlementAdd() {
-        this.$refs['settlement'].open({
-          BookKeepPara: {
-            HouseName: this.getHouseName(),
-            uuid: uuid()
-          },
-          type: 0
-        })
-      },
-      getHouseName() {
-        let HouseName = this.CommunityInfo.CommunityName + this.HouseInfo.Building + '栋'
-        if (this.HouseInfo.UnitNumber) {
-          HouseName += this.HouseInfo.UnitNumber + '单元'
-        }
-        HouseName += this.HouseInfo.RoomNumber
-        return HouseName
-      },
-      checkOutSuccess({ BookKeepList, type }) {
-        if (type === 0) {
-          // 新增
-          this.BookKeep.push(...BookKeepList)
-        } else {
-          // 修改
-          const item = BookKeepList[0]
-          const index = this.BookKeep.findIndex(v => (v.uuid && v.uuid === item.uuid || v.KeyID && v.KeyID === item.KeyID))
-          this.$set(this.BookKeep, index, item)
         }
       }
     }

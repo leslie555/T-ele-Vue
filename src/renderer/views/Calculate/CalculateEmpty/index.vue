@@ -69,7 +69,7 @@ export default {
       pageSize: 10,
       CalculateInfoForm: {
         KeyWord: '',
-        EmployeeID: '',
+        FullIDNew: '',
         EmployeeName: ''
       },
       // 表格数据
@@ -94,18 +94,18 @@ export default {
     submitForm() {
       this.search()
       // this.CalculateInfoForm.KeyWord = ''
-      // this.CalculateInfoForm.EmployeeID = ''
+      // this.CalculateInfoForm.FullIDNew = ''
       // this.CalculateInfoForm.EmployeeName = ''
     },
     resetForm() {
       this.CalculateInfoForm.KeyWord = ''
-      this.CalculateInfoForm.EmployeeID = ''
+      this.CalculateInfoForm.FullIDNew = ''
       this.CalculateInfoForm.EmployeeName = ''
       this.search()
     },
     getPeople(data) {
-      this.CalculateInfoForm.EmployeeID = !data.fullID ? data.FullID : data.fullID
-      this.CalculateInfoForm.EmployeeName = !data.label ? data.UserName : data.label
+      this.CalculateInfoForm.FullIDNew = !data.FullIDNew ? data.FullID : data.FullIDNew
+      this.CalculateInfoForm.EmployeeName = !data.SysName ? data.UserName : data.SysName
     },
     fetchData(pages) {
       if (!pages) {
@@ -118,7 +118,7 @@ export default {
       return FindVacancyPerformance({
         Parm: pages,
         KeyWord: this.CalculateInfoForm.KeyWord,
-        Full: this.CalculateInfoForm.EmployeeID
+        FullIDNew: this.CalculateInfoForm.FullIDNew
       }).then(response => {
         if (response.Code === 0) {
           this.listLoading = false

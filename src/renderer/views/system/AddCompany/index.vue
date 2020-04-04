@@ -38,11 +38,11 @@
               </el-form-item>
               <el-form-item label="省份" prop="CityCode">
                 <el-cascader
-                  expand-trigger="hover"
                   :options="CityData"
                   separator
                   filterable
                   v-model="province"
+                  :props="defaultOptions"
                   @change="handleCityChange"
                 ></el-cascader>
               </el-form-item>
@@ -149,6 +149,9 @@
             title: '负责人设置'
           }
         ],
+        defaultOptions: {
+          expandTrigger: 'hover'
+        },
         form: {
           CompanyType: 1,
           PID: 0,

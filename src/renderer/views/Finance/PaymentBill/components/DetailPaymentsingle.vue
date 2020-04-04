@@ -33,12 +33,12 @@
         </div>
         <div class="PText pic-proof-container">
           <p class="pic-title">图片凭证:</p>
-          <div class="pic-proof" v-if="PayMentEditFormData.Pic&&PayMentEditFormData.Pic.length>0">
+          <div class="pic-proof" v-if="PayMentEditFormData.Pic&&PayMentEditFormData.Pic.length>0"  v-viewer="{url: 'data-src'}">
             <div class="proof-img" v-for="(item, index) in PayMentEditFormData.Pic"
                  :key="index"
             >
               <img :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)"
-                   @click="$seeImage($ImgUnit.getImgUrl(item.ImageLocation))"
+                   :data-src="$ImgUnit.getImgUrl(item.ImageLocation)"
                    alt="">
             </div>
           </div>
@@ -176,6 +176,7 @@
               console.log(Data)
               this.loading = false
               this.PayMentEditFormData = Data
+              this.PayMentEditFormData.InOrOut = Data.Details[0]['InOrOut']
               this.PaymentFormList = Data.Details
               if (this.PaymentFormList.length === 0) {
                 this.IsExhibition = false
@@ -192,6 +193,7 @@
               console.log(Data)
               this.loading = false
               this.PayMentEditFormData = Data
+              this.PayMentEditFormData.InOrOut = Data.Details[0]['InOrOut']
               this.PaymentFormList = Data.Details
               if (this.PaymentFormList.length === 0) {
                 this.IsExhibition = false

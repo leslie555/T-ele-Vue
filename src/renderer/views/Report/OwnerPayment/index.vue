@@ -12,9 +12,9 @@
             ></el-input>
           </el-form-item>
           <SelectOrganization v-model="OwnerPaymentForm.FullIDNew"></SelectOrganization>
-          <el-form-item label="门店选择">
+          <!-- <el-form-item label="门店选择">
             <select-store ref="selectStore" @change="handleChange"></select-store>
-          </el-form-item>
+          </el-form-item> -->
         </div>
       </template>
       <template slot="more">
@@ -158,9 +158,9 @@
           }
         })
       },
-      handleChange(val) {
-        this.OwnerPaymentForm.FullID = val.fullID
-      },
+      // handleChange(val) {
+      //   this.OwnerPaymentForm.FullID = val.fullID
+      // },
       search() {
         this.$refs.bottomToolBar.search()
       },
@@ -172,7 +172,7 @@
         this.OwnerPaymentForm.EndTime = ''
         this.OwnerPaymentForm.PayType = 0
         this.OwnerPaymentForm.date = null
-        this.$refs.selectStore.reset()
+        // this.$refs.selectStore.reset()
         this.$refs.bottomToolBar.search()
       },
       printTemplate() {

@@ -9,7 +9,7 @@
                 <div class="TopConList">
                         <div class="conList">
                             <div class="detail-conList">
-                                <p>房源名称：</p>
+                                <p style="width: 120px">房源名称：</p>
                                 <p>{{ detailsList.HouseName }}</p>
                             </div>
                             <div class="detail-conList">
@@ -23,7 +23,7 @@
                         </div>
                         <div class="conList">
                             <div class="detail-conList">
-                                <p>产权面积：</p>
+                                <p style="width: 120px">产权面积：</p>
                                 <p>{{ detailsList.RoomArea === 0 ? '' : detailsList.RoomArea + 'm²' }}</p>
                             </div>
                             <div class="detail-conList">
@@ -35,14 +35,20 @@
                                 <p>{{ detailsList.CompanyName }}</p>
                             </div>
                         </div>
-                            <div class="conList">
+                        <div class="conList">
                             <div class="detail-conList">
-                                <p>提交时间：</p>
+                                <p style="width: 120px">提交时间：</p>
                                 <p>{{ $dateFormat(detailsList.CreaterTime) }}</p>
                             </div>
                             <div class="detail-conList">
                                 <p>状态：</p>
                                 <p>{{ getFullStatus(detailsList.Status) }}</p>
+                            </div>
+                        </div>
+                        <div class="conList">
+                            <div class="detail-conList">
+                                <p style="width: 120px">是否可继续出租：</p>
+                                <p>{{ whetherRentOut === 1 ? '是':'否' }}</p>
                             </div>
                         </div>
                     </div>
@@ -72,7 +78,7 @@
                             <template slot-scope="scope">
                                 <div v-if="scope.row.ids">{{ scope.row.ProjectName }}</div>
                                 <el-cascader
-                                    v-else 
+                                    v-else
                                     v-model="scope.row.arrId"
                                     :options="projectData"
                                     :props="{ expandTrigger: 'hover' }"
@@ -157,8 +163,8 @@
                         </el-table-column>
                     </el-table>
                     <el-form label-width="80px"  :inline="false" ref="FormImg" style="margin-top:20px;overflow:hidden;">
-                            <el-form-item label="装修图片:">
-                            <div class="upload-img-Box">
+                            <el-form-item label="图片:">
+                            <div class="upload-img-Box" v-viewer="{url: 'data-src'}">
                                 <div
                                 class="upload-img"
                                 v-for="(item, index) in imageList"
@@ -166,15 +172,62 @@
                                 >
                                 <img
                                     :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)"
-                                    @click="$seeImage($ImgUnit.getImgUrl(item.ImageLocation))"
+                                    :data-src="$ImgUnit.getImgUrl(item.ImageLocation)"
+                                >
+                                </div>
+                            </div>
+                            </el-form-item>
+                            <el-form-item label="备注:">
+                            <el-input type="textarea" :disabled='textboolean' v-model="detailsList.BZ"></el-input>
+                            </el-form-item>
+                    </el-form>
+                    <p class="infomation">装修信息</p>
+                    <el-form label-width="80px"  :inline="false" ref="FormImg" style="overflow:hidden;">
+                            <el-form-item label="完成时间:">
+                                <span>{{ $dateFormat(detailsList.ZXCompleteTime) }}</span>
+                            </el-form-item>
+                            <el-form-item label="装修图片:">
+                            <div class="upload-img-Box" v-viewer="{url: 'data-src'}">
+                                <div
+                                class="upload-img"
+                                v-for="(item, index) in ZxImageList"
+                                :key="index"
+                                >
+                                <img
+                                    :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)"
+                                    :data-src="$ImgUnit.getImgUrl(item.ImageLocation)"
                                 >
                                 </div>
                             </div>
                             </el-form-item>
                             <el-form-item label="装修备注:">
-                            <el-input type="textarea" :disabled='textboolean' v-model="detailsList.BZ"></el-input>
+                            <el-input type="textarea" :disabled='textboolean' v-model="detailsList.ZXHandleBZ"></el-input>
                             </el-form-item>
                     </el-form>
+                    <p class="infomation">采购信息</p>
+                    <el-form label-width="80px"  :inline="false" ref="FormImg" style="overflow:hidden;">
+                            <el-form-item label="完成时间:">
+                                <span>{{ $dateFormat(detailsList.CGCompleteTime) }}</span>
+                            </el-form-item>
+                            <el-form-item label="采购图片:">
+                            <div class="upload-img-Box" v-viewer="{url: 'data-src'}">
+                                <div
+                                class="upload-img"
+                                v-for="(item, index) in CgImageList"
+                                :key="index"
+                                >
+                                <img
+                                    :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)"
+                                    :data-src="$ImgUnit.getImgUrl(item.ImageLocation)"
+                                >
+                                </div>
+                            </div>
+                            </el-form-item>
+                            <el-form-item label="采购备注:">
+                            <el-input type="textarea" :disabled='textboolean' v-model="detailsList.CGHandleBZ"></el-input>
+                            </el-form-item>
+                    </el-form>
+
                     <div class="TopTittle">
                         <span></span>
                         <span>进度跟踪</span>
@@ -189,7 +242,7 @@
                                 <p style="font-size: 15px;">{{ item.Category }}</p>
                                 <p style="font-size: 14px;color:gray;">
                                     <el-input
-                                    disabled="true"
+                                    :disabled="true"
                                     type="textarea"
                                     class="textareaBoder"
                                     :autosize="{ minRows: 0, maxRows: 10}"
@@ -207,6 +260,7 @@
 
 <script>
   import { ShowRenovationProject, ShowAllRenovationApply, ShowRenovationRecordDetails, AddProjectYWY, DeleteProjectYWY, UpdateProjectYWY } from '@/api/purchase'
+  import { ShowHouseInfoFieldByHousekey } from '@/api/house'
   import { findNodeByArr } from '@/utils/arrUtil/treeArr'
   export default {
     name: 'detail-FixPurchaseDepartment',
@@ -229,7 +283,10 @@
           tableData: [],
           // 图片显示
           imageList: [],
-          KeyID: null
+          KeyID: null,
+          CgImageList: [],
+          ZxImageList: [],
+          whetherRentOut: 0
       }
     },
     methods: {
@@ -360,6 +417,8 @@
               this.detailsList = Data.ApplyRecord[0]
               this.imageList = Data.imageList
               this.tableData = Data.DecorationDetails
+              this.CgImageList = Data.CgImageList
+              this.ZxImageList = Data.ZxImageList
               // ids true 为不能修改 false 可修改 arrId二级联动选中
               this.tableData.forEach(val => {
                 val.ids = true
@@ -367,6 +426,10 @@
               })
               // 深度拷贝列表数据 this.tableData改变savaTableList也要改变
               this.savaTableList = this.$deepCopy(this.tableData)
+              // 是否继续可租
+              ShowHouseInfoFieldByHousekey({ HouseKeySum: [this.detailsList.HouseKey] }).then(({ Data }) => {
+                    this.whetherRentOut = Data[0].whetherRentOut
+                })
           })
         },
         // 下拉框接口  调用了2次接口 合并成一个2级联动
@@ -542,5 +605,11 @@
     width:100%;/*自动适应父布局宽度*/
     overflow:auto;
     word-break:break-all;
+  }
+  .infomation{
+      height: 40px;
+      margin-bottom: 0;
+      line-height: 40px;
+      font-weight: bold;
   }
 </style>

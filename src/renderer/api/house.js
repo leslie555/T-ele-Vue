@@ -54,6 +54,15 @@ export function selectShareHouseInfoListPaging(data) {
   })
 }
 
+// 查询附近房源列表
+export function SelectNearHouseList(data) {
+  return request({
+    url: '/MCommunity/ShowNearShareHousesPage',
+    method: 'post',
+    data
+  })
+}
+
 // 查询共享房源公司
 export function showCompanyInfo(data) {
   return request({
@@ -411,6 +420,24 @@ export function FindTenantInfo(data) {
   })
 }
 
+// 查询房源不续约状态
+export function FindHouseWhetherRentOut(data) {
+  return request({
+    url: '/DownloadCenterMethod/ShowHouseInfoFieldWhetherRentOut',
+    method: 'post',
+    data
+  })
+}
+
+// 修改房源不续约状态
+export function EditHouseWhetherRentOut(data) {
+  return request({
+    url: '/DownloadCenterMethod/EditHouseInfoFieldWhetherRentOut',
+    method: 'post',
+    data
+  })
+}
+
 // 查看装修申请列表
 export function SelectRenovationApplyList(data) {
   return request({
@@ -481,6 +508,113 @@ export function QueryDataExportRecordList(data) {
 export function QueryDataExportSignInfo(data) {
   return request({
     url: '/OperateMethod/QueryDataExportSignInfo',
+    method: 'post',
+    data
+  })
+}
+// 搜索小区
+export function searchCommunityList(data) {
+  return request({
+    url: '/OperateMethod/ShowMCommunityInfo',
+    method: 'post',
+    data
+  })
+}
+// 提交
+export function InsertDataExportRecord(data) {
+  return request({
+    url: '/OperateMethod/InsertDataExportRecord',
+    method: 'post',
+    data
+  })
+}
+
+// 费用报销
+export function ShowCostReturn(data) {
+  return request({
+    url: '/SystemMethod/ShowReimbursement',
+    method: 'post',
+    data
+  })
+}
+// 费用报销新增
+export function AddReimbursement(data) {
+  return request({
+    url: '/SystemMethod/AddReimbursement',
+    method: 'post',
+    data
+  })
+}
+// 费用报销修改
+export function EditReimbursement(data) {
+  return request({
+    url: '/SystemMethod/EditReimbursement',
+    method: 'post',
+    data
+  })
+}
+// 报销单-详情
+export function QueryReimbursementDetails(data) {
+  return request({
+    url: '/SystemMethod/ShowReimbursementDetails',
+    method: 'post',
+    data
+  })
+}
+export function ShowHouseInfoFieldByHousekey(data) {
+  return request({
+    url: '/DownloadCenterMethod/ShowHouseInfoFieldByHousekey',
+    method: 'post',
+    data
+  })
+}
+
+// 今日推荐房源列表
+export function ShowTodayRecommendHouse(data) {
+  return request({
+    url: '/UniversalVersionMethod/QueryRecommendedHouseInfoList',
+    method: 'post',
+    data
+  })
+}
+
+// 获取设置推荐房源列表
+export function ShowSetRecommendHouse(data) {
+  return request({
+    url: '/UniversalVersionMethod/QueryInstalRecommendedHouseInfo',
+    method: 'post',
+    data
+  })
+}
+
+// 设置推荐房源
+export function SetRecommendHouse(data) {
+  return request({
+    url: '/UniversalVersionMethod/InstalRecommendedHouseInfo',
+    method: 'post',
+    data
+  })
+}
+// 查询城市数组
+export function ShowCompanyinfoCityCode(data = {}) {
+  return request({
+    url: '/SystemMethod/ShowCompanyinfoCityCode',
+    method: 'post',
+    data
+  })
+}
+// 查询城市区域字母排序
+export function ShowStreetByCityCode(data = {}) {
+  return request({
+    url: '/UniversalVersionMethod/ShowStreetByCityCode',
+    method: 'post',
+    data
+  })
+}
+// 查询城市街道list
+export function ShowStreetByCityCodeList(data = {}) {
+  return request({
+    url: '/UniversalVersionMethod/ShowStreetByCityCodeList',
     method: 'post',
     data
   })

@@ -1,21 +1,26 @@
 <template>
   <div class="clearfix">
-    <el-form-item :label="title">
+    <el-form-item v-if="!single" :label="title" :required="required">
       <div class="upload-btn" @click="dialogOpen" v-show="!disabled">
         <i class="iconfont icon-shangchuantupianmoren"></i>
         <span>上传图片</span>
       </div>
-      <div class="upload-imgs" v-show="imgList.length>0">
+      <div class="upload-imgs" v-show="imgList.length>0" v-viewer="{url: 'data-src'}">
         <div class="upload-img" v-for="(item,index) in imgList" :key="index">
           <img :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)"
-               @click="$seeImage($ImgUnit.getImgUrl(item.ImageLocation))">
+               :data-src="$ImgUnit.getImgUrl(item.ImageLocation)">
           <i class="iconfont icon-shanjianmoren" @click="delImg(index)" v-show="!disabled"></i>
         </div>
       </div>
       <div class="upload-notice" v-show="notice&&!disabled" v-text="notice">
-        
       </div>
     </el-form-item>
+    <el-form-item v-if="single" :label="title" :required="required">
+        <singleUpload :imgList="imgList" :upload-text="uploadText" @watchImgList="watchImgList"></singleUpload>
+      <div class="upload-notice" v-show="notice&&!disabled" v-text="notice">
+      </div>
+    </el-form-item>
+    <slot></slot>
     <upload-dialog ref="uploadDialog" :img-list="imgList" :max-length="maxLength"></upload-dialog>
   </div>
 </template>
@@ -23,7 +28,7 @@
 <script>
   import UploadDialog from '../UploadDialog'
   import { delImageByCode } from '../../../api/system'
-
+  import singleUpload from './sigleIndex'
   export default {
     name: 'UploadFile',
     props: {
@@ -48,18 +53,29 @@
       disabled: {
         type: Boolean,
         default: false
+      },
+      required: {
+        type: Boolean,
+        default: false
+      },
+      single: {
+        type: Boolean,
+        default: false
+      },
+      uploadText: {
+        type: String,
+        default: '上传图片'
       }
     },
     components: {
-      UploadDialog
+      UploadDialog,
+      singleUpload
     },
     data() {
       return {
-        testImg: require('../../../assets/ShareHouse/login.jpg')
+        testImg: require('../../../assets/ShareHouse/login.jpg'),
+        copyImgList: []
       }
-    },
-    created() {
-      //
     },
     methods: {
       delImg(index) {
@@ -74,6 +90,10 @@
       },
       dialogOpen() {
         this.$refs.uploadDialog.open()
+      },
+      // liu
+      watchImgList(val) {
+        this.$emit('watchImgList', val)
       }
     }
   }

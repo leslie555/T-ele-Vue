@@ -15,74 +15,82 @@
 </template>
 
 <script>
-  import { mapGetters } from 'vuex'
-  import SidebarItem from './SidebarItem'
-  import ScrollBar from '@/components/ScrollBar'
-  import { filterRouter } from '../../../../router/filterRouter.js'
+import { mapGetters } from 'vuex'
+import SidebarItem from './SidebarItem'
+import ScrollBar from '@/components/ScrollBar'
+import { filterRouter } from '../../../../router/filterRouter.js'
 
-  export default {
-    components: { SidebarItem, ScrollBar },
-    data() {
-      return {
-        watchRouter: ''
+export default {
+  components: { SidebarItem, ScrollBar },
+  data() {
+    return {
+      watchRouter: ''
+    }
+  },
+  computed: {
+    ...mapGetters(['sidebar']),
+    routes() {
+      const allRoutes = this.$router.options.routes
+      const mod = this.$store.getters.userinfo.Module
+      const obj1 = {
+        EModuleName: 'contractAccount',
+        KeyID: 19,
+        ModifyStatus: 0,
+        ModuleName: '合同调帐',
+        ModuleSort: '3',
+        PID: 1000
       }
-    },
-    computed: {
-      ...mapGetters([
-        'sidebar'
-      ]),
-      routes() {
-        const allRoutes = this.$router.options.routes
-        const mod = this.$store.getters.userinfo.Module
-        if (mod) {
-          const moduleNames = mod.map(v => v.EModuleName)
-          let routes = filterRouter(allRoutes, moduleNames, mod)
-          // routes.sort((a, b) => a.ModuleSort - b.ModuleSort)
-          routes.forEach(x => {
-            if (x.children) {
-              x.children.sort((a, b) => a.ModuleSort - b.ModuleSort)
-              x.children.forEach(y => {
-                if (y.children) {
-                  y.children.sort((a, b) => a.ModuleSort - b.ModuleSort)
-                }
-              })
-            }
-          })
-          routes = this.filterModule(routes)
-          return routes
-        } else {
-          return allRoutes
-        }
-      },
-      isCollapse() {
-        return !this.sidebar.opened
-      }
-    },
-      watch: {
-        // 监听路由改变 监察部被选中
-        '$route': {
-          handler: function(newVal, oldVal) {
-            this.watchRouter = newVal.meta.rootKey || newVal.path
-          },
-          immediate: true
-        }
-      },
-    methods: {
-      filterModule(routes) {
-        // 如果没有子集 去掉 兼容报表的菜单
-        return routes.filter(x => {
-          if (x.name !== 'Report') {
-            return true
+      mod.push(obj1)
+      if (mod) {
+        const moduleNames = mod.map(v => v.EModuleName)
+        let routes = filterRouter(allRoutes, moduleNames, mod)
+        // routes.sort((a, b) => a.ModuleSort - b.ModuleSort)
+        routes.forEach(x => {
+          if (x.children) {
+            x.children.sort((a, b) => a.ModuleSort - b.ModuleSort)
+            x.children.forEach(y => {
+              if (y.children) {
+                y.children.sort((a, b) => a.ModuleSort - b.ModuleSort)
+              }
+            })
           }
-          let flag = false
-          x.children.forEach(y => {
-            if (y.children.length > 0) {
-              flag = true
-            }
-          })
-          return flag
         })
+        routes = this.filterModule(routes)
+        console.log(routes)
+        return routes
+      } else {
+        return allRoutes
       }
+    },
+    isCollapse() {
+      return !this.sidebar.opened
+    }
+  },
+  watch: {
+    // 监听路由改变 监察部被选中
+    $route: {
+      handler: function(newVal, oldVal) {
+        this.watchRouter = newVal.meta.rootKey || newVal.path
+      },
+      immediate: true
+    }
+  },
+  methods: {
+    filterModule(routes) {
+      // 如果没有子集 去掉 兼容报表的菜单
+      return routes.filter(x => {
+        if (x.name !== 'Report') {
+          return true
+        }
+        let flag = false
+        x.children.forEach(y => {
+          if (y.children.length > 0) {
+            flag = true
+          }
+        })
+        return flag
+      })
     }
   }
+}
 </script>

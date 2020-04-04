@@ -1,5 +1,5 @@
 import Settlement from './Settlement' // 退房记账弹窗组件
-import { UploadDialog, UploadFile } from './UploadFile' // 图片上传组件
+import { UploadDialog, UploadFile, UploadSingleFile, UploadFileSingle } from './UploadFile' // 图片上传组件
 import SearchPanel from './SearchPanel' // 列表搜索panel组件
 import TableButtons from './TableButtons' // 列表项按钮组件
 import BottomToolBar from './BottomToolBar' // 列表分页组件
@@ -22,10 +22,14 @@ import SelectPayAmount from './SelectPayAmount'
 import fixPurchaseSurver from './fixPurchaseSurver' // 采购勘察
 import StoreHouse from './StoreHouse' // 库房弹框
 import SelectOrganization from './SelectOrganization' // 库房弹框
+import GeneratePaymentOrder from './GeneratePaymentOrder'
+import TableRemark from './TableRemark'
 export {
   Settlement,
   UploadFile,
   UploadDialog,
+  UploadSingleFile,
+  UploadFileSingle,
   SearchPanel,
   TableButtons,
   BottomToolBar,
@@ -47,5 +51,7 @@ export {
   SelectPayAmount,
   fixPurchaseSurver,
   StoreHouse,
-  SelectOrganization
+  SelectOrganization,
+  GeneratePaymentOrder,
+  TableRemark
 }

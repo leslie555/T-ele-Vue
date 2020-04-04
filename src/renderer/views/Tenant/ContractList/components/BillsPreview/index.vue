@@ -15,6 +15,7 @@
       <el-button type="primary" :loading="submitLoading" @click="handleSubmit()" v-show="!isDetail">提交</el-button>
       <el-button type="primary" @click="handleSign(0)" v-show="!isDetail">租客签字</el-button>
       <el-button type="primary" @click="handleSign(1)" v-show="!isDetail">退房人签字</el-button>
+      <el-button type="primary" @click="handleEdit()" v-show="isDetail && hasPower && !hideDetail">修改信息</el-button>
       <el-button type="primary" :loading="downloadLoading" @click="handleDownload">打印</el-button>
       <el-button type="primary" :loading="downloadLoading" @click="handleDownload">下载PDF</el-button>
       <el-button @click="close">关 闭</el-button>
@@ -52,6 +53,7 @@ import uuid from '@/utils/uuid'
 import Qrcode from '@xkeshi/vue-qrcode'
 import { HtmlToPDF } from '@/api/system'
 import { SearchCheckOutSign, SubmitCheckoutApproval } from '../../../../../api/tenant'
+import { hasPermission } from '../../../../../utils/permission'
 import { phoneURL, gwUrl, baseURL } from '@/config'
 import { mapActions } from 'vuex'
 
@@ -61,12 +63,17 @@ export default {
     isDetail: {
       type: Boolean,
       default: false
+    },
+    hideDetail: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
     return {
       contractID: 0,
       uuid: 'printCheckoutBody_' + uuid(),
+      row: {},
       signTitle: '',
       dialogVisible: false,
       printLoading: false,
@@ -81,6 +88,11 @@ export default {
       submitLoading: false,
       count: 0,
       downloadID: ''
+    }
+  },
+  computed: {
+    hasPower() {
+      return hasPermission('TenantContractList', 'CheckOutEdit')
     }
   },
   components: {
@@ -100,6 +112,7 @@ export default {
     ]),
     open(data) {
       this.contractID = data && data.contractID
+      this.row = data && data.row
       this.billsPreviewUrl = `${gwUrl}/AllCheckout?KeyID=${this.contractID}&to=${this.$store.getters.token}`
       this.dialogVisible = true
       this.downloadID = 'downloadCheckOut_' + uuid()
@@ -225,6 +238,24 @@ export default {
         })
       }).catch(() => {
         this.submitLoading = false
+      })
+    },
+    handleEdit() {
+      this.close()
+      // type 0 正常退房  1 违约退房
+      const row = this.row
+      this.$router.push({
+        path: '/Tenant/CheckoutBill',
+        query: {
+          KeyID: row.KeyID,
+          type: row.IsBreachContract,
+          HouseName: row.HouseName,
+          HouseKey: row.HouseKey,
+          HouseID: row.HouseID,
+          ContractNumber: row.ContractNumber,
+          CompanyAbbreviation: row.CompanyAbbreviation,
+          IsSafeEdit: true
+        }
       })
     }
   }

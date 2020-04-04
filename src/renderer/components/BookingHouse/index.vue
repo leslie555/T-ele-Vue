@@ -328,14 +328,17 @@
           }
         })
       },
-      open(HouseInfo, hasEndContractTime) {
+      open(HouseInfo, hasEndContractTime = true) {
         // 如果合同未到期需调结果获取到期时间
         this.HouseInfo = HouseInfo
         this.btnLoading = false
         this.BookingVisible = true
         if (hasEndContractTime) {
           this.btnLoading = true
-          SelectExceptLastSignDate({ HouseID: HouseInfo.HouseID })
+          SelectExceptLastSignDate({ HouseID: !this.HouseInfo.HouseID
+                ? this.HouseInfo.KeyID
+                : this.HouseInfo.HouseID
+              })
             .then(({ Data }) => {
               this.pickerOptions = {
                 disabledDate(time) {

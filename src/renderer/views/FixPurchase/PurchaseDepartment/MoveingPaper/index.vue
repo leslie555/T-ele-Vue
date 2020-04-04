@@ -8,9 +8,10 @@
         <el-form-item label="业务员" prop="Salesman">
           <el-input placeholder="姓名/电话" v-model="ruleForm.Salesman" style="width: 240px"></el-input>
         </el-form-item>
-        <el-form-item label="部门" prop="DepID">
+        <!-- <el-form-item label="部门" prop="DepID">
           <select-store ref="selectStore" type="report" @change="handleStoreChange"></select-store>
-        </el-form-item>
+        </el-form-item> -->
+        <SelectOrganization :type="3" v-model="ruleForm.FullIDNew"></SelectOrganization>
         <el-form-item label="状态" prop="Status">
           <el-select v-model="ruleForm.Status" placeholder="请选择">
             <el-option
@@ -51,7 +52,7 @@
             <span>{{scope.row.Salesman}}</span>
           </template>
         </el-table-column>
-        <el-table-column align="center" label="部门" min-width="120" prop="CompanyName"></el-table-column>
+        <el-table-column align="center" label="组织" min-width="120" prop="CompanyName"></el-table-column>
         <el-table-column align="center" label="提交时间" min-width="120" prop="CreaterTime">
           <template slot-scope="scope">
             <span>{{$dateFormat(scope.row.ReviewedCommitTime,'yyyy-MM-dd')}}</span>
@@ -98,7 +99,7 @@ import {
   SearchPanel,
   TableButtons,
   BottomToolBar,
-  SelectStore
+  SelectOrganization
 } from '@/components'
 import designate from './components/designate'
 import {
@@ -113,7 +114,7 @@ export default {
     TableButtons,
     SearchPanel,
     BottomToolBar,
-    SelectStore,
+    SelectOrganization,
     designate,
     qrcode
   },
@@ -125,7 +126,8 @@ export default {
         DepID: '',
         HouseName: '',
         Salesman: '',
-        Status: 0
+        Status: 0,
+        FullIDNew: ''
       },
       currentRow: {},
       HouseName: '',
@@ -134,6 +136,8 @@ export default {
         { value: 4, label: '待指派' },
         { value: 5, label: '待处理' },
         { value: 6, label: '已完成' }
+        // { value: 2, label: '待审批（经理）' },
+        // { value: 3, label: '待审批（采购部）' }
       ],
       filterList: [],
       list: [],
@@ -174,18 +178,19 @@ export default {
     keywordReset() {
       this.$refs.ruleForm.resetFields()
       this.$refs.bottomToolBar.search()
+      this.ruleForm.FullIDNew = ''
       // 部门选择框重置
-      this.$refs.selectStore.reset()
+      // this.$refs.selectStore.reset()
     },
     // 选择部门过后，返回来的数据
-    handleStoreChange(val) {
-      // 选择部门后的回调
-      if (val) {
-        this.ruleForm.FullID = val.fullID
-      } else {
-        this.ruleForm.FullID = ''
-      }
-    },
+    // handleStoreChange(val) {
+    //   // 选择部门后的回调
+    //   if (val) {
+    //     this.ruleForm.FullID = val.fullID
+    //   } else {
+    //     this.ruleForm.FullID = ''
+    //   }
+    // },
     judgeStatus(val) {
       let type = ''
       switch (val) {
@@ -195,12 +200,12 @@ export default {
         case 1:
           type = '暂存'
           break
-        case 2:
-          type = '待审批（经理）'
-          break
-        case 3:
-          type = '待审批（采购部）'
-          break
+        // case 2:
+        //   type = '待审批（经理）'
+        //   break
+        // case 3:
+        //   type = '待审批（采购部）'
+        //   break
         case 4:
           type = '待指派'
           break
@@ -227,16 +232,14 @@ export default {
         HouseName: this.ruleForm.HouseName, // 房源名称
         Salesman: this.ruleForm.Salesman, // 关键词
         DepID: this.ruleForm.DepID, // 部门id
+        FullIDNew: this.ruleForm.FullIDNew,
         Status: this.ruleForm.Status, // 状态
         ViewState: 2
         // isHaveButton: hasPermission('CleaningPaperList', 'Assgined')
       })
         .then(response => {
-          console.log(response)
           this.list = response.Data.rows
-          console.log('this.list', this.list)
           this.filterTableData()
-          console.log('this.filterList', this.filterList)
           this.listLoading = false
           return response.Data
         })
@@ -252,7 +255,8 @@ export default {
     },
     // 初始化Status
     filterStatus(item) {
-      const labelStatus = this.procureList.find(res => item === res.value)
+      const num = Number(item)
+      const labelStatus = this.procureList.find(res => num === res.value)
       return labelStatus.label
     },
     // 根据Status状态，过滤操作按钮
@@ -284,7 +288,11 @@ export default {
       })
     },
     handleQrcode(row) {
-      this.$refs.qrcode.open(row, 'MovingSingle')
+      // this.$refs.qrcode.open(row, 'MovingSingle')
+      this.currentRow = this.$deepCopy(row)
+      row.num = 1
+      row.bill = 10
+      this.$refs.designate.open(row, '搬家')
     },
     // 指派
     handleAssgined(row) {
@@ -303,25 +311,30 @@ export default {
       console.log('处理完成', row)
     },
     // 子组件事件监听(指派)
-    refresh(val) {
-      AssignMovingPerson({
-        KeyID: this.currentRow.KeyID,
-        MovingName: val
-      }).then(res => {
-        if (res.Code === 0) {
-          this.filterList.map(res => {
-            if (res.KeyID === this.currentRow.KeyID) {
-              res.Status = 3
-              return res
-            }
-          })
-          // this.$refs.bottomToolBar.search()
-          this.fetchData()
-          this.$message.success('提交成功')
-          console.log(val)
-          console.log('指派成功', res)
-        }
-      })
+    refresh(val, row, type) {
+      if (type === 10) {
+        row.ShareID = val.userID
+        this.$refs.qrcode.open(row, 'MovingSingle')
+      } else {
+        AssignMovingPerson({
+          KeyID: this.currentRow.KeyID,
+          MovingName: val
+        }).then(res => {
+          if (res.Code === 0) {
+            this.filterList.map(res => {
+              if (res.KeyID === this.currentRow.KeyID) {
+                res.Status = 3
+                return res
+              }
+            })
+            // this.$refs.bottomToolBar.search()
+            this.fetchData()
+            this.$message.success('提交成功')
+            console.log(val)
+            console.log('指派成功', res)
+          }
+        })
+      }
     },
     // 子组件事件监听(处理完成)
     upFinish(val) {

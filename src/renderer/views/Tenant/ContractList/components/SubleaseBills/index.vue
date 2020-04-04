@@ -7,7 +7,6 @@
     @closed="handleClosed"
     :visible.sync="showFormDialog"
     append-to-body
-    width="480px"
   >
     <el-form
       :model="EditForm"
@@ -15,17 +14,15 @@
       :inline="true"
       ref="ruleForm"
       label-position="right"
-      label-width="100px"
-      style="height: 350px; overflow: auto;"
+      label-width="130px"
+      style="overflow: auto;"
       v-loading="formLoading"
       >
       <div class="clearfix">
-        <el-form-item label="转租价格" prop="AgreePrice">
+        <el-form-item label="转租价格" prop="AgreePrice" height="100px">
           <el-input style="width: 250px;" type="number" v-model="EditForm.AgreePrice" :maxlength="8"></el-input>
         </el-form-item>
-      </div>
-      <div class="clearfix">
-        <el-form-item label="转租日期" prop="AgreeExpireDate">
+                <el-form-item label="转租日期" prop="AgreeExpireDate">
           <el-date-picker
               v-model="EditForm.AgreeExpireDate"
               type="date"
@@ -35,11 +32,63 @@
           </el-date-picker>
         </el-form-item>
       </div>
-      <div class="clearfix" style="margin: 0 0 10px">
-        <h3 style="color: #999999">银行账户信息</h3>
-      </div>
+      <!-- <div class="clearfix">
+        <el-form-item label="转租日期" prop="AgreeExpireDate">
+          <el-date-picker
+              v-model="EditForm.AgreeExpireDate"
+              type="date"
+              placeholder="请选择"
+              style="width: 250px;"
+            >
+          </el-date-picker>
+        </el-form-item>
+      </div> -->
       <div class="clearfix">
-        <p style="margin: 30px">姓名: <span>{{ TenName }}</span></p>
+        <el-form-item label="租房价格" prop="OriginalRent">
+          <el-input style="width: 250px;" type="number" v-model="EditForm.OriginalRent" :maxlength="8"></el-input>
+        </el-form-item>
+        <el-form-item label="租房押金" prop="OriginalDeposit">
+          <el-input style="width: 250px;" type="number" v-model="EditForm.OriginalDeposit" :maxlength="8"></el-input>
+        </el-form-item>        
+      </div>
+      <!-- <div class="clearfix">
+        <el-form-item label="租房押金" prop="OriginalDeposit">
+          <el-input style="width: 250px;" type="number" v-model="EditForm.OriginalDeposit" :maxlength="8"></el-input>
+        </el-form-item>
+      </div> -->
+      <div class="clearfix">
+        <el-form-item label="需支付金额" prop="StillNeedPay">
+          <el-input style="width: 250px;" type="number" v-model="EditForm.StillNeedPay" :maxlength="8"></el-input>
+        </el-form-item>
+        <el-form-item label="实退金额总计">
+          <!-- <el-input style="width: 250px;" type="number" v-model="RetreatSumAmount" :maxlength="8"></el-input> -->
+          <p>{{ RetreatSumAmount || 0 }}</p>
+          <p class="RetreatSumAmount">(房租+押金-需支付金额)</p>
+        </el-form-item>
+      </div>
+      <!-- <div class="clearfix">
+        <el-form-item label="实退金额总计">
+          <p>{{ RetreatSumAmount || 0 }} <span>(房租+押金-需支付金额)</span></p>
+        </el-form-item>
+      </div> -->
+      <div class="clearfix">
+        <el-form-item label="退款日期" prop="RefundDate">
+          <el-date-picker
+              v-model="EditForm.RefundDate"
+              type="date"
+              placeholder="请选择"
+              style="width: 250px;"
+            >
+          </el-date-picker>
+        </el-form-item>
+      </div>      
+      <!-- <div class="clearfix" style="margin: 0 0 10px"> -->
+        <h3 style="color: #999999">银行账户信息</h3>
+      <!-- </div> -->
+      <div class="clearfix">
+        <el-form-item label="姓名">
+        <span>{{ TenName }}</span>
+        </el-form-item>
       </div>
       <div class="clearfix">
         <el-form-item label="开户行" prop="OpenBankName">
@@ -128,6 +177,11 @@ export default {
   components: {
     Qrcode
   },
+  computed: {
+    RetreatSumAmount() {
+      return Number(this.EditForm.OriginalRent) + Number(this.EditForm.OriginalDeposit) - Number(this.EditForm.StillNeedPay)
+    }
+  },
   data() {
     return {
       uuid: 'printSubleaseBody_' + uuid(),
@@ -150,7 +204,12 @@ export default {
         AgreePrice: '',
         AgreeExpireDate: '',
         OpenBankName: '',
-        BankAccount: ''
+        BankAccount: '',
+        OriginalRent: 0,
+        OriginalDeposit: 0,
+        // RetreatSumAmount: '',
+        RefundDate: '',
+        StillNeedPay: 0
       },
       useToken: this.$store.state.user.token,
       // 表单验证
@@ -165,6 +224,18 @@ export default {
           { required: true, message: '请填写', trigger: 'blur' }
         ],
         BankAccount: [
+          { required: true, message: '请填写', trigger: 'blur' }
+        ],
+        OriginalRent: [
+          { required: true, message: '请填写', trigger: 'blur' }
+        ],
+        OriginalDeposit: [
+          { required: true, message: '请填写', trigger: 'blur' }
+        ],
+        StillNeedPay: [
+          { required: true, message: '请填写', trigger: 'blur' }
+        ],
+        RefundDate: [
           { required: true, message: '请填写', trigger: 'blur' }
         ]
       },
@@ -197,6 +268,11 @@ export default {
             }
             this.EditForm.OpenBankName = Data.OpenBankName
             this.EditForm.BankAccount = Data.BankAccount
+            this.EditForm.OriginalRent = Data.OriginalRent || ''
+            this.EditForm.OriginalDeposit = Data.OriginalDeposit || ''
+            this.EditForm.StillNeedPay = Data.StillNeedPay || 0
+            this.RetreatSumAmount = Data.RetreatSumAmount || ''
+            this.EditForm.RefundDate = this.$dateFormat(Data.RefundDate)
             this.cloneData = Data
           }
           this.formLoading = false
@@ -214,15 +290,14 @@ export default {
     handleClosed(type = 0) {
       if (this.interval && type === 1) {
         clearInterval(this.interval)
+      } else {
+        this.close(1)
       }
     },
     close(index) {
       if (index === 1) {
         this.showFormDialog = false
-        this.EditForm.AgreeExpireDate = ''
-        this.EditForm.AgreePrice = ''
-        this.EditForm.OpenBankName = ''
-        this.EditForm.BankAccount = ''
+        this.$refs.ruleForm.resetFields()
         this.$refs['ruleForm'].clearValidate()
       } else {
         this.showSignDialog = false
@@ -268,6 +343,7 @@ export default {
         return `${k}=${v}`
       }).join('&')
       this.baseURI = phoneURL + 'ordersign?' + objToUrl
+      console.log(this.baseURI)
     },
     handlePrint() {
       this.printLoading = true
@@ -299,13 +375,18 @@ export default {
             TenContractID: this.TenContractID,
             HouseID: this.cloneData.HouseID,
             HouseName: this.cloneData.HouseName,
-            AgreePrice: this.EditForm.AgreePrice,
+            AgreePrice: this.EditForm.AgreePrice, // 转租价格
             AgreeExpireDate: this.EditForm.AgreeExpireDate,
             SalesmanSignInfo: this.cloneData.SalesmanSignInfo,
-            TenSignInfo: this.cloneData.TenSignInfo,
-            TenName: this.TenName,
-            BankAccount: this.EditForm.BankAccount,
-            OpenBankName: this.EditForm.OpenBankName
+            TenSignInfo: this.cloneData.TenSignInfo, // 租客签字
+            TenName: this.TenName, // 租客姓名
+            BankAccount: this.EditForm.BankAccount, // 银行账户
+            OpenBankName: this.EditForm.OpenBankName, // 银行名称
+            OriginalDeposit: this.EditForm.OriginalDeposit, // 租房押金
+            StillNeedPay: this.EditForm.StillNeedPay,
+            RetreatSumAmount: this.RetreatSumAmount, // 实退金额
+            RefundDate: this.EditForm.RefundDate, // 退款日期
+            OriginalRent: this.EditForm.OriginalRent // 租房价格
           }).then(() => {
             this.$message({
               type: 'success',
@@ -389,6 +470,14 @@ export default {
 <style lang="scss" scoped>
   @import "../../../../../styles/variables";
   @import "../../../../../styles/mixin";
+  div.clearfix {
+    height: 60px
+  }
+  p.RetreatSumAmount {
+    margin-top: -10px;
+    color: #999;
+    margin-left: -80px
+  }
   .PrintBox {
     height: 420px;
     width: 100%;

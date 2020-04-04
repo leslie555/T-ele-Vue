@@ -1,0 +1,38 @@
+@import '../../../styles/mixin';
+// .bottom-bar-top{
+//     margin-top: 10px;
+// }
+.showEllipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 120px;
+}
+.table-expand-form /deep/ .el-form-item__label {
+  // margin-top: 16px;
+  margin-left: 50px;
+}
+
+.el-form-item__content {
+  flex: 1;
+  padding-right: 30px;
+  .table-expand-img-box {
+    @include displayFlex(row, center, flex-start);
+    flex-wrap: wrap;
+    .table-expand-img {
+      @include displayFlex(row, center, center);
+      width: 80px;
+      height: 80px;
+      border: 1px solid #eee;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      margin-right: 10px;
+      box-sizing: content-box;
+      img {
+        max-width: 80px;
+        max-height: 80px;
+        cursor: zoom-in;
+      }
+    }
+  }
+}

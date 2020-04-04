@@ -2,29 +2,38 @@
   <div class="app-container data-list">
     <search-panel :model="ruleForm" :rules="rules" ref="ruleForm" label-width="80px" box-flex right-width="470px">
       <template slot="search">
-        <el-form-item label="小区" prop="CommunityName">
-          <el-autocomplete
-            popper-class="my-autocomplete"
+        <el-form-item label="小区" prop="CommunityName" width="500">
+          <el-select
             v-model="ruleForm.CommunityName"
-            :fetch-suggestions="querySearchAsync"
+            multiple
+            filterable
+            remote
+            reserve-keyword
             placeholder="请输入小区名称搜索"
-            :maxlength="40"
-            @select="handleCommunitySelect">
-            <i class="el-icon-search el-input__icon" slot="suffix"></i>
-            <template slot-scope="{ item }">
+            :remote-method="CommunityInfoRemoteMethod"
+            :disabled="false"
+            @change="CommunityInfoChange"
+            :loading="CommunityInfoLoading">
+            <el-option
+              v-for="item in CommunityInfoResult"
+              :key="item.KeyID"
+              :label="item.CommunityName"
+              :value="item.KeyID"
+            >
+            <template slot-scope="scope">
               <div class="name">{{ item.CommunityName }}</div>
-              <span class="addr">{{ item.Location }}</span>
             </template>
-          </el-autocomplete>
+            </el-option>
+          </el-select>
         </el-form-item>
       </template>
       <template slot="button">
         <el-button type="primary" @click="searchForm">查询</el-button>
         <el-button type="primary" @click="resetForm">重置</el-button>
-        <el-button type="primary" @click="download">导出</el-button>
+        <el-button type="primary" v-setbtn:Export @click="download">导出</el-button>
           <!-- v-setbtn:Export
           v-setbtn:ExportRecord -->
-        <el-button type="primary" @click="downloadRecord">导出记录</el-button>
+        <el-button type="primary" v-setbtn:ExportRecord @click="downloadRecord">导出记录</el-button>
       </template>
     </search-panel>
     <div class="panel data-list-table">
@@ -62,9 +71,8 @@ import {
   } from '../../../components' // 引入组件
 import ExportSignDialog from './components/ExportSignDialog'
 import ExportRecordDialog from './components/ExportRecordDialog'
-import { QueryContractDataExportList } from '@/api/house' // 合同列表
-import { searchCommunityList } from '../../../api/owner'
-import { getCodeArrByCode } from '../../../utils/CityData'
+import { QueryContractDataExportList, searchCommunityList } from '@/api/house' // 合同列表
+// import { getCodeArrByCode } from '../../../utils/CityData'
 export default {
   name: 'AgentDataExport',
   components: {
@@ -81,6 +89,7 @@ export default {
       pageSize: 10,
       ruleForm: {
         KeyID: '',
+        CommunityID: [],
         CommunityName: '', // 小区信息
         HouseKey: '',
         StoreID: '', // 组织架构
@@ -93,15 +102,12 @@ export default {
         CustomerInfo: '', // 业主姓名电话
         ContractNumber: ''
       },
-      oldCommunityList: [], // 上次搜索
-      // CommunityInfo: {
-      //   Location: '',
-      //   CityCodeMark: [],
-      //   CommunityName: ''
-      // } // 小区信息
+      CommunityInfoList: [], // 小区搜索列表
+      CommunityInfoLoading: false, // 小区搜索加载flag
+      CommunityInfoResult: [], // 小区搜索列表 - 接口返回数据
       rules: {
         CommunityName: [
-          { required: true, message: '请输入或选择小区名称', trigger: 'change' }
+          { required: true, message: '请输入或选择小区名称', trigger: 'blur' }
         ]
       }
     }
@@ -120,7 +126,7 @@ export default {
       this.listLoading = true
       return QueryContractDataExportList({
         parm: pages,
-        CommunityID: this.ruleForm.KeyID,
+        CommunityID: this.ruleForm.CommunityID,
         IsAll: false
       }).then(({ Data }) => {
         console.log(Data)
@@ -133,36 +139,6 @@ export default {
         return Data
       })
     },
-    // 小区搜索接口
-    querySearchAsync(queryString, cb) {
-      if (this.oldCommunitySearchKey === queryString) {
-        cb(this.oldCommunityList)
-        return
-      }
-      this.oldCommunitySearchKey = queryString
-      if (queryString) {
-        searchCommunityList({
-          CommunityName: queryString,
-          parm: { page: 1, size: 20 }
-        }).then(({ Data }) => {
-          this.oldCommunityList = Data.rows || []
-          cb(Data.rows || [])
-        })
-      } else {
-        this.oldCommunityList = []
-        cb([])
-      }
-    },
-    handleCommunitySelect(item, type = 0) {
-      console.log('item:', item)
-      this.ruleForm = {
-        CommunityName: item.CommunityName,
-        KeyID: item.KeyID
-      }
-
-      this.ruleForm.CityCodeMark = getCodeArrByCode(this.ruleForm.CityCode)
-      this.$refs.ruleForm.clearValidate()
-    },
     // 查询
     searchForm() {
       this.$refs.ruleForm.validate(valid => {
@@ -174,10 +150,12 @@ export default {
     // 重置
     resetForm() {
       this.$refs.ruleForm.resetFields()
-      this.ruleForm = {
-        CommunityName: '',
-        KeyID: ''
-      }
+      // this.ruleForm = {
+      //   CommunityName: '',
+      //   KeyID: ''
+      // }
+      this.CommunityInfoList = []
+      this.ruleForm.CommunityID = []
       this.$refs.bottomToolBar.search()
     },
     // 导出
@@ -185,8 +163,8 @@ export default {
       this.$refs.ruleForm.validate(valid => {
         if (valid) {
           this.$refs['exportSignDialog'].open({
-            CommunityName: this.ruleForm.CommunityName,
-            KeyID: this.ruleForm.KeyID
+            CommunityInfoList: this.CommunityInfoList,
+            CommunityID: this.ruleForm.CommunityID
           })
           console.log('导出:')
         } else {
@@ -197,6 +175,47 @@ export default {
     // 导出记录
     downloadRecord() {
       this.$refs['exportRecordDialog'].open()
+    },
+    // 小区搜索
+    CommunityInfoRemoteMethod(query) {
+      if (query !== '') {
+        this.CommunityInfoLoading = true
+        searchCommunityList({
+          parm: {
+            page: 1,
+            size: 20
+          },
+          CommunityName: query
+        }).then(({ Data }) => {
+          console.log('Data.rows:', Data.rows)
+          this.CommunityInfoLoading = false
+          this.CommunityInfoResult = Data.rows
+        })
+      } else {
+        this.CommunityInfoResult = []
+      }
+    },
+    // 小区多选事件监听
+    CommunityInfoChange(data) {
+      this.ruleForm.CommunityID = data
+      // 删除
+      if (data.length < this.CommunityInfoList.length) {
+        this.CommunityInfoList.map((v, i) => {
+          if (!data.find(x => x === v.KeyID)) {
+            this.CommunityInfoList.splice(i, 1)
+          }
+        })
+      } else {
+        // 新增
+        const id = data[data.length - 1]
+        const item = this.CommunityInfoResult.find(x => x.KeyID === id)
+        this.CommunityInfoList.push({
+          KeyID: item.KeyID,
+          CommunityName: item.CommunityName
+        })
+      }
+      console.log('CommunityID:', data)
+      console.log('CommunityInfoList:', this.CommunityInfoList)
     }
   }
 }
@@ -204,4 +223,7 @@ export default {
 
 <style scoped lang="scss">
 // @import "./style.scss"
+.el-select {
+  width: 600px;
+}
 </style>

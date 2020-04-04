@@ -22,11 +22,15 @@
         element-loading-text="加载中"
         border
         fit
-        min-height="100%"
+        height="300px"
         class="table-normal"
       >
         <el-table-column align="center" label="小区" min-width="100" prop="CommunityName"></el-table-column>
-        <el-table-column align="center" label="数据合计" min-width="100" prop="Number"></el-table-column>
+        <el-table-column align="center" label="数据合计" min-width="100">
+          <template slot-scope="scope">
+            {{scope.row.Number + '条'}}
+          </template>
+        </el-table-column>
       </el-table>
     </div>
     <div class="export-mark-message">
@@ -44,7 +48,7 @@
       </ul>
     </div>
     <div slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="handleSignInfo">签字确认</el-button>
+      <el-button type="primary" :disabled="signLoading"  @click="handleSignInfo">签字确认</el-button>
       <el-button type="primary" :loading="submitLoading" @click="handleExportInfo()">提交并导出</el-button>
     </div>
   <!-- 签字弹窗 -->
@@ -79,8 +83,10 @@
 import {
   QueryContractDataExportNumber, // 查询数据合计条数
   QueryDataExportSignInfo, // 查询签字信息
-  QueryContractDataExportList // 列表数据导出
+  QueryContractDataExportList, // 列表数据导出
+  InsertDataExportRecord // 提交
 } from '@/api/house'
+// import { BottomToolBar } from '../../../../../components' // 引入组件
 import Qrcode from '@xkeshi/vue-qrcode'
 import { phoneURL } from '@/config'
 export default {
@@ -93,6 +99,7 @@ export default {
       showFormDialog: false,
       showQRCodeDialog: false,
       submitLoading: false,
+      signLoading: false,
       submitAuditReady: false,
       Type: '',
       KeyID: 0,
@@ -100,17 +107,26 @@ export default {
       listLoading: false,
       baseURI: '',
       queryID: 0,
-      count: 0, // 轮询次数
+      pageSize: 10,
+      interval: null, // 轮训循环器
       SysName: '', // 组织名称
       ExportName: '', // 导出人
       ExportSignInfo: '', // 导出人签字
       ExportTime: '' // 导出时间
     }
   },
+  destroyed() {
+    if (this.interval) {
+      clearInterval(this.interval)
+    }
+    console.log('destoryed执行了:')
+  },
   methods: {
     // 打开弹窗，开始轮询签字接口
     handleOpen(data) {
-      this.checkSignInfo(0)
+      this.submitAuditReady = false
+      this.ExportSignInfo = ''
+      // this.checkSignInfo(0)
       this.interval = setInterval(() => {
         this.checkSignInfo(1)
       }, 5000)
@@ -121,35 +137,25 @@ export default {
         KeyID: this.queryID
       }).then(({ Data }) => {
         console.log('Data:', Data)
-        if (type === 0) {
-          if (Data) {
-            this.count++
-          }
-        } else {
-          let count = 0
-          if (Data) {
-            count++
-          }
-          if (count !== this.count) {
-            this.count = count
-          }
-        }
-        console.log('this.count:', this.count)
         if (Data) {
           this.ExportSignInfo = Data
           this.submitAuditReady = true
+          this.signLoading = true
           this.showQRCodeDialog = false
-          this.handleClosed()
+          this.handleClosed(type)
         }
       }).catch(() => {
         this.handleClosed()
       })
     },
-    handleClosed() {
+    handleClosed(type) {
       if (this.interval) {
-        clearInterval(this.interval)
+        if (!type) {
+          clearInterval(this.interval)
+        }
       }
-      console.log('handleClosed:')
+      this.submitLoading = false
+      console.log('handleClosed关闭了:')
     },
     handleSignInfo() {
       this.showQRCodeDialog = true
@@ -172,27 +178,36 @@ export default {
         return
       }
       this.submitLoading = true
-      // 导出数据
-      QueryContractDataExportList({
-        CommunityID: this.KeyID,
-        IsAll: false
-      }).then(response => {
-        console.log('response', response)
-        import('@/vendor/Export2Excel').then(excel => {
-          const tHeader = ['租客合同号', '小区', '门牌号', '业主姓名', '业主身份证号', '业主电话', '租客姓名', '租客身份证号', '租客电话']
-          const filament = ['TenantContractNumber', 'CommunityName', 'HouseNumber', 'OwnerName', 'OwnerIDCard', 'OwnerPhone', 'TenantName', 'TenantCard', 'TenantPhone']
-          const data = this.formatJson(filament, !response.Data ? [] : response.Data.rows)
-          console.log('data:', data)
-          excel.export_json_to_excel({
-            header: tHeader,
-            data,
-            filename: '数据导出清单'
+      InsertDataExportRecord({
+        KeyID: this.queryID
+      }).then(res => {
+        console.log('提交res:', res)
+        if (!res.Code) {
+          // 导出数据
+          QueryContractDataExportList({
+            CommunityID: this.KeyID,
+            IsAll: false
+          }).then(response => {
+            console.log('response', response)
+            import('@/vendor/Export2Excel').then(excel => {
+              const tHeader = ['租客合同号', '小区', '门牌号', '业主姓名', '业主身份证号', '业主电话', '租客姓名', '租客身份证号', '租客电话']
+              const filament = ['TenantContractNumber', 'CommunityName', 'HouseNumber', 'OwnerName', 'OwnerIDCard', 'OwnerPhone', 'TenantName', 'TenantCard', 'TenantPhone']
+              const data = this.formatJson(filament, !response.Data ? [] : response.Data.rows)
+              console.log('data:', data)
+              excel.export_json_to_excel({
+                header: tHeader,
+                data,
+                filename: '数据导出清单'
+              })
+              this.submitLoading = false
+              this.showFormDialog = false
+            })
+          }).catch(() => {
+            this.submitLoading = false
           })
-          this.submitLoading = false
-          this.showFormDialog = false
-        })
-      }).catch(() => {
-        this.submitLoading = false
+        } else {
+          this.$message.error(res.Msg)
+        }
       })
     },
     // 格式化
@@ -203,15 +218,17 @@ export default {
     },
     open(data) {
       this.showFormDialog = true
+      this.signLoading = false
       this.listLoading = true
-      this.KeyID = data.KeyID
+      this.KeyID = data.CommunityID
+      // this.$refs.bottomToolBar.search(2)
       QueryContractDataExportNumber({
-        CommunityID: data.KeyID,
+        CommunityID: data.CommunityID,
         IsAll: true
       }).then(res => {
         if (!res.Code) {
           const [Year, Month, Day] = this.getYearMonthDay(res.Data.ExportTime)
-          this.filterTableData(res.Data, data.CommunityName)
+          this.dataTable = res.Data.ExportCommunityNumber
           this.queryID = res.Data.KeyID
           this.ExportName = res.Data.ExportName
           this.SysName = res.Data.SysName
@@ -221,13 +238,6 @@ export default {
         console.log('导出数据res:', res)
       })
       console.log('data:', data)
-    },
-    filterTableData(Data, CommunityName) {
-      this.dataTable = []
-      this.dataTable.push({
-        CommunityName: CommunityName,
-        Number: Data.Number + '条'
-      })
     },
     getYearMonthDay(dateStr) {
       let result = []

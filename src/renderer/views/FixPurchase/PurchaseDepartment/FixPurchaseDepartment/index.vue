@@ -18,18 +18,10 @@
           >
           </el-input>
         </el-form-item>
-        <el-form-item label="部门" prop="department">
-          <!-- <el-autocomplete
-              class="inline-input"
-              v-model="ruleForm.department"
-              placeholder="请输入内容"
-              :fetch-suggestions="querySearch"
-              :trigger-on-focus="false"
-              @select="handleSelect"
-          >
-          </el-autocomplete> -->
+        <!-- <el-form-item label="部门" prop="department">
             <select-store ref="selectStore" type="report" @change="handleStoreChange"></select-store>
-        </el-form-item>
+        </el-form-item> -->
+        <SelectOrganization type = 3 v-model="ruleForm.FullIDNew"></SelectOrganization>
         <el-form-item label="状态" prop="Status">
         <el-select v-model="ruleForm.Status" placeholder="请选择">
             <el-option
@@ -66,7 +58,7 @@
               </template>
             </el-table-column>
             <el-table-column align="center"  label='业务员' min-width="130" prop="Salesman"></el-table-column>
-            <el-table-column align="center"  label='部门' min-width="130" prop="CompanyName"></el-table-column>
+            <el-table-column align="center"  label='组织' min-width="130" prop="CompanyName"></el-table-column>
             <el-table-column align="center"  label='钥匙位置' min-width="130" prop="KeyLocation"></el-table-column>
             <el-table-column align="center"  label='提交时间' min-width="130" prop="CreaterTime"></el-table-column>
             <el-table-column align="center"  label='状态' min-width="130" prop="StatusName"></el-table-column>
@@ -147,7 +139,7 @@
 <script>
   // import { SelectOwnExpNoCheck } from '@/api/owner'
   import { ShowRenovationApplyRecord, UpdateRenovationApplyStatus } from '@/api/purchase'
-  import { BottomToolBar, SearchPanel, TableButtons, fixPurchaseSurver, SelectStore } from '../../../../components'
+  import { BottomToolBar, SearchPanel, TableButtons, fixPurchaseSurver, SelectOrganization } from '../../../../components'
   export default {
     props: ['identify'],
     name: 'FixPurChase',
@@ -156,7 +148,7 @@
       TableButtons,
       BottomToolBar,
       fixPurchaseSurver,
-      SelectStore
+      SelectOrganization
     },
     data() {
       return {
@@ -171,14 +163,15 @@
           Salesman: '',
           DepID: '',
           Status: '',
-          department: ''
+          department: '',
+          FullIDNew: ''
         },
         procureList: [
-            { value: '0', label: '全部' },
-            { value: '3', label: '待勘察' },
-            { value: '4', label: '已勘察' },
-            { value: '5', label: '装修中' },
-            { value: '6', label: '装修结束' }
+            { value: '', label: '全部' },
+            { value: 3, label: '待勘察' },
+            { value: 4, label: '已勘察' },
+            { value: 5, label: '装修中' },
+            { value: 6, label: '装修结束' }
         ],
         operation2button: [
           {
@@ -232,6 +225,7 @@
               Salesman: this.ruleForm.Salesman,
               DepID: this.ruleForm.DepID,
               Status: this.ruleForm.Status,
+              FullIDNew: this.ruleForm.FullIDNew,
               UsePage: 2
           }).then(({ Data }) => {
               const filterList = Data.rows
@@ -282,7 +276,7 @@
         // 清空数据
         this.$refs.ruleForm.resetFields()
         // 门店选择框重置
-        this.$refs.selectStore.reset()
+        this.ruleForm.FullIDNew = ''
         // 页面刷新
         this.$refs.bottomToolBar.search()
       },
@@ -343,16 +337,16 @@
       watchSubmit(val) {
         console.log(val)
         this.fetchData(this.recordPage)
-      },
-      // 选择门店过后，返回来的数据
-      handleStoreChange(val) {
-        // 选择门店后的回调
-        if (val) {
-          this.ruleForm.DepID = val.fullID
-        } else {
-          this.ruleForm.DepID = ''
-        }
       }
+      // 选择门店过后，返回来的数据
+      // handleStoreChange(val) {
+      //   // 选择门店后的回调
+      //   if (val) {
+      //     this.ruleForm.DepID = val.fullID
+      //   } else {
+      //     this.ruleForm.DepID = ''
+      //   }
+      // }
     }
   }
 </script>

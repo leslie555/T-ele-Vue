@@ -129,7 +129,7 @@
                 <p>{{ props.row.Remark || '无' }}</p>
               </el-form-item>
               <el-form-item label="图片凭证">
-                <div class="table-expand-img-box">
+                <div class="table-expand-img-box" v-viewer="{url: 'data-src'}">
                   <template v-if="props.row.ImageUpload">
                     <div
                       class="table-expand-img"
@@ -138,7 +138,7 @@
                     >
                       <img
                         :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)"
-                        @click="$seeImage($ImgUnit.getImgUrl(item.ImageLocation))"
+                        :data-src="$ImgUnit.getImgUrl(item.ImageLocation)"
                       />
                     </div>
                   </template>
@@ -300,12 +300,14 @@
         }
       },
       handleSettlementAdd() {
+        debugger
         this.$refs['settlement'].open({
           BookKeepPara: {
             ContractID: this.ContractInfo.KeyID,
             HouseName: this.HouseInfo.HouseName,
             HouseID: this.HouseInfo.KeyID,
             HouseKey: this.HouseInfo.HouseKey,
+            RentType: this.HouseInfo.RentType,
             uuid: uuid()
           },
           type: 0

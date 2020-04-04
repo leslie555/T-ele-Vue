@@ -129,6 +129,22 @@
         </div>
       </div>
       <div class="text-box">
+        <div class="text-item">
+          <span>电表峰</span>
+          <span>{{ContractInfo.ElectricMeterPeak||'无'}}</span>
+        </div>
+        <div class="text-item">
+          <span>电表谷</span>
+          <span>{{ContractInfo.ElectricMeterValley||'无'}}</span>
+        </div>
+      </div>
+      <div class="text-box">
+        <div class="text-item text-item-lg">
+          <span>是否有宽带</span>
+          <span>{{ContractInfo.IsBroadband === 1 ? '有宽带' : '无宽带'}}</span>
+        </div>
+      </div>
+      <div class="text-box">
         <div class="text-item text-item-lg">
           <span>合同备注</span>
           <span>{{ContractInfo.ContractRemark||'无'}}</span>

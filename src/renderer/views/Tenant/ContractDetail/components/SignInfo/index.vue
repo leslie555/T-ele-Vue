@@ -45,6 +45,16 @@
       </div>
       <div class="text-box">
         <div class="text-item">
+          <span>管理服务费</span>
+          <span>{{ContractInfo.ManagerFee}}元/月</span>
+        </div>
+        <div class="text-item">
+          <span>优惠政策</span>
+          <span>{{ContractInfo.DiscountPolicy}}</span>
+        </div>
+      </div>
+      <div class="text-box">
+        <div class="text-item">
           <span>下期收租日</span>
           <span>{{$dateFormat(TenantContractOperate.NextPayTime)}}</span>
         </div>
@@ -56,21 +66,21 @@
         </div>
       </div>
       <div class="text-box">
-        <div class="text-item">
-          <span>租金包含费用</span>
-          <span>{{filterCost(ContractInfo.RentIncludeCost)}}</span>
-        </div>
+        <!--<div class="text-item">-->
+          <!--<span>租金包含费用</span>-->
+          <!--<span>{{filterCost(ContractInfo.RentIncludeCost)}}</span>-->
+        <!--</div>-->
         <div class="text-item">
           <span>水底数</span>
           <span>{{ContractInfo.WaterBaseNumber||'-'}}吨</span>
         </div>
-      </div>
-      <div class="text-box">
         <div class="text-item">
           <span>电底数</span>
           <span>{{ContractInfo.ElectricityBaseNumber||'-'}}度</span>
         </div>
-        <div class="text-item">
+      </div>
+      <div class="text-box">
+        <div class="text-item text-item-lg">
           <span>气底数</span>
           <span>{{ContractInfo.GasBaseNumber||'-'}}立方米</span>
         </div>

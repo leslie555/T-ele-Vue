@@ -1,0 +1,133 @@
+$ShareHouseBlue: #389ef2;
+$ShareHouseGray: #444444;
+$ShareHouseTitle: #999999;
+
+.app-container {
+  .ControlShow {
+    font-size: 14px;
+    color: #389ef2;
+    cursor: pointer;
+  }
+
+  .clearfix {
+    .el-form-item {
+      margin-bottom: 6px;
+    }
+
+    .el-button:not(:first-child) {
+      margin-left: 20px;
+    }
+  }
+
+  .el-tag {
+    margin-left: 10px;
+  }
+
+  .PaginationBox {
+    text-align: center;
+    margin-top: 40px;
+  }
+
+  .el-button--text {
+    color: $ShareHouseTitle;
+  }
+
+  .el-button.active {
+    color: $ShareHouseBlue;
+  }
+
+  .ShareHouseContent {
+    .HouseCount {
+      h4 {
+        margin: 20px 0;
+        color: $ShareHouseGray;
+        font-weight: 400;
+        font-size: 14px;
+
+        span {
+          font-size: 22px;
+          color: $ShareHouseBlue;
+        }
+      }
+    }
+  }
+
+  .ContentBox {
+    .tableHouseImg {
+      cursor: pointer;
+      padding: 16px 0;
+      width: 100%;
+      height: 120px;
+      border-radius: 6px;
+      padding: 0;
+    }
+
+    .tableHouseDate {
+      margin: 10px 0;
+      padding-left: 10px;
+    }
+
+    .locationNear {
+      color: #389EF2;
+      font-size: 14px;
+      margin-left: 20px;
+    }
+
+    .tableHouseInfo {
+      margin: 10px 0;
+      padding-left: 10px;
+      span{
+        display: inline-block;
+        padding: 0 10px;
+        // border-left: 1px solid #999999;
+        border-right: 1px solid #999999;
+        line-height: 14px;
+      }
+      span.start{
+        padding-left: 0;
+      }
+      span.end{
+        border: 0;
+      }
+    }
+
+    .tableHouseName {
+      font-size: 18px;
+      cursor: pointer;
+      padding-left: 10px;
+      color: $ShareHouseBlue;
+      // margin-top: 5px;
+
+      span {
+        margin-left: 20px;
+      }
+
+      .tableHouseManager {
+        color: $ShareHouseGray;
+      }
+    }
+
+    .tableHousePrice {
+      color: #ff5a5a;
+      font-size: 22px;
+      margin: 10px 0 0 0;
+      padding-left: 10px;
+    }
+
+    .tableHouseAddress {
+      color: $ShareHouseTitle;
+      padding-left: 10px;
+    }
+  }
+
+  .ShowAllBox-enter-active,
+  .ShowAllBox-leave-active {
+    transition: all .8s;
+  }
+
+  .ShowAllBox-enter,
+  .ShowAllBox-leave-to {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+}

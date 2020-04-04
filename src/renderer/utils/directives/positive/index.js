@@ -5,16 +5,16 @@ export default {
   bind(el, binding, vnode) {
     const isInt = binding.modifiers.int
     const inputEl = el.querySelector('input')
-    const attr = inputEl.attributes
-    let min
-    let max
-    if (attr.min) {
-      min = attr.min.value
-    }
-    if (attr.max) {
-      max = attr.max.value
-    }
     inputEl.addEventListener('blur', (event) => {
+      const attr = inputEl.attributes
+      let min
+      let max
+      if (attr.min) {
+        min = attr.min.value
+      }
+      if (attr.max) {
+        max = attr.max.value
+      }
       let val = event.target.value
       if (val !== '') {
         val -= 0

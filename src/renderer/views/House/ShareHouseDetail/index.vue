@@ -4,7 +4,7 @@
       <el-card shadow="hover" v-if="HouseInfoData.length > 0">
         <el-row :gutter="40">
           <el-col :span="10">
-            <el-carousel style="width: 100%; height: 360px;" height="100%" v-if="HouseInfoData[HouseInfoIndex].hosueImage.length > 0">
+            <el-carousel style="width: 100%; height: 360px;" height="100%" v-if="HouseInfoData[HouseInfoIndex].hosueImage.length > 0" v-viewer>
               <el-carousel-item
                 v-for="(item, index) in HouseInfoData[HouseInfoIndex].hosueImage"
                 :key="index"
@@ -12,7 +12,7 @@
               >
                 <img
                   :src="$ImgUnit.getImgUrl(item.ImageLocation)"
-                  alt="暂无图片"
+                  :alt="'第'+(index+1)+'图片'"
                   class="houseCarouselImg"
                 >
               </el-carousel-item>
@@ -108,6 +108,8 @@
                     <span
                       class="HouseDetailValue"
                     >&emsp;{{ HouseInfoData[HouseInfoIndex].Location }}-{{ HouseInfoData[HouseInfoIndex].CommunityName }}</span>
+                    <span class="locationNear" @click.stop="goNear"><i
+                      class="iconfont icon-location"></i>附近房源</span>
                   </el-col>
                 </el-row>
               </el-row>
@@ -221,6 +223,11 @@
         <h4 class="HouseInfoTitle panel-title">房源描述</h4>
         <p class="HouseInfoDesc">{{ HouseInfoData[0].HouseDesc }}</p>
       </el-col>
+      <el-col :span="24" class="HouseInfoList panel" v-if="HouseInfoData.length > 0">
+        <h4 class="HouseInfoTitle panel-title">附近房源<span class="locationNear" @click.stop="goNear"><i
+          class="iconfont icon-location"></i>更多附近房源</span></h4>
+        <near-house :lat="HouseInfoData[0].Lat" :lng="HouseInfoData[0].Lng" :HouseID="HouseInfoData[HouseInfoIndex].HouseID" />
+      </el-col>
     </el-row>
     <booking-house ref="BookingHouseDialog"></booking-house>
     <reservation-house ref="ReservationHouseDialog"></reservation-house>
@@ -238,6 +245,7 @@
 import BookingHouse from '@/components/BookingHouse'
 import ReservationHouse from '@/components/ReservationHouse'
 import ShowMore from './components/ShowMore'
+import NearHouse from './components/NearHouse'
 import { selectShareHouseInfoListByID, addEnshrine, delEnshrine } from '@/api/house'
 
 export default ({
@@ -245,7 +253,8 @@ export default ({
   components: {
     BookingHouse,
     ReservationHouse,
-    ShowMore
+    ShowMore,
+    NearHouse
   },
   data() {
     return {
@@ -325,7 +334,7 @@ export default ({
     },
     // 开启弹窗
     OpenBooking() {
-      this.$refs.BookingHouseDialog.open(this.HouseInfoData[this.HouseInfoIndex], this.$route.query.IsChecked)
+      this.$refs.BookingHouseDialog.open(this.HouseInfoData[this.HouseInfoIndex])
     },
     OpenReservation() {
       this.$refs.ReservationHouseDialog.open(this.HouseInfoData[this.HouseInfoIndex])
@@ -433,6 +442,17 @@ export default ({
           this.infoTableDataCreate()
           this.infoTableData2Create(false)
       }
+    },
+    goNear() {
+      const row = this.HouseInfoData[this.HouseInfoIndex]
+      this.$router.push({
+        path: '/House/NearHouseList',
+        query: {
+          Lng: row.Lng,
+          Lat: row.Lat,
+          HouseID: row.HouseID
+        }
+      })
     }
   },
   computed: {

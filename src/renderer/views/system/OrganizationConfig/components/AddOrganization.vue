@@ -35,7 +35,7 @@
 							separator=">"
 							expand-trigger="hover"
 							:options="treeData"
-							@active-item-change="handleParentChange"
+							@expand-change="handleParentChange"
 							:props="defaultOptions"
 							v-model="form.PID"
 						></el-cascader>

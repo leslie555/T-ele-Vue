@@ -147,7 +147,13 @@
       }
     },
     activated() {
-      this.$refs.bottomToolBar.search(1)
+      // BusType 15   首页跳转过来
+      if (this.$route.query.BusType === 15) {
+        this.ruleForm.BusType = 15
+        this.$refs.bottomToolBar.search(3)
+      } else {
+        this.$refs.bottomToolBar.search(1)
+      }
     },
     methods: {
       fetchData(pages) {

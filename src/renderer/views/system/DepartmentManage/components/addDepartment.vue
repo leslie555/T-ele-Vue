@@ -25,8 +25,7 @@
         </el-form-item>
         <el-form-item label="组织架构" prop="structure">
           <el-cascader
-            expand-trigger="hover"
-            :change-on-select="true"
+            ref="cascader"
             separator=">"
             :disabled="disabled"
             :options="tree"
@@ -67,7 +66,9 @@
         },
         tree: [],
         defaultOptions: {
-          value: 'id'
+          value: 'id',
+          expandTrigger: 'hover',
+          checkStrictly: true
         },
         dialogTitle: '',
         disabled: false,
@@ -212,6 +213,7 @@
       },
       handleChange(val) {
         this.form.FullID = ''
+        this.$refs.cascader.dropDownVisible = false
         this.getFullID(val)
       }
     }

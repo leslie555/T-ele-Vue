@@ -3,6 +3,7 @@
     <!-- 筛选部分 -->
     <search-panel :model="ShareHouseForm" label-width>
       <template slot="search">
+        <SelectOrganization v-model="ShareHouseForm.FullIDNew" :type="3"></SelectOrganization>
         <el-form-item label="房源名称">
           <el-input
             v-model="ShareHouseForm.HouseName"
@@ -27,20 +28,6 @@
             clearable
           ></el-input>
         </el-form-item>
-        <SelectOrganization v-model="ShareHouseForm.FullIDNew" :type="2"></SelectOrganization>
-        <el-form-item label="门店选择">
-          <select-store ref="selectStore" type="house" @change="handleChange"></select-store>
-            <!-- <el-cascader
-              ref="cascader"
-              separator=">"
-              expand-trigger="hover"
-              :options="treeData"
-              @active-item-change="handleParentChange"
-              :props="defaultOptions"
-              v-model="structure"
-              @change="handleChange"
-            ></el-cascader> -->
-          </el-form-item>
       </template>
       <template slot="more">
         <div class="clearfix">
@@ -64,17 +51,6 @@
               :key="item.id"
               type="text"
               @click="addFilter(item, 8)"
-              :class="[item.isActive ? 'active' : '']"
-            >{{ item.text }}</el-button>
-          </el-form-item>
-        </div>
-        <div class="clearfix">
-          <el-form-item label="到期">
-            <el-button
-              v-for="item in filterLists.Expire"
-              :key="item.id"
-              type="text"
-              @click="addFilter(item, 10)"
               :class="[item.isActive ? 'active' : '']"
             >{{ item.text }}</el-button>
           </el-form-item>
@@ -231,7 +207,7 @@
                 <!--<span class="end">业主到期: {{ $dateFormat(scope.row.OwnerEndTime, 'yyyy-MM-dd') }}</span>-->
               </div>
               <div class="tableHouseDate">
-                <span>地址: {{ scope.row.Location }}</span>
+                <span>地址: {{ scope.row.Location }}</span><span class="locationNear" @click.stop="goNear(scope.row)"><i class="iconfont icon-location"></i>附近房源</span>
               </div>
               <p class="tableHousePrice">{{ scope.row.RentMoeny }}元/月</p>
             </template>
@@ -276,7 +252,7 @@ import { selectShareHouseInfoListPaging } from '@/api/house'
 import { ShowCompanyinfoCityCode } from '@/api/system'
 
 export default ({
-  name: 'HouseShareHouse',
+  name: 'ShareHouse',
   components: {
     BookingHouse,
     ReservationHouse,
@@ -296,14 +272,10 @@ export default ({
         value: 'id'
       },
       urls: {
-        // 已租
-        tarnent: require('../../../assets/ShareHouse/Havetorent.png'),
-        // 已定
-        order: require('../../../assets/ShareHouse/Isset.png'),
+        // 可租
+        Rentable: require('../../../assets/ShareHouse/rentable.png'),
         // 待租
-        empty: require('../../../assets/ShareHouse/rent.png'),
-        // 装修
-        draw: require('../../../assets/ShareHouse/decorate.png')
+        empty: require('../../../assets/ShareHouse/rent.png')
       },
       // 所选组织架构的label数组
       organization: [],
@@ -352,7 +324,6 @@ export default ({
         value2: '',
         HouseStatus: [],
         IsHaveImage: 0,
-        IsChecked: false,
         CityCode: [],
         RentMoeny: [],
         RoomType: [],
@@ -414,26 +385,14 @@ export default ({
         statusList: [
           {
             id: 0,
-            text: '已定',
-            value: '已定',
-            isActive: false
-          },
-          {
-            id: 1,
-            text: '已租',
-            value: '已租',
-            isActive: false
-          },
-          {
-            id: 2,
             text: '待租',
             value: '待租',
             isActive: false
           },
           {
-            id: 3,
-            text: '装修',
-            value: '装修',
+            id: 1,
+            text: '可租',
+            value: '可租',
             isActive: false
           }
         ],
@@ -618,21 +577,15 @@ export default ({
             only: true,
             isActive: false
           }
-        ],
-        Expire: [
-          {
-            id: 1,
-            text: '2个月内（租客）',
-            value: true,
-            only: true,
-            isActive: false
-          }
         ]
       },
       // 表格数据
       rowStyle: { height: '150px', cursor: 'pointer' },
       tableData: []
     }
+  },
+  activated() {
+    this.$refs.bottomToolBar.search(1)
   },
   created() {
     this.GetCityList()
@@ -647,7 +600,7 @@ export default ({
       this.ShareHouseForm.HouseName = ''
       this.ShareHouseForm.RoomNumber = ''
       this.ShareHouseForm.FullIDNew = ''
-      this.$refs.selectStore.reset()
+      // this.$refs.selectStore.reset()
       this.deleteAllRes()
     },
     // 查询按钮
@@ -750,9 +703,6 @@ export default ({
             case 9:
               this.ShareHouseForm.IsHaveImage = obj.value
               break
-            case 10:
-              this.ShareHouseForm.IsChecked = obj.value
-              break
           }
           if (tag === 7) {
             this.filterRes.push({
@@ -802,9 +752,6 @@ export default ({
         case 9:
           this.ShareHouseForm.IsHaveImage = 0
           break
-        case 10:
-          this.ShareHouseForm.IsChecked = false
-          break
         case 7:
           this.structure = []
           this.ShareHouseForm.FullID = ''
@@ -831,7 +778,6 @@ export default ({
       this.ShareHouseForm.Toward = []
       this.ShareHouseForm.HouseStatus = []
       this.ShareHouseForm.IsHaveImage = 0
-      this.ShareHouseForm.IsChecked = false
       this.structure = []
       this.ShareHouseForm.FullID = ''
       for (var i in this.filterLists) {
@@ -847,7 +793,7 @@ export default ({
     },
     // 预定按钮
     OpenBookingHouse(data) {
-      this.$refs.BookingHouseDialog.open(data, this.ShareHouseForm.IsChecked)
+      this.$refs.BookingHouseDialog.open(data)
     },
     // 预约按钮
     OpenReservationHouse(data) {
@@ -860,8 +806,7 @@ export default ({
         query: {
           id: row.HouseKey,
           HouseID: row.HouseID,
-          ShareRentHouseID: row.HouseStatus === 5 ? row.HouseID : '',
-          IsChecked: this.ShareHouseForm.IsChecked
+          ShareRentHouseID: row.HouseStatus === 5 ? row.HouseID : ''
         }
       })
     },
@@ -927,6 +872,16 @@ export default ({
     handleChange(val) {
       this.ShareHouseForm.FullID = val.fullID
       console.log(val)
+    },
+    goNear(row) {
+      this.$router.push({
+        path: '/House/NearHouseList',
+        query: {
+          Lng: row.Lng,
+          Lat: row.Lat,
+          HouseID: row.HouseID
+        }
+      })
     }
   }
 })

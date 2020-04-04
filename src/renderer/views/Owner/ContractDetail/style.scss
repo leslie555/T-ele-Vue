@@ -85,6 +85,16 @@
         font-size: 12px;
         color: $--color-text-secondary;
       }
+      .info-text-multiple {
+        height: 30px;
+        font-size: 12px;
+        color: $--color-text-secondary;
+        width: 100%;
+        @include displayFlex(row,center,center);
+        span {
+          flex: 1;
+        }
+      }
     }
   }
   .tabs-btn-box{

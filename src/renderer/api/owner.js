@@ -12,9 +12,9 @@ export function getContractList(data) {
 // 预览合同详情
 export function findOwnerPreviewById(data) {
   return request({
-      url: '/OwnerContract/OwnerContract/FindOwnerPreviewById',
-      method: 'post',
-      data
+    url: '/OwnerContract/OwnerContract/FindOwnerPreviewById',
+    method: 'post',
+    data
   })
 }
 // 获取合同详情
@@ -140,6 +140,15 @@ export function ownerSubmitAudit(data) {
   })
 }
 
+// 签字阿里云认证
+export function personALYAuth(data) {
+  return request({
+    url: '/FDD/FDD/ALYRealNameAuthentication',
+    method: 'post',
+    data
+  })
+}
+
 // 签字个人认证
 export function personAuth(data) {
   return request({
@@ -239,3 +248,36 @@ export function OverdueRentCollectionCount(data) {
   })
 }
 
+//  业主收入流水
+export function QueryIncomeByOwner(data) {
+  return request({
+    url: '/System/FinanceNew/QueryIncomeByOwner',
+    method: 'post',
+    data
+  })
+}
+//  业主支出流水
+export function QueryExpendByOwner(data) {
+  return request({
+    url: '/System/FinanceNew/QueryExpendByOwner',
+    method: 'post',
+    data
+  })
+}
+//  业主收入流水合计
+export function TotalIncomeByOwner(data) {
+  return request({
+    url: '/System/FinanceNew/TotalIncomeByOwner',
+    method: 'post',
+    data
+  })
+}
+
+//  业主支出流水合计
+export function TotalExpendByOwner(data) {
+  return request({
+    url: '/System/FinanceNew/TotalExpendByOwner',
+    method: 'post',
+    data
+  })
+}

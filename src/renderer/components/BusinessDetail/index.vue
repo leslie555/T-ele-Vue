@@ -7,7 +7,7 @@
     <VerificationDetail ref="Verification"></VerificationDetail>
     <meter-reading-detail ref="detailMeterReading"></meter-reading-detail>
     <FixPaperAndPurchaseDialog ref="addConfigBox"></FixPaperAndPurchaseDialog>
-    <bills-preview ref="billsPreview" is-detail></bills-preview>
+    <bills-preview ref="billsPreview" is-detail hide-detail></bills-preview>
     <sublease-template ref="subleaseTemplate"></sublease-template>
   </div>
 </template>

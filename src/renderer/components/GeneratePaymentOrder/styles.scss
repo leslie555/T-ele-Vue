@@ -1,0 +1,23 @@
+@import "../../styles/variables";
+@import "../../styles/mixin";
+.payment-order-title {
+  height: 30px;
+  @include displayFlex(row, center, flex-start);
+  label {
+    margin-right: 220px;
+    span {
+      display: inline-block;
+      width: 100px;
+      text-align: right;
+    }
+  }
+}
+.payment-order-table {
+  margin: 30px 0px;
+  span {
+    display: inline-block;
+    width: 100px;
+    float: left;
+    text-align: right;
+  }
+}

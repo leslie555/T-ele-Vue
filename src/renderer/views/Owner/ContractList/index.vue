@@ -18,7 +18,7 @@
       <template slot="more">
         <div class="clearfix">
           <SelectOrganization v-model="ruleForm.FullIDNew"></SelectOrganization>
-          <el-form-item label="门店" prop="FullID">
+          <!-- <el-form-item label="门店" prop="FullID">
             <select-store ref="selectStore" type="search" @change="handleStoreChange"></select-store>
           </el-form-item>
           <el-form-item label="门店人员" prop="EmpFullID">
@@ -44,7 +44,7 @@
                 >{{ item.Tel }}</span>
               </el-option>
             </el-select>
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item label="租约状态" prop="LeaseStatus">
             <el-select v-model="ruleForm.LeaseStatus" placeholder="请选择租约状态">
               <el-option label="全部" value></el-option>
@@ -199,6 +199,7 @@
               :options="operation2button"
               :condition="scope.row.Operation"
               @handleEditClick="handleEdit(scope.row)"
+              @handleAfterAuditEditClick="handleAfterAuditEdit(scope.row)"
               @handleDetailClick="handleDetail(scope.row)"
               @handleDeleteClick="handleDelete(scope.row)"
               @handleRenewClick="handleRenew(scope.row)"
@@ -207,6 +208,7 @@
               @handleSubmitAuditClick="handleSubmitAudit(scope.row)"
               @handleWithdrawClick="handleWithdraw(scope.row)"
               @handleCheckOutEditClick="handleCheckOutEdit(scope.row)"
+              @handleVisitRecordClick="handleVisitRecord(scope.row)"
             ></table-buttons>
           </template>
         </el-table-column>
@@ -229,6 +231,7 @@
       </el-button>
     </bottom-tool-bar>
     <settlement ref="settlement" :bus-type="0" @success="checkOutSuccess"></settlement>
+    <visit-record-dialog ref="visitRecord" ></visit-record-dialog>
   </div>
 </template>
 <style scoped lang="scss">
@@ -240,7 +243,7 @@
 
   import { BottomToolBar, SearchPanel, Settlement, TableButtons, SelectStore, SelectOrganization } from '../../../components'
   import { diffTime } from '../../../utils/dateFormat'
-
+  import { VisitRecordDialog } from '../../Tenant/ContractList/components'
   export default {
     name: 'OwnerContractList',
     components: {
@@ -249,7 +252,8 @@
       BottomToolBar,
       Settlement,
       SelectStore,
-      SelectOrganization
+      SelectOrganization,
+      VisitRecordDialog
     },
     data() {
       return {
@@ -266,6 +270,11 @@
           },
           {
             key: 'Edit',
+            value: '修改',
+            type: 'primary'
+          },
+          {
+            key: 'AfterAuditEdit',
             value: '修改',
             type: 'primary'
           },
@@ -303,6 +312,11 @@
             key: 'Withdraw',
             value: '撤回',
             type: 'danger'
+          },
+          {
+            key: 'VisitRecord',
+            value: '回访记录',
+            type: 'primary'
           }
         ],
         ruleForm: {
@@ -424,18 +438,26 @@
           if (v.AuditStatus === 1) {
             Operation = ['Detail', 'Withdraw']
           } else if (v.AuditStatus === 2) {
-            Operation = ['Detail', 'CheckOut', 'Renew', 'Edit']
+            Operation = ['Detail', 'CheckOut', 'Renew', 'AfterAuditEdit', 'VisitRecord']
           } else if (v.AuditStatus === 3) {
             Operation = ['Detail', 'Withdraw']
           }
         } else if (v.LeaseStatus === 4) {
-          if (v.AuditStatus === 1 || v.AuditStatus === 2) {
+          if (v.AuditStatus === 1) {
             Operation = ['Detail']
+          }
+          if (v.AuditStatus === 2) {
+            Operation = ['Detail', 'VisitRecord']
           } else if (v.AuditStatus === 3) {
             Operation = ['Detail', 'CheckOutEdit']
           }
         } else if (v.LeaseStatus === 5) {
-          Operation = ['Detail']
+           if (v.AuditStatus === 2) {
+              Operation = ['Detail', 'VisitRecord']
+            } else {
+              Operation = ['Detail']
+            }
+          // Operation = ['Detail', 'VisitRecord']
         }
         return {
           KeyID: v.KeyID,
@@ -444,6 +466,8 @@
           HouseKey: v.HouseKey,
           OwnerName: v.OwnerName,
           OwnerPhone: v.OwnerPhone,
+          CardIDFrontUrl: v.CardIDFront && v.CardIDFront.length > 0 ? v.CardIDFront[0].ImageLocation : '',
+          CardIDBackUrl: v.CardIDBack && v.CardIDBack.length > 0 ? v.CardIDBack[0].ImageLocation : '',
           OwnerIDCard: v.OwnerIDCard,
           ContractNumber: v.ContractNumber,
           IsInverseAudit: v.IsInverseAudit,
@@ -510,7 +534,7 @@
       },
       resetForm() {
         this.$refs.ruleForm.resetFields()
-        this.$refs.selectStore.reset()
+        // this.$refs.selectStore.reset()
         this.comPeopleResult = []
         this.StoreKeyID = 0
         this.$refs.bottomToolBar.search()
@@ -519,8 +543,15 @@
         const query = {
           KeyID: row.KeyID
         }
-        if (row.LeaseStatusNum === 3 && row.AuditStatusNum === 2) {
-          query.SafeEdit = true
+        this.$router.push({
+          path: '/Owner/EditContract',
+          query
+        })
+      },
+      handleAfterAuditEdit(row) {
+        const query = {
+          KeyID: row.KeyID,
+          SafeEdit: true
         }
         this.$router.push({
           path: '/Owner/EditContract',
@@ -563,6 +594,7 @@
             Mobile: row.OwnerPhone,
             IDCard: row.OwnerIDCard,
             Name: row.OwnerName,
+            Img: row.CardIDFrontUrl,
             ContractID: row.KeyID,
             type: 0
           }
@@ -623,6 +655,14 @@
           detail: true,
           checkOutEdit: true
         })
+      },
+      // 回访记录
+      handleVisitRecord(row) {
+        this.$refs['visitRecord'].open({
+          row: row,
+          Type: 0
+        })
+        console.log('业主合同列表-回访记录row:', row)
       },
       // 批量选择
       tableSelect(val) {

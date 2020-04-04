@@ -14,32 +14,36 @@
 </template>
 
 <script>
-export default {
-  name: 'tableButtons',
-  props: {
-    options: Array,
-    condition: Array,
-    showAll: {
-      type: Boolean,
-      default: false
-    }
-  },
-  data() {
-    return {}
-  },
-  methods: {
-    handleClick(option) {
-      this.$emit(`handle${option.key}Click`)
-    }
-  },
-  computed: {
-    filteredOptions() {
-      const actionPermission = this.$store.getters.currentActions
-      return this.options.filter(val => {
-        // debugger
-        return this.showAll ? this.condition.find(v => v === val.key) : this.condition.find(v => v === val.key) && actionPermission.includes(val.key)
-      })
+  export default {
+    name: 'tableButtons',
+    props: {
+      options: Array,
+      condition: Array,
+      showAll: {
+        type: Boolean,
+        default: false
+      }
+    },
+    data() {
+      return {}
+    },
+    methods: {
+      handleClick(option) {
+        this.$emit(`handle${option.key}Click`)
+      }
+    },
+    computed: {
+      filteredOptions() {
+        const actionPermission = this.$store.getters.currentActions
+        return this.options.filter(val => {
+          // debugger
+          return this.showAll
+            ? this.condition.find(v => v === val.key)
+            : (this.condition.find(v => v === val.key) &&
+                actionPermission.includes(val.key)) ||
+                val.withoutPermission
+        })
+      }
     }
   }
-}
 </script>

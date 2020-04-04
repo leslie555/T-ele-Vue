@@ -1,19 +1,20 @@
 <template>
 <div class="app-container data-list marginTopLeft ">
   <el-tabs v-model="tabName" @tab-click="handleClick">
-    <el-tab-pane 
+    <el-tab-pane
         v-for="title in header"
-        :label="title.title" 
-        :name="title.name" 
+        :label="title.title"
+        :name="title.name"
         :key="title.key"
         >
     </el-tab-pane>
   </el-tabs>
   <search-panel :model="ruleForm" ref="ruleForm" label-width="80px" box-flex right-width="270px">
     <template slot="search">
-      <el-form-item label="门店" prop="FullID">
+      <!-- <el-form-item label="门店" prop="FullID">
         <select-store ref="selectStore" type="report" @change="handleStoreChange"></select-store>
-      </el-form-item>
+      </el-form-item> -->
+      <SelectOrganization v-model="ruleForm.FullID" :type="3"></SelectOrganization>
     </template>
     <template slot="button">
       <el-button type="primary" @click="submitForm">查询</el-button>
@@ -34,7 +35,7 @@
       class="table-normal">
       <el-table-column label = "房源名称" align="center" min-width = "130" prop = "HouseName"></el-table-column>
       <el-table-column label = "管房人" align="center" min-width = "130" prop = "UserName"></el-table-column>
-      <el-table-column label = "所属门店" align="center" min-width = "130" prop = "CompanyName"></el-table-column>
+      <el-table-column label = "所属组织" align="center" min-width = "130" prop = "CompanyName"></el-table-column>
       <el-table-column v-if="tabTitle === 1 || tabTitle === 2" label = "合同编号" align="center" min-width = "130" prop = "ContractNumber"></el-table-column>
       <el-table-column :label = "tabTitle === 2 ? '应付款日' : tabTitle === 3 ? '收款日期' : tabTitle === 4 ? '付款日期' : '应收款日'" align="center" min-width = "130" prop = "IDate">
         <template slot-scope="scope">
@@ -59,7 +60,7 @@
 <script>
   import { OverdueRentCollection } from '@/api/owner'
   import { OverdueRentCollectionCount } from '@/api/owner'
-  import { BottomToolBar, SearchPanel, Settlement, TableButtons, SelectStore } from '@/components'
+  import { BottomToolBar, SearchPanel, Settlement, TableButtons, SelectStore, SelectOrganization } from '@/components'
   export default {
     name: 'FinanceList',
     components: {
@@ -67,7 +68,8 @@
       TableButtons,
       BottomToolBar,
       Settlement,
-      SelectStore
+      SelectStore,
+      SelectOrganization
     },
     data() {
       return {
@@ -107,7 +109,8 @@
           pageParam: this.params,
           UserName: '',
           Type: 1,
-          FullID: this.ruleForm.FullID
+          FullID: '',
+          FullIDNew: this.ruleForm.FullID
         }).then(({ Data }) => {
           this.filterList = Data.rows
           this.listLoading = false
@@ -118,7 +121,8 @@
         OverdueRentCollectionCount({
           UserName: '',
           Type: index + 1,
-          FullID: this.ruleForm.FullID
+          FullID: '',
+          FullIDNew: this.ruleForm.FullID
         }).then(({ Data }) => {
           this.listLoading = false
           this.header[index].title += `(${Data})`
@@ -135,7 +139,8 @@
         OverdueRentCollectionCount({
           UserName: '',
           Type: this.tabTitle,
-          FullID: this.ruleForm.FullID
+          FullID: '',
+          FullIDNew: this.ruleForm.FullID
         }).then(({ Data }) => {
           this.listLoading = false
           this.header[this.tabTitle - 1].title = titleText.replace(/(\([^\)]*\))/, `(${Data})`)
@@ -165,7 +170,8 @@
           pageParam: pages,
           UserName: '',
           Type: this.tabTitle,
-          FullID: this.ruleForm.FullID
+          FullID: '',
+          FullIDNew: this.ruleForm.FullID
         }).then(({ Data }) => {
           console.log('财务数据', Data)
           // this.header[this.tabTitle].title += `(${Data.records})`
@@ -178,14 +184,14 @@
         })
       },
       // 选择门店过后，返回来的数据
-      handleStoreChange(val) {
-        // 选择门店后的回调
-        if (val) {
-          this.ruleForm.FullID = val.fullID
-        } else {
-          this.ruleForm.FullID = ''
-        }
-      },
+      // handleStoreChange(val) {
+      //   // 选择门店后的回调
+      //   if (val) {
+      //     this.ruleForm.FullID = val.fullID
+      //   } else {
+      //     this.ruleForm.FullID = ''
+      //   }
+      // },
       // 查询
       submitForm() {
         this.$refs.ruleForm.validate(valid => {
@@ -200,7 +206,8 @@
         // 清空数据
         this.$refs.ruleForm.resetFields()
         // 门店选择框重置
-        this.$refs.selectStore.reset()
+        // this.$refs.selectStore.reset()
+        this.ruleForm.FullID = ''
         // 页面刷新
         this.$refs.bottomToolBar.search()
         // 更新 tabTitle 数据
@@ -224,12 +231,13 @@
           pageParam: this.params,
           UserName: '',
           Type: this.tabTitle,
-          FullID: this.ruleForm.FullID
+          FullID: '',
+          FullIDNew: this.ruleForm.FullID
         }).then(response => {
           console.log('response', response.Data)
           this.listLoading = false
           import('@/vendor/Export2Excel').then(excel => {
-            const tHeader = ['房源名称', '管房人', '所属门店', '合同编号', '应收款日', '金额', '逾期天数', '项目明细']
+            const tHeader = ['房源名称', '管房人', '所属组织', '合同编号', '应收款日', '金额', '逾期天数', '项目明细']
             const filament = ['HouseName', 'UserName', 'CompanyName', 'ContractNumber', 'IDate', 'Money', 'OverdueDays', 'ProjectName']
             const data = this.formatJson(filament, !response.Data ? [] : response.Data.rows)
             excel.export_json_to_excel({

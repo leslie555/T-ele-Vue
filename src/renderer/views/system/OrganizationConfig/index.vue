@@ -92,10 +92,10 @@
           :style="{left:contextMenuLeft+'px',top:contextMenuTop+'px'}"
           class="contextmenu"
         >
-          <li @click="moveStaff" v-setBtn:Add>在此组织下添加人员</li>
-          <li @click="addOrganization">在此组织下添加组织</li>
-          <li @click="editOrganization">修改此组织</li>
-          <li @click="deleteOrganization">删除此组织</li>
+          <li v-show="hasPermission('MoveStaff')" @click="moveStaff">在此组织下添加人员</li>
+          <li v-show="hasPermission('AddOrgan')" @click="addOrganization">在此组织下添加组织</li>
+          <li v-show="hasPermission('EditOrgan')" @click="editOrganization">修改此组织</li>
+          <li v-show="hasPermission('DeleteOrgan')" @click="deleteOrganization">删除此组织</li>
         </ul>
       </div>
       <bottom-tool-bar ref="bottomToolBar" :handlePageChange="updateAllTableData"></bottom-tool-bar>
@@ -357,6 +357,10 @@
       document.getElementsByTagName('body')[0].appendChild(this.$refs.contextMenu)
     },
     methods: {
+      hasPermission(name) {
+        const actions = this.$store.getters.currentActions
+        return actions.includes(name)
+      },
       getStructureIcon(node, data) {
         switch (data.type) {
           case 'BusinessID':

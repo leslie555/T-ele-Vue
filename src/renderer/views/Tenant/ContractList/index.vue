@@ -18,7 +18,7 @@
       <template slot="more">
         <div class="clearfix">
           <SelectOrganization v-model="ruleForm.FullIDNew"></SelectOrganization>
-          <el-form-item label="门店" prop="FullID">
+          <!-- <el-form-item label="门店" prop="FullID">
             <select-store ref="selectStore" type="search" @change="handleStoreChange"></select-store>
           </el-form-item>
           <el-form-item label="门店人员" prop="EmpFullID">
@@ -44,7 +44,7 @@
                 >{{ item.Tel }}</span>
               </el-option>
             </el-select>
-          </el-form-item>
+          </el-form-item>-->
           <el-form-item label="租约状态" prop="RentLeaseStatus">
             <el-select v-model="ruleForm.RentLeaseStatus" placeholder="请选择租约状态">
               <el-option label="全部" value></el-option>
@@ -206,6 +206,7 @@
               :options="operation2button"
               :condition="scope.row.Operation"
               @handleEditClick="handleEdit(scope.row)"
+              @handleAfterAuditEditClick="handleAfterAuditEdit(scope.row)"
               @handleDetailClick="handleDetail(scope.row)"
               @handleDeleteClick="handleDelete(scope.row)"
               @handleRenewClick="handleRenew(scope.row)"
@@ -218,6 +219,7 @@
               @handleSubleaseClick="handleSublease(scope.row, 0)"
               @handleSubleaseEditClick="handleSublease(scope.row, 1)"
               @handleSubleaseDetailClick="handleSubleaseDetail(scope.row, 2)"
+              @handleVisitRecordClick="handleVisitRecord(scope.row)"
             ></table-buttons>
           </template>
         </el-table-column>
@@ -241,18 +243,31 @@
     </bottom-tool-bar>
     <bills-preview ref="billsPreview" is-detail></bills-preview>
     <sublease-template ref="subleaseTemplate" @submitSublease="submitSublease"></sublease-template>
+    <visit-record-dialog ref="visitRecord" ></visit-record-dialog>
   </div>
 </template>
 <style scoped lang="scss">
-  @import "../../Owner/ContractList/style";
+  @import '../../Owner/ContractList/style';
 </style>
 <script>
-  import { deleteTenantContractByIDs, getContractList, tenantSubmitAudit, tenantWithDrawByID } from '@/api/tenant'
+  import {
+    deleteTenantContractByIDs,
+    getContractList,
+    tenantSubmitAudit,
+    tenantWithDrawByID
+  } from '@/api/tenant'
   import { getEmployeeInfoList } from '../../../api/system'
-  import { BottomToolBar, SearchPanel, SelectStore, Settlement, TableButtons, SelectOrganization } from '../../../components'
+  import {
+    BottomToolBar,
+    SearchPanel,
+    SelectStore,
+    Settlement,
+    TableButtons,
+    SelectOrganization
+  } from '../../../components'
   // import { CheckoutBills } from './components'
   import { diffTime } from '../../../utils/dateFormat'
-  import { SubleaseTemplate, BillsPreview } from './components'
+  import { SubleaseTemplate, BillsPreview, VisitRecordDialog } from './components'
   export default {
     name: 'TenantContractList',
     components: {
@@ -263,7 +278,8 @@
       SelectStore,
       SelectOrganization,
       SubleaseTemplate,
-      BillsPreview
+      BillsPreview,
+      VisitRecordDialog
     },
     data() {
       return {
@@ -281,6 +297,11 @@
           },
           {
             key: 'Edit',
+            value: '修改',
+            type: 'primary'
+          },
+          {
+            key: 'AfterAuditEdit',
             value: '修改',
             type: 'primary'
           },
@@ -337,6 +358,11 @@
           {
             key: 'SubleaseDetail',
             value: '查看转租',
+            type: 'primary'
+          },
+          {
+            key: 'VisitRecord',
+            value: '回访记录',
             type: 'primary'
           }
         ],
@@ -462,21 +488,38 @@
           if (v.AuditStatus === 1) {
             Operation = ['Detail', 'Withdraw']
           } else if (v.AuditStatus === 2) {
-            Operation = ['Detail', 'CheckOut', 'BreakCheckOut', 'Sublease', 'Renew', 'Edit']
+            Operation = [
+              'Detail',
+              'CheckOut',
+              'BreakCheckOut',
+              'Sublease',
+              'Renew',
+              'AfterAuditEdit',
+              'VisitRecord'
+            ]
           } else if (v.AuditStatus === 3) {
             Operation = ['Detail', 'Withdraw']
           }
         } else if (v.RentLeaseStatus === 4) {
-          if (v.AuditStatus === 1 || v.AuditStatus === 2) {
+          if (v.AuditStatus === 1) {
             Operation = ['Detail', 'CheckOutDetail']
+          }
+          if (v.AuditStatus === 2) {
+            Operation = ['Detail', 'CheckOutDetail', 'VisitRecord']
           } else if (v.AuditStatus === 3) {
             Operation = ['Detail', 'CheckOut', 'BreakCheckOut']
           }
         } else if (v.RentLeaseStatus === 5) {
-          Operation = ['Detail']
+          if (v.AuditStatus === 2) {
+            Operation = ['Detail', 'VisitRecord']
+          } else {
+             Operation = ['Detail']
+          }
         } else if (v.RentLeaseStatus === 6) {
-          if (v.AuditStatus === 1 || v.AuditStatus === 2) {
+          if (v.AuditStatus === 1) {
             Operation = ['Detail', 'SubleaseDetail']
+          } else if (v.AuditStatus === 2) {
+            Operation = ['Detail', 'SubleaseDetail', 'VisitRecord']
           } else if (v.AuditStatus === 3) {
             Operation = ['Detail', 'SubleaseEdit']
           }
@@ -489,6 +532,8 @@
           TenantName: v.TenantName,
           TenantPhone: v.TenantPhone,
           TenantCard: v.TenantCard,
+          CardIDFrontUrl: v.CardIDFront && v.CardIDFront.length > 0 ? v.CardIDFront[0].ImageLocation : '',
+          CardIDBackUrl: v.CardIDBack && v.CardIDBack.length > 0 ? v.CardIDBack[0].ImageLocation : '',
           StartTime: this.$dateFormat(v.StartTime),
           EndTime: this.$dateFormat(v.EndTime),
           TimeLength: diffTime(v.StartTime, v.EndTime),
@@ -498,6 +543,7 @@
           NextPayTime: this.$dateFormat(v.NextPayTime),
           PaperType: this.$EnumData.getEnumDesByValue('PaperType', v.PaperType),
           PaperTypeNum: v.PaperType,
+          IsBreachContract: v.IsBreachContract,
           RentLeaseStatus: this.$EnumData.getEnumDesByValue(
             'RentLeaseStatus',
             v.RentLeaseStatus
@@ -554,7 +600,7 @@
         this.$refs.ruleForm.resetFields()
         this.ruleForm.HouseID = ''
         this.ruleForm.HouseKey = ''
-        this.$refs.selectStore.reset()
+        // this.$refs.selectStore.reset()
         this.comPeopleResult = []
         this.StoreKeyID = 0
         this.$refs.bottomToolBar.search()
@@ -563,8 +609,15 @@
         const query = {
           KeyID: row.KeyID
         }
-        if (row.RentLeaseStatusNum === 3 && row.AuditStatusNum === 2) {
-          query.SafeEdit = true
+        this.$router.push({
+          path: '/Tenant/EditContract',
+          query
+        })
+      },
+      handleAfterAuditEdit(row) {
+        const query = {
+          KeyID: row.KeyID,
+          SafeEdit: true
         }
         this.$router.push({
           path: '/Tenant/EditContract',
@@ -607,6 +660,7 @@
             Mobile: row.TenantPhone,
             IDCard: row.TenantCard,
             Name: row.TenantName,
+            Img: row.CardIDFrontUrl,
             ContractID: row.KeyID,
             type: 1
           }
@@ -666,7 +720,8 @@
       handleCheckOutDetail(row) {
         // 查看退房
         this.$refs.billsPreview.open({
-          contractID: row.KeyID
+          contractID: row.KeyID,
+          row
         })
       },
       // 批量选择
@@ -716,6 +771,14 @@
       handleSubleaseDetail(row, type) {
         // 查看转租
         this.$refs['subleaseTemplate'].open(row, type)
+      },
+      // 回访记录
+      handleVisitRecord(row) {
+        this.$refs['visitRecord'].open({
+          row: row,
+          Type: 1
+        })
+        console.log('租客合同列表-回访记录row:', row)
       }
     }
   }

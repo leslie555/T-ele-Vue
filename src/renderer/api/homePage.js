@@ -1,5 +1,60 @@
 import request from '@/utils/request'
 
+//  liu
+// 待处理列表
+export function homePagePendingDisposal(data = {}) {
+  return request({
+    url: '/UniversalVersionMethod/homePagePendingDisposal',
+    method: 'post',
+    data
+  })
+}
+// 待处理保存
+export function SaveHomePagePendingCon(data = {}) {
+  return request({
+    url: '/UniversalVersionMethod/SaveHomePagePendingCon',
+    method: 'post',
+    data
+  })
+}
+
+// 待处理选中
+export function ShowHomePagePendingCon(data = {}) {
+  return request({
+    url: '/UniversalVersionMethod/ShowHomePagePendingCon',
+    method: 'post',
+    data
+  })
+}
+
+//	首页管理房源
+export function ShowHomePageHouseInfoCount(data = {}) {
+  return request({
+    url: '/UniversalVersionMethod/ShowHomePageHouseInfoCount',
+    method: 'post',
+    data
+  })
+}
+
+//	首页管理房源
+export function HomePageOutTakeHouse(data = {}) {
+  return request({
+    url: '/UniversalVersionMethod/HomePageOutTakeHouse',
+    method: 'post',
+    data
+  })
+}
+
+// 今日推荐房源
+export function ShowRecommendedHouseList(data = {}) {
+  return request({
+    url: '/UniversalVersionMethod/ShowRecommendedHouseList',
+    method: 'post',
+    data
+  })
+}
+// liu
+
 // 首页账单查询
 export function FirstPageBillStatistics(data = {}) {
   return request({

@@ -3,8 +3,6 @@
     ref="cascader"
     separator=">"
     filterable
-    expand-trigger="hover"
-    change-on-select
     :options="tree"
     :props="defaultOptions"
     v-model="structure"
@@ -30,7 +28,9 @@
     data() {
       return {
         defaultOptions: {
-          value: 'id'
+          value: 'id',
+          checkStrictly: true,
+          expandTrigger: 'hover'
         },
         tree: [],
         structure: []
@@ -59,6 +59,7 @@
         } else {
           this.$emit('change', findNodeByArr(this.tree, val))
         }
+        this.$refs.cascader.dropDownVisible = false
       },
       reset() {
         this.structure = []

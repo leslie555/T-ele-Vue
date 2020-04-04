@@ -4,7 +4,7 @@
     separator=">"
     expand-trigger="hover"
     :options="tree"
-    @active-item-change="handleParentChange"
+    @expand-change="handleParentChange"
     :props="defaultOptions"
     v-model="structure"
     @change="handleChange"

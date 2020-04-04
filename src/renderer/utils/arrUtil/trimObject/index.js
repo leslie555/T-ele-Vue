@@ -1,10 +1,12 @@
-function trimObject(data) {
+const reg = /[―—─━～﹣]/g
+function trimObject(data, type = 0) {
   if (data instanceof Array) {
     data.forEach((item, index) => {
       if (typeof item === 'string') {
         data[index] = data[index].trim()
+        data[index] = data[index].replace(reg, '-')
       } else {
-        trimObject(item)
+        trimObject(item, type)
       }
     })
   }
@@ -12,8 +14,9 @@ function trimObject(data) {
     Object.keys(data).forEach(function(key) {
       if (typeof data[key] === 'string') {
         data[key] = data[key].trim()
+        data[key] = data[key].replace(reg, '-')
       } else {
-        trimObject(data[key])
+        trimObject(data[key], type)
       }
     })
   }

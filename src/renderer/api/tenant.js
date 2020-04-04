@@ -191,7 +191,7 @@ export function SelectorderInfoById(data) {
 // 获取合同到期事件
 export function SelectExceptLastSignDate(data) {
   return request({
-    url: 'OrderInfo/SelectExceptLastSignDate',
+    url: '/OrderInfo/SelectExceptLastSignDate',
     method: 'post',
     data
   })
@@ -342,6 +342,24 @@ export function QueryReturnDeposit(data) {
 export function ModifyHandleStatus(data) {
   return request({
     url: '/WOSystemMethod/UpdateProcessingState',
+    method: 'post',
+    data
+  })
+}
+
+// 业主、租客合同列表-回访记录(查询)
+export function QueryContractReturnVisit(data) {
+  return request({
+    url: '/WOSystemMethod/QueryContractReturnVisit',
+    method: 'post',
+    data
+  })
+}
+
+// 业主、租客合同列表-回访记录(新增回访)
+export function InsertContractReturnVisit(data) {
+  return request({
+    url: '/WOSystemMethod/InsertContractReturnVisit',
     method: 'post',
     data
   })

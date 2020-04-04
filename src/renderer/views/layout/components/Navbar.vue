@@ -25,13 +25,13 @@
             <i class="el-icon-caret-bottom"></i>
           </div>
           <el-dropdown-menu class="user-dropdown" slot="dropdown">
-            <router-link class="inlineBlock" to="/UserCenter/UserInfo">
+            <router-link class="inlineBlock" to="/UserCenter/UserInfo" v-if="!isQingke">
               <el-dropdown-item>个人中心</el-dropdown-item>
             </router-link>
-            <router-link class="inlineBlock" to="/UserCenter/HouseCollection">
+            <router-link class="inlineBlock" to="/UserCenter/HouseCollection" v-if="!isQingke">
               <el-dropdown-item>我的收藏</el-dropdown-item>
             </router-link>
-            <router-link class="inlineBlock" to="/UserManual/UserManualIndex">
+            <router-link class="inlineBlock" to="/UserManual/UserManualIndex" v-if="!isQingke">
               <el-dropdown-item>用户手册</el-dropdown-item>
             </router-link>
             <!--<router-link class="inlineBlock" to="../UserCenter/OperationLog">-->
@@ -39,7 +39,7 @@
             <!--操作日志-->
             <!--</el-dropdown-item>-->
             <!--</router-link>-->
-            <el-dropdown-item>
+            <el-dropdown-item v-if="!isQingke">
               <div @click="openResetPwd">修改密码</div>
               <reset-pwd ref="resetPwd"></reset-pwd>
             </el-dropdown-item>
@@ -86,7 +86,10 @@
         'sidebar',
         'userinfo',
         'messageNumber'
-      ])
+      ]),
+      isQingke() {
+        return this.$store.state.user.userinfo.LoginCode === 'qingke'
+      }
     },
     methods: {
       toggleSideBar() {

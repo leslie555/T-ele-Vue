@@ -2,7 +2,7 @@
   <el-dialog
     :visible.sync="showDialog"
     :title="textArr[0]"
-    width="940px"
+    width="1100px"
     append-to-body
     center
     @close="close"
@@ -81,6 +81,10 @@
                   :disabled="disabled"
                 >
                 </el-input>
+                <el-checkbox v-if="showEntireHouse" v-model="item.IsEntireHouse" :true-label="1" :false-label="0"
+                             class="ml-10"
+                             :disabled="disabled">记为整套房
+                </el-checkbox>
                 <i class="iconfont icon-shanjianmoren ml-10" @click="deleteProject(index)"
                    v-show="showAddProject"></i>
               </el-form-item>
@@ -99,13 +103,14 @@
                              :disabled="disabled">是否违约
                 </el-checkbox>
               </el-form-item>
-            </div>
-            <div class="clearfix form-item-sm">
               <el-form-item label="凭证编号">
                 <el-input v-model="BookKeepInfo.VoucherID" placeholder="请输入凭证编号"
                           :disabled="disabled"
                           maxlength="30"></el-input>
               </el-form-item>
+            </div>
+            <div class="clearfix form-item-sm">
+
             </div>
             <div class="clearfix form-item-sm">
               <upload-file :imgList="BookKeepInfo.ImageUpload" title="图片凭证" :disabled="disabled"></upload-file>
@@ -163,6 +168,11 @@
       ...mapGetters([
         'billItem'
       ]),
+      showEntireHouse() {
+        const firstFlag = this.BookKeepInfo.IsHouse === 1 && this.BookKeepInfo.RentType === 2
+        const secondFlag = this.busType === 4
+        return firstFlag && secondFlag
+      },
       InOrOut() {
         const InOrOut = this.$EnumData.getEnumListByKey('InOrOut')
         InOrOut.shift()
@@ -216,6 +226,7 @@
           HouseID: '',
           HouseKey: '',
           HouseName: '',
+          RentType: 1,
           IsHouse: 1,
           ContractType: '',
           ContractID: '',
@@ -233,6 +244,7 @@
           BillProjectName: '',
           Amount: '',
           InOrOut: '',
+          IsEntireHouse: 0,
           Remark: ''
         },
         rules: {
@@ -253,7 +265,7 @@
         'refreshBillItem'
       ]),
       async open({
-                   BookKeepPara = {}, /* HouseKey = '',HouseID = '',HouseName = '',ContractID = '',BillProjectID 等 */
+                   BookKeepPara = {}, /* HouseKey = '',HouseID = '',HouseName = '',RentType='',ContractID = '',BillProjectID 等 */
                    type = 0, // 新增还是修改
                    detail = false,
                    checkOutEdit = false
@@ -328,7 +340,8 @@
               BillProjectName: BookKeepPara.BillProjectName,
               Amount: BookKeepPara.Amount,
               InOrOut: BookKeepPara.InOrOut,
-              Remark: BookKeepPara.Remark
+              Remark: BookKeepPara.Remark,
+              IsEntireHouse: BookKeepPara.IsEntireHouse || 0
             })
           }
         }
@@ -366,6 +379,30 @@
           const billItem = getTreeNodeByValue(this.billItem.data, v.BillProjectIDMark[1], this.billItem.props)
           v.BillProjectID = billItem.data.KeyID
           v.BillProjectName = billItem.data.Name
+          debugger
+          switch (this.busType) {
+            case 0:
+              v.IsEntireHouse = 1
+              break
+            case 1:
+              v.IsEntireHouse = 0
+              break
+            case 2:
+              v.IsEntireHouse = 1
+              break
+            case 3:
+              if (this.editType === 0) {
+                v.IsEntireHouse = this.BookKeepInfo.RentType === 1 ? 1 : 0
+              }
+              break
+            case 4:
+              if (this.BookKeepInfo.IsHouse === 0) {
+                v.IsEntireHouse = 0
+              } else if (this.BookKeepInfo.RentType === 1) {
+                v.IsEntireHouse = 1
+              }
+              break
+          }
         })
       },
       getOnlyBookKeepList() {
@@ -465,6 +502,7 @@
         this.BookKeepInfo.HouseID = item.KeyID
         this.BookKeepInfo.HouseName = item.HouseName
         this.BookKeepInfo.HouseKey = item.HouseKey
+        this.BookKeepInfo.RentType = item.RentType
       }
     }
   }

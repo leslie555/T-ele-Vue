@@ -221,3 +221,69 @@ export function UpdateTenIsActual(data) {
     data
   })
 }
+// 付款单部分支付
+export function PartPayOwner(data) {
+  return request({
+    url: '/System/FinanceNew/PartPayOwner',
+    method: 'post',
+    data
+  })
+}
+// 应收应付头部合计
+export function QueryPayableOrReceivableHome(data) {
+  return request({
+    url: '/Finance/QueryPayableOrReceivableHome',
+    method: 'post',
+    data
+  })
+}
+// 生成付款单
+export function AddPaymentNew(data) {
+  return request({
+    url: '/SystemMethod/AddPaymentNew',
+    method: 'post',
+    data
+  })
+}
+// 付款单详情
+export function ShowReimbursementDetails(data) {
+  return request({
+    url: '/SystemMethod/ShowReimbursementDetails',
+    method: 'post',
+    data
+  })
+}
+// 报销单审核
+export function ExamineReimbursement(data) {
+  return request({
+    url: '/SystemMethod/ExamineReimbursement',
+    method: 'post',
+    data
+  })
+}
+// 合同调账 列表
+export function QueryBillAdjustList(data) {
+  return request({
+    url: '/OwnerContract/OwnerContract/QueryBillAdjustList',
+    method: 'post',
+    data
+  })
+}
+
+// 合同调账 查询
+export function QueryBillAdjustCInfo(data) {
+  return request({
+    url: '/OwnerContract/OwnerContract/QueryBillAdjustCInfo',
+    method: 'post',
+    data
+  })
+}
+
+// 合同调账 保存
+export function AdjustAccount(data) {
+  return request({
+    url: '/OwnerContract/OwnerContract/AdjustAccount',
+    method: 'post',
+    data
+  })
+}

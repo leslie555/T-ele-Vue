@@ -93,7 +93,7 @@
                   <span>{{ getInOrOut(props.row.PayType) }}</span>
                 </el-form-item>
                 <el-form-item label="图片凭证">
-                  <div class="table-expand-img-box">
+                  <div class="table-expand-img-box" v-viewer="{url: 'data-src'}">
                     <template v-if="props.row.RepairMoenyPic.length">
                       <div
                         class="table-expand-img"
@@ -102,7 +102,7 @@
                       >
                         <img
                           :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)"
-                          @click="$seeImage($ImgUnit.getImgUrl(item.ImageLocation))"
+                          :data-src="$ImgUnit.getImgUrl(item.ImageLocation)"
                         >
                       </div>
                     </template>
@@ -110,7 +110,7 @@
                   </div>
                 </el-form-item>
                 <el-form-item label="维修图片">
-                  <div class="table-expand-img-box">
+                  <div class="table-expand-img-box" v-viewer="{url: 'data-src'}">
                     <template v-if="props.row.RepairPic.length">
                       <div
                         class="table-expand-img"
@@ -119,7 +119,7 @@
                       >
                         <img
                           :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)"
-                          @click="$seeImage($ImgUnit.getImgUrl(item.ImageLocation))"
+                          :data-src="$ImgUnit.getImgUrl(item.ImageLocation)"
                         >
                       </div>
                     </template>

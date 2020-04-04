@@ -68,7 +68,7 @@
               <p>{{scope.row.Salesman}}</p> 
             </template>
           </el-table-column>
-          <el-table-column label="部门" align="center" prop="CompanyName" min-width="140"></el-table-column>
+          <el-table-column label="组织" align="center" prop="CompanyName" min-width="140"></el-table-column>
           <el-table-column label="提交时间" align="center" width="120">
             <template slot-scope="scope">
               {{ $dateFormat(scope.row.ReviewedCommitTime) || "" }}

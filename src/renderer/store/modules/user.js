@@ -35,29 +35,34 @@ const user = {
             try {
               data.Module = data.jurisdic.Data.Module
               // 二级菜单兼容性修改
-              data.Module.push(...[{
-                'KeyID': -1,
-                'ModuleName': '财务',
-                'EModuleName': 'ReportFinance',
-                'ModuleSort': '98',
-                'PID': -1,
-                'ModifyStatus': 0
-              }, {
-                'KeyID': -1,
-                'ModuleName': '业务',
-                'EModuleName': 'BusFinance',
-                'ModuleSort': '99',
-                'PID': -1,
-                'ModifyStatus': 0
-              }, {
-                'KeyID': -1,
-                'ModuleName': '其他',
-                'EModuleName': 'OtherFinance',
-                'ModuleSort': '100',
-                'PID': -1,
-                'ModifyStatus': 0
-              }
-            ])
+              data.Module.push(
+                ...[
+                  {
+                    KeyID: -1,
+                    ModuleName: '财务',
+                    EModuleName: 'ReportFinance',
+                    ModuleSort: '98',
+                    PID: -1,
+                    ModifyStatus: 0
+                  },
+                  {
+                    KeyID: -1,
+                    ModuleName: '业务',
+                    EModuleName: 'BusFinance',
+                    ModuleSort: '99',
+                    PID: -1,
+                    ModifyStatus: 0
+                  },
+                  {
+                    KeyID: -1,
+                    ModuleName: '其他',
+                    EModuleName: 'OtherFinance',
+                    ModuleSort: '100',
+                    PID: -1,
+                    ModifyStatus: 0
+                  }
+                ]
+              )
               data.Action = data.jurisdic.Data.Action
               data.CompanyInfo = data.jurisdic.Data.CompanyInfo
               delete data.jurisdic
@@ -79,7 +84,7 @@ const user = {
             resolve()
           })
           .catch(() => {
-             reject()
+            reject()
           })
       })
     },
@@ -100,7 +105,7 @@ const user = {
             resolve()
           })
           .catch(() => {
-             reject()
+            reject()
           })
       })
     },

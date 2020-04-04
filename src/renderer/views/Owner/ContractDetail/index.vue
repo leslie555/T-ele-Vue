@@ -9,16 +9,18 @@
           </div>
           <div class="user-phone">
             <span>{{ContractInfo.OwnerPhone}}</span>
-            <i class="iconfont icon-fuzhi"
-               v-clipboard:copy="ContractInfo.OwnerPhone"
-               v-clipboard:success="onCopy"
-               v-clipboard:error="onError"></i>
+            <i
+              class="iconfont icon-fuzhi"
+              v-clipboard:copy="ContractInfo.OwnerPhone"
+              v-clipboard:success="onCopy"
+              v-clipboard:error="onError"
+            ></i>
           </div>
         </div>
         <div class="house-info">
           <p class="info-title">{{HouseInfo.HouseName}}</p>
-          <p class="info-text">租金：{{ContractInfo.InitialPrice}}元/月</p>
-          <p class="info-text">建筑面积：{{HouseInfo.HouseArea ||'-'}}平方米</p>
+          <p class="info-text-multiple"><span>租金：{{ContractInfo.InitialPrice}}元/月 </span><span>建筑面积：{{HouseInfo.HouseArea ||'-'}}平方米</span></p>
+          <p class="info-text">产权证：{{ContractInfo.ProductionLicenseNumber}}</p>
           <p class="info-text">地址：{{HouseInfo.Location}}</p>
         </div>
       </div>
@@ -27,9 +29,7 @@
           <p class="info-title">业主信息</p>
           <div class="info-box">
             <p class="info-text">身份证号：{{ContractInfo.OwnerIDCard}}</p>
-            <p class="info-text" v-if="ContractInfo.EmergencyContactName">
-              紧急联系人：{{ContractInfo.EmergencyContactName}}（{{ContractInfo.EmergencyContactPhone}}）</p>
-            <p class="info-text" v-else>紧急联系人：无</p>
+            <p class="info-text">性别：{{$EnumData.getEnumDesByValue('Sex',ContractInfo.OwnerSex)}}</p> 
           </div>
           <div class="info-box">
             <template v-if="ContractInfo.IsAgent">
@@ -42,7 +42,12 @@
             </template>
           </div>
           <div class="info-box">
-            <p class="info-text info-full">通讯地址：{{ContractInfo.ContractAddress||'无'}}</p>
+            <p class="info-text">通讯地址：{{ContractInfo.ContractAddress||'无'}}</p>
+            <p
+              class="info-text"
+              v-if="ContractInfo.EmergencyContactName"
+            >紧急联系人：{{ContractInfo.EmergencyContactName}}（{{ContractInfo.EmergencyContactPhone}}）</p>
+            <p class="info-text" v-else>紧急联系人：无</p>
           </div>
         </div>
       </div>
@@ -50,28 +55,51 @@
     <div class="panel tabs-btn-box">
       <el-tabs v-model="activeName" class="tabs-normal">
         <el-tab-pane label="签约信息" name="0">
-          <sign-info :owner-info="OwnerInfo" :contract-info="ContractInfo" :contract-equipments="ContractEquipments"
-                     :owner-contract-operate="OwnerContractOperate"></sign-info>
+          <sign-info
+            :owner-info="OwnerInfo"
+            :contract-info="ContractInfo"
+            :contract-equipments="ContractEquipments"
+            :owner-contract-operate="OwnerContractOperate"
+          ></sign-info>
         </el-tab-pane>
         <el-tab-pane label="财务信息" name="1" class="bill-info">
-          <bill-info :bill-list="BillList" :book-keep="BookKeep" :contract-info="ContractInfo"
-                     :house-info="HouseInfo" :type="0"></bill-info>
+          <bill-info
+            :bill-list="BillList"
+            :book-keep="BookKeep"
+            :contract-info="ContractInfo"
+            :house-info="HouseInfo"
+            :type="0"
+          ></bill-info>
         </el-tab-pane>
         <el-tab-pane label="合同信息" name="2">
-          <contract-info :contract-info="ContractInfo" :image-upload="ImageUpload" :contract-operate="OwnerContractOperate" :type="0"></contract-info>
+          <contract-info
+            :contract-info="ContractInfo"
+            :image-upload="ImageUpload"
+            :contract-operate="OwnerContractOperate"
+            :type="0"
+          ></contract-info>
+        </el-tab-pane>
+        <el-tab-pane v-if="isFinancier" label="收支流水" name="3">
+          <check-out-list :contract-info="ContractInfo"></check-out-list>
         </el-tab-pane>
       </el-tabs>
       <div class="tabs-btn">
         <template v-if="$route.query.AuditID">
-          <el-button type="primary" @click="handleReview" v-show="OwnerContractOperate.AuditStatus==1">审核</el-button>
+          <el-button
+            type="primary"
+            @click="handleReview"
+            v-show="OwnerContractOperate.AuditStatus==1"
+          >审核</el-button>
         </template>
         <template v-else>
           <el-button type="primary" @click="handleHouseDetail" v-show="HouseInfo.HouseStatus>2">房源详情</el-button>
-          <el-button type="primary" @click="handleRenew"
-                     v-show="OwnerContractOperate.LeaseStatus==3&&OwnerContractOperate.AuditStatus==2">续约
-          </el-button>
+          <el-button
+            type="primary"
+            @click="handleRenew"
+            v-show="OwnerContractOperate.LeaseStatus==3&&OwnerContractOperate.AuditStatus==2"
+          >续约</el-button>
           <!--<el-button type="primary" @click="handleCheckOut"-->
-                     <!--v-show="OwnerContractOperate.LeaseStatus==3&&OwnerContractOperate.AuditStatus==2">退房-->
+          <!--v-show="OwnerContractOperate.LeaseStatus==3&&OwnerContractOperate.AuditStatus==2">退房-->
           <!--</el-button>-->
         </template>
       </div>
@@ -82,9 +110,10 @@
 </template>
 
 <script>
-  import { BillInfo, ContractInfo, SignInfo } from './components'
+  import { BillInfo, ContractInfo, SignInfo, CheckOutList } from './components'
   import { getContractDetail } from '../../../api/owner'
   import { ExcuteAudit, Settlement } from '../../../components'
+  import { hasPermission } from '../../../utils/permission'
 
   export default {
     name: 'OwnerContractDetail',
@@ -93,7 +122,8 @@
       BillInfo,
       ContractInfo,
       Settlement,
-      ExcuteAudit
+      ExcuteAudit,
+      CheckOutList
     },
     data() {
       return {
@@ -113,33 +143,51 @@
     activated() {
       this.fetchData()
     },
+    computed: {
+      isFinancier() {
+        // 根据是否有收付款单页面财务按钮的权限来判断
+        return hasPermission('PaymentBill', 'Write')
+      }
+    },
     methods: {
       fetchData() {
         this.detailLoading = true
         getContractDetail({
           ownerID: this.$route.query.KeyID || 0,
           type: 0
-        }).then(({ Data }) => {
-          this.detailLoading = false
-          this.initPageData(Data)
-        }).catch(() => {
-          this.detailLoading = false
         })
+          .then(({ Data }) => {
+            this.detailLoading = false
+            this.initPageData(Data)
+          })
+          .catch(() => {
+            this.detailLoading = false
+          })
       },
-      initPageData({ OwnerContract, HouseInfo, CommunityInfo, ImageUpload, OwnerEquipments, OwnerContractOperate, OwnerBill, BookKeep, OwnerInfos }) {
+      initPageData({
+        OwnerContract,
+        HouseInfo,
+        CommunityInfo,
+        ImageUpload,
+        OwnerEquipments,
+        OwnerContractOperate,
+        OwnerBill,
+        BookKeep,
+        OwnerInfos
+      }) {
         this.HouseInfo = HouseInfo || {}
         this.CommunityInfo = CommunityInfo || {}
-        this.ImageUpload = ImageUpload || []
         this.ContractEquipments = OwnerEquipments || []
         this.OwnerContractOperate = OwnerContractOperate || {}
         this.ContractInfo = OwnerContract || {}
+        this.ImageUpload = [...(this.ContractInfo.CardIDFront || []), ...(this.ContractInfo.CardIDBack || []), ...(ImageUpload || [])]
         if (OwnerBill) {
           this.BillList = OwnerBill
         }
         if (BookKeep) {
           this.BookKeep = BookKeep
         }
-        if (!OwnerInfos || OwnerInfos && OwnerInfos.length === 0) {
+        if (!OwnerInfos || (OwnerInfos && OwnerInfos.length === 0)) {
           //
         } else {
           OwnerInfos.shift()
@@ -197,5 +245,5 @@
 </script>
 
 <style scoped lang="scss">
-  @import "style";
+  @import 'style';
 </style>

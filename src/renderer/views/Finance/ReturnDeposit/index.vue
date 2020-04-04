@@ -13,7 +13,7 @@
           <el-form-item label-width="120px" label="退房日期" prop="CheckoutTime">
             <el-date-picker
               v-model="CheckoutTime"
-              @change="handleDate"
+              @change="handleDate(CheckoutTime, 1)"
               type="daterange"
               align="right"
               unlink-panels
@@ -45,6 +45,20 @@
           </el-form-item>
           <el-form-item label="房源名称" prop="HouseName">
             <el-input v-model="searchForm.HouseName" placeholder="请输入房源名称"></el-input>
+          </el-form-item>
+          <SelectOrganization v-model="searchForm.FullIDNew"></SelectOrganization>
+          <el-form-item label-width="120px" label="退押金日期" prop="ReturnDepositTime">
+            <el-date-picker
+              v-model="ReturnDepositTime"
+              @change="handleDate(ReturnDepositTime, 2)"
+              type="daterange"
+              align="right"
+              unlink-panels
+              :default-time="['00:00:00', '23:59:59']"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            ></el-date-picker>
           </el-form-item>
       </template>
       <template slot="more">
@@ -81,12 +95,13 @@
         <el-table-column align="center" prop="HouseRent" label="租金" min-width="90"></el-table-column>
         <el-table-column align="center" prop="HouseDeposit" label="押金" min-width="90"></el-table-column>
         <el-table-column align="center" prop="ActualReceive" label="退房金额(元)" min-width="90"></el-table-column>
+        <el-table-column align="center" prop="PaymentDay" label="退押金日期" min-width="90"></el-table-column>
         <el-table-column align="center" prop="BankAccount" label="银行卡号" min-width="130"></el-table-column>
         <el-table-column align="center" prop="TenBankName" label="账户名称" min-width="100"> </el-table-column>
         <el-table-column align="center" prop="OpenBankName" label="开户行" min-width="120"> </el-table-column>
         <el-table-column align="center" prop="SaleManName" label="退房人" min-width="90"> </el-table-column>
-        <el-table-column align="center" prop="EmergencyState" label="紧急状态" min-width="90"> </el-table-column>
-        <el-table-column align="center" prop="ProcessingState" label="处理状态" min-width="90"> </el-table-column>
+        <el-table-column align="center" prop="EmergencyState" label="紧急状态" min-width="80"> </el-table-column>
+        <el-table-column align="center" prop="ProcessingState" label="处理状态" min-width="80"> </el-table-column>
         <el-table-column align="center" fixed="right" label="操作" min-width="200">
           <template slot-scope="scope">
             <table-buttons
@@ -104,7 +119,7 @@
       :page-size="PageSize"
       :handlePageChange="fetchData"
     ></bottom-tool-bar>
-    <bills-preview ref="billsPreview" is-detail></bills-preview>
+    <bills-preview ref="billsPreview" is-detail hide-detail></bills-preview>
   </div>
 </template>
 <script>
@@ -114,6 +129,7 @@
     SearchPanel,
     TableButtons
     } from '../../../components'
+  import SelectOrganization from '@/components/SelectOrganization'
   import { BillsPreview } from '../../Tenant/ContractList/components'
 
   export default {
@@ -122,7 +138,8 @@
       SearchPanel,
       TableButtons,
       BottomToolBar,
-      BillsPreview
+      BillsPreview,
+      SelectOrganization
     },
     data() {
       return {
@@ -137,15 +154,19 @@
         filterList: [],
         PageSize: 10,
         CheckoutTime: ['', ''], // 退房日期
+        ReturnDepositTime: ['', ''], // 退押金日期
         DateTypeStr: '全部',
         // 搜索条件
         searchForm: {
           DateType: 0, // 时间类型（默认全部）
           StartTime: '',
           EndTime: '',
+          ReturnDepositStartTime: '',
+          ReturnDepositEndTime: '',
           ProcessingState: 0, // 处理状态
           EmergencyState: 0, // 紧急状态，
           HouseName: '', // 房源名称
+          FullIDNew: '',
           ContractNumber: '', // 合同编号
           TenNameOrPhone: '' // 租客信息
         },
@@ -178,19 +199,30 @@
       this.$refs.bottomToolBar.search(1) // 通过search调用fetchData
     },
     methods: {
-      handleDate(val) {
+      handleDate(val, type) {
         if (val) {
           this.DateTypeStr = '今天'
           this.selectedDateLine = true
           this.searchForm.DateType = 0
-          this.searchForm.StartTime = this.$dateFormat(val[0])
-          this.searchForm.EndTime = this.$dateFormat(val[1])
+          if (type === 1) {
+            this.searchForm.StartTime = this.$dateFormat(val[0])
+            this.searchForm.EndTime = this.$dateFormat(val[1])
+          } else {
+            this.searchForm.ReturnDepositStartTime = this.$dateFormat(val[0])
+            this.searchForm.ReturnDepositEndTime = this.$dateFormat(val[1])
+          }
         } else {
-          this.selectedDateLine = false
-          this.CheckoutTime = ['', '']
-          this.searchForm.StartTime = ''
-          this.searchForm.EndTime = ''
-        }
+            this.selectedDateLine = false
+            if (type === 1) {
+              this.CheckoutTime = ['', '']
+              this.searchForm.StartTime = ''
+              this.searchForm.EndTime = ''
+             } else {
+              this.ReturnDepositTime = ['', '']
+              this.searchForm.ReturnDepositStartTime = ''
+              this.searchForm.ReturnDepositEndTime = ''
+            }
+         }
       },
       handleDateType() {
         if (this.DateTypeStr === '全部') {
@@ -232,8 +264,9 @@
         }).then(({ Data }) => {
           this.totalRecords = Data.records
           this.listLoading = false
-          const myData = Data.rows.map(item => {
+          this.filterList = Data.rows.map(item => {
             item.CheckOutDate = this.$dateFormat(item.CheckOutDate)
+            item.PaymentDay = this.$dateFormat(item.PaymentDay)
              if (item.ProcessingState === 2) {
               item.Operation = ['CheckoutDetail']
             } else {
@@ -243,7 +276,6 @@
             item.EmergencyState = this.$EnumData.getEnumDesByValue('EmergencyState', item.EmergencyState)
             return item
           })
-          this.filterList = myData
           return Data
         })
       },
@@ -269,6 +301,9 @@
         this.searchForm.StartTime = ''
         this.searchForm.EndTime = ''
         this.CheckoutTime = ['', '']
+        this.ReturnDepositTime = ['', '']
+        this.searchForm.ReturnDepositStartTime = ''
+        this.searchForm.ReturnDepositEndTime = ''
         this.$refs.searchForm.resetFields()
         this.$refs.bottomToolBar.search()
       },
@@ -290,11 +325,12 @@
               item.EmergencyState = myArr[item.EmergencyState].eDesc
               item.ProcessingState = myArr[item.ProcessingState].hDesc
               item.TenantInfo = `${item.TenantName} ${item.TenantPhone}`
+              item.PaymentDay = this.$dateFormat(item.PaymentDay)
               return item
             })
             import('@/vendor/Export2Excel').then(excel => {
-              const tHeader = ['退房日期', '合同编号', '租客信息', '房源名称', '租金', '押金', '退房金额(元)', '银行卡号', '账户名称', '开户行', '退房人', '紧急状态', '处理状态']
-              const filement = ['CheckoutDate', 'ContractNumber', 'TenantInfo', 'HouseName', 'HouseRent', 'HouseDeposit', 'ActualReceive', 'BankAccount', 'TenBankName', 'OpenBankName', 'SaleManName', 'EmergencyState', 'ProcessingState']
+              const tHeader = ['退房日期', '合同编号', '租客信息', '房源名称', '租金', '押金', '退房金额(元)', '退押金日期', '银行卡号', '账户名称', '开户行', '退房人', '紧急状态', '处理状态']
+              const filement = ['CheckoutDate', 'ContractNumber', 'TenantInfo', 'HouseName', 'HouseRent', 'HouseDeposit', 'ActualReceive', 'PaymentDay', 'BankAccount', 'TenBankName', 'OpenBankName', 'SaleManName', 'EmergencyState', 'ProcessingState']
               const data = this.formatJson(filement, myData)
               excel.export_json_to_excel({
                 header: tHeader,

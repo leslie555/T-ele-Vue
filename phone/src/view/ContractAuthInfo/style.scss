@@ -1,0 +1,43 @@
+@import "../../styles/mixin";
+.contract-auth{
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  .contract-sign-box{
+    background: #fff;
+    padding: 0;
+    border-radius: 2px;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+  .contract-sign-template{
+    border: none;
+  }
+  .bottom-box{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 99;
+    @include displayFlex(row,center,center);
+    height: 60px;
+    background: #fff;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+  }
+  .btn-box{
+    @include displayFlex(row,center,flex-start);
+    position: absolute;
+    right: 15px;
+    top: 0;
+    height: 50px;
+    .btn-box-item{
+
+    }
+  }
+}

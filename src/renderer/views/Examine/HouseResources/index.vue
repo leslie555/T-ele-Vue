@@ -1,18 +1,19 @@
 <template>
   <div class="app-container data-list modifyTop">
     <el-tabs v-model="tabName" @tab-click="handleClick">
-      <el-tab-pane 
+      <el-tab-pane
         v-for="title in header"
-        :label="title.title" 
-        :name="title.name" 
+        :label="title.title"
+        :name="title.name"
         :key="title.key">
       </el-tab-pane>
     </el-tabs>
     <search-panel :model="ruleForm" ref="ruleForm" label-width="80px" box-flex right-width="270px">
       <template slot="search">
-        <el-form-item label="门店" prop="FullID">
+        <!-- <el-form-item label="门店" prop="FullID">
           <select-store ref="selectStore" type="report" @change="handleStoreChange"></select-store>
-        </el-form-item>
+        </el-form-item> -->
+        <SelectOrganization :type="3" v-model="ruleForm.FullID"></SelectOrganization>
       </template>
       <template slot="button">
         <el-button type="primary" @click="submitForm">查询</el-button>
@@ -33,7 +34,7 @@
         class="table-normal">
         <el-table-column label = "房源名称" align="center" min-width = "130" prop = "HouseName"></el-table-column>
         <el-table-column label = "管房人" align="center" min-width = "130" prop = "UserName"></el-table-column>
-        <el-table-column label = "所属门店" align="center" min-width = "130" prop = "CompanyName"></el-table-column>
+        <el-table-column label = "所属组织" align="center" min-width = "130" prop = "CompanyName"></el-table-column>
         <el-table-column v-if = "tabTitle === 3" label = "房源编号" align="center" min-width = "130" prop = "HouseCode">
           <template slot-scope="scope">
             {{ scope.row.HouseCode }}
@@ -50,7 +51,7 @@
 <script>
   import { SearchHousePerfect } from '@/api/owner'
   import { SearchHousePerfectCount } from '@/api/owner'
-  import { BottomToolBar, SearchPanel, Settlement, TableButtons, SelectStore } from '@/components'
+  import { BottomToolBar, SearchPanel, Settlement, TableButtons, SelectStore, SelectOrganization } from '@/components'
   export default {
     name: 'HouseResourcesList',
     components: {
@@ -58,7 +59,8 @@
       TableButtons,
       BottomToolBar,
       Settlement,
-      SelectStore
+      SelectStore,
+      SelectOrganization
     },
     data() {
       return {
@@ -100,7 +102,8 @@
           pageParam: this.params,
           UserName: '',
           Type: 1,
-          FullID: this.ruleForm.FullID
+          FullID: '',
+          FullIDNew: this.ruleForm.FullID
         }).then(({ Data }) => {
           this.filterList = Data.rows
           console.log('datarows', Data.rows)
@@ -112,7 +115,8 @@
         SearchHousePerfectCount({
           UserName: '',
           Type: index + 1,
-          FullID: this.ruleForm.FullID
+          FullID: '',
+          FullIDNew: this.ruleForm.FullID
         }).then(({ Data }) => {
           this.listLoading = false
           this.header[index].title += `(${Data})`
@@ -129,7 +133,8 @@
         SearchHousePerfectCount({
           UserName: '',
           Type: this.tabTitle,
-          FullID: this.ruleForm.FullID
+          FullID: '',
+          FullIDNew: this.ruleForm.FullID
         }).then(({ Data }) => {
           this.listLoading = false
           this.header[this.tabTitle - 1].title = titleText.replace(/(\([^\)]*\))/, `(${Data})`)
@@ -158,7 +163,8 @@
         return SearchHousePerfect({
           pageParam: pages,
           UserName: '',
-          FullID: this.ruleForm.FullID,
+          FullID: '',
+          FullIDNew: this.ruleForm.FullID,
           Type: this.tabTitle
         }).then(({ Data }) => {
           console.log('房源数据', Data)
@@ -172,14 +178,14 @@
         })
       },
       // 选择门店过后，返回来的数据
-      handleStoreChange(val) {
-        // 选择门店后的回调
-        if (val) {
-          this.ruleForm.FullID = val.fullID
-        } else {
-          this.ruleForm.FullID = ''
-        }
-      },
+      // handleStoreChange(val) {
+      //   // 选择门店后的回调
+      //   if (val) {
+      //     this.ruleForm.FullID = val.fullID
+      //   } else {
+      //     this.ruleForm.FullID = ''
+      //   }
+      // },
       // 查询
       submitForm() {
         this.$refs.ruleForm.validate(valid => {
@@ -194,7 +200,8 @@
         // 清空数据
         this.$refs.ruleForm.resetFields()
         // 门店选择框重置
-        this.$refs.selectStore.reset()
+        // this.$refs.selectStore.reset()
+        this.ruleForm.FullID = ''
         // 页面刷新
         this.$refs.bottomToolBar.search()
         // 更新 tabTitle 数据
@@ -217,13 +224,14 @@
         SearchHousePerfect({
           pageParam: this.params,
           UserName: '',
-          FullID: this.ruleForm.FullID,
+          FullID: '',
+          FullIDNew: this.ruleForm.FullID,
           Type: this.tabTitle
         }).then(response => {
           console.log('response', response.Data)
           this.listLoading = false
           import('@/vendor/Export2Excel').then(excel => {
-            const tHeader = ['房源名称', '管房人', '所属门店', '房源编号']
+            const tHeader = ['房源名称', '管房人', '所属组织', '房源编号']
             const filament = ['HouseName', 'UserName', 'CompanyName', 'HouseCode']
             const data = this.formatJson(filament, !response.Data ? [] : response.Data.rows)
             excel.export_json_to_excel({

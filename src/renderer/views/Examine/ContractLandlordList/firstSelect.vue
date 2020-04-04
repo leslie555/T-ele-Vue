@@ -2,9 +2,10 @@
    <div class="app-container data-list modifyTop">
     <search-panel :model="ruleForm" ref="ruleForm" label-width="80px" box-flex right-width="270px">
       <template slot="search">
-          <el-form-item label="门店" prop="FullID">
+        <SelectOrganization :type="3" v-model="ruleForm.FullIDNew"></SelectOrganization>
+          <!-- <el-form-item label="门店" prop="FullID">
             <select-store ref="selectStore" type="report" @change="handleStoreChange"></select-store>
-          </el-form-item>
+          </el-form-item> -->
       </template>
 
       <template slot="button">
@@ -48,7 +49,7 @@
 </style>
 <script>
   import { SelectOwnExpNoCheck } from '@/api/owner'
-  import { BottomToolBar, SearchPanel, Settlement, TableButtons, SelectStore } from '../../../components'
+  import { BottomToolBar, SearchPanel, Settlement, TableButtons, SelectOrganization } from '../../../components'
   export default {
     props: ['identify'],
     name: 'firstModule',
@@ -57,7 +58,7 @@
       TableButtons,
       BottomToolBar,
       Settlement,
-      SelectStore
+      SelectOrganization
     },
     data() {
       return {
@@ -67,20 +68,17 @@
         tableSelected: [],
         pageSize: 10,
         ruleForm: {
-          FullID: ''
+          FullIDNew: ''
         },
         tableLabel: [
             { label: '房源名称', width: '130', prop: 'HouseName' },
             { label: '管房人', width: '130', prop: 'phoneName' },
-            { label: '所属门店', width: '130', prop: 'CompanyName' },
+            { label: '组织', width: '130', prop: 'CompanyName' },
             { label: '合同编号', width: '130', prop: 'ContractNumber' },
             { label: '业主', width: '130', prop: 'ClientName' },
             { label: '到期时间', width: '130', prop: 'EndTime' }
         ]
       }
-    },
-    computed: {
-
     },
     created() {
     },
@@ -105,7 +103,7 @@
         }
         return SelectOwnExpNoCheck({
               parm: pages,
-              FullID: this.ruleForm.FullID
+              FullIDNew: this.ruleForm.FullIDNew
           }).then(({ Data }) => {
               this.filterList = Data.rows
               this.filterList.forEach(val => {
@@ -122,14 +120,14 @@
           })
       },
       // 选择门店过后，返回来的数据
-      handleStoreChange(val) {
-        // 选择门店后的回调
-        if (val) {
-          this.ruleForm.FullID = val.fullID
-        } else {
-          this.ruleForm.FullID = ''
-        }
-      },
+      // handleStoreChange(val) {
+      //   // 选择门店后的回调
+      //   if (val) {
+      //     this.ruleForm.FullID = val.fullID
+      //   } else {
+      //     this.ruleForm.FullID = ''
+      //   }
+      // },
       // 提交
       submitForm() {
         this.$refs.ruleForm.validate(valid => {
@@ -143,7 +141,8 @@
         // 清空数据
         this.$refs.ruleForm.resetFields()
         // 门店选择框重置
-        this.$refs.selectStore.reset()
+        // this.$refs.selectStore.reset()
+        this.ruleForm.FullIDNew = ''
         // 页面刷新
         this.$refs.bottomToolBar.search()
       },
@@ -162,7 +161,7 @@
         this.downloadLoading = true
         SelectOwnExpNoCheck({
           // parm: pages,
-          FullID: this.ruleForm.FullID,
+          FullIDNew: this.ruleForm.FullIDNew,
           isAll: true
         }).then(response => {
           this.listLoading = false

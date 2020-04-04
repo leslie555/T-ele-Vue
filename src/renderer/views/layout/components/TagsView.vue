@@ -8,16 +8,17 @@
           :to="tag"
           :key="tag.path"
           class="tags-view-item"
+          v-if="!(isHomePage(tag)&&isQingke)"
           @contextmenu.prevent.native="openMenu(tag,$event)">
         <span :class="isHomePage(tag)?'pl-5 pr-5':''">{{ tag.title }}</span>
-        <span class="el-icon-close" @click.prevent.stop="closeSelectedTag(tag)" v-show="!isHomePage(tag)"/>
+        <span class="el-icon-close" @click.prevent.stop="closeSelectedTag(tag)" v-show="!isHomePage(tag)&&!isQingke"/>
       </router-link>
     </scroll-pane>
     <ul v-show="visible" :style="{left:left+'px',top:top+'px'}" class="contextmenu">
       <li @click="refreshSelectedTag(selectedTag)">刷新</li>
-      <li @click="closeSelectedTag(selectedTag)" v-show="!isHomePage(selectedTag)">关闭</li>
-      <li @click="closeOthersTags">关闭其他</li>
-      <li @click="closeAllTags">全部关闭</li>
+      <li @click="closeSelectedTag(selectedTag)" v-show="!isHomePage(selectedTag)&&!isQingke">关闭</li>
+      <li @click="closeOthersTags" v-show="!isQingke">关闭其他</li>
+      <li @click="closeAllTags" v-show="!isQingke">全部关闭</li>
     </ul>
   </div>
 </template>
@@ -38,6 +39,9 @@
     computed: {
       visitedViews() {
         return this.$store.state.tagsView.visitedViews
+      },
+      isQingke() {
+        return this.$store.state.user.userinfo.LoginCode === 'qingke'
       }
     },
     watch: {

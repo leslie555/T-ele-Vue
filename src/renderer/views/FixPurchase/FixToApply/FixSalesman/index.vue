@@ -63,7 +63,12 @@
             <p>{{ row.Salesman }}</p>
             </template>
           </el-table-column>
-          <el-table-column label="部门" align="center" prop="CompanyName" width="100"></el-table-column>
+          <el-table-column label="是否可租" align="center"  width="100">
+            <template slot-scope="{ row }">
+            <p>{{ row.whetherStatus === 1 ? '是' : '否' }}</p>
+            </template>
+          </el-table-column>
+          <el-table-column label="组织" align="center" prop="CompanyName" width="100"></el-table-column>
           <el-table-column label="钥匙位置" align="center" prop="KeyLocation" width="100"></el-table-column>
           <el-table-column label="提交时间" align="center" prop="ReviewedCommitTime" width="120">
             <template slot-scope="{ row }">
@@ -76,6 +81,7 @@
             </template>
           </el-table-column>
           <el-table-column label="操作" align="center"  width="350" fixed="right">
+              <!-- :showAll="true" -->
           <template slot-scope="scope">
             <table-buttons
               :options="operations_list"
@@ -86,6 +92,7 @@
               @handleCommitClick="handleCommit(scope.row)"
               @handleApprovalClick="handleApproval(scope.row)"
               @handleUpdateClick="handleUpdate(scope.row)"
+              @handleWhetherRentOutClick="handleWhetherRentOut(scope.row, scope.$index)"
             ></table-buttons>
           </template>
           </el-table-column>
@@ -99,14 +106,16 @@
       ></bottom-tool-bar>
     <add-form ref="AddForm" @AddNewData="AddNewData" @EditNewData="EditNewData"></add-form>
     <approval-form ref="excuteAudit" @approval="handleAudit"></approval-form>
+    <house-renew @refresh="refresh" ref="HouseRenew"></house-renew>
     </div>
 </template>
 
 <script>
 import { SearchPanel, BottomToolBar, TableButtons } from '@/components'
-import { SelectRenovationApplyList, SubmitRenovationApplication, DeleteRenovationApplication, WithdrawRenovationApplication } from '@/api/house'
+import { SelectRenovationApplyList, SubmitRenovationApplication, DeleteRenovationApplication, WithdrawRenovationApplication, ShowHouseInfoFieldByHousekey } from '@/api/house'
 import addForm from './components/addForm'
 import approvalForm from './components/approvalForm'
+import HouseRenew from '../../../House/HouseList/component/component/HouseRenew'
 export default {
   name: 'FixSalesman',
   components: {
@@ -114,7 +123,8 @@ export default {
     BottomToolBar,
     addForm,
     approvalForm,
-    TableButtons
+    TableButtons,
+    HouseRenew
   },
   data() {
     return {
@@ -123,6 +133,7 @@ export default {
       isShowSelect: true,
       list: [],
       tableData: [],
+      titleFinsh: false,
       fix_status: [
         {
           StatusLabel: '全部',
@@ -187,6 +198,11 @@ export default {
           key: 'Delete',
           value: '删除',
           type: 'danger'
+        },
+        {
+          key: 'WhetherRentOut',
+          value: '是否可租',
+          type: 'primary'
         }
       ],
       fixApplyForm: {
@@ -215,6 +231,8 @@ export default {
         }
       }
       this.listLoading = true
+      // 控制可租按钮时候可以点击
+      this.$refstitleFinsh = false
       return SelectRenovationApplyList({
         parm: pages,
         HouseName: this.fixApplyForm.HouseName,
@@ -223,9 +241,13 @@ export default {
       }).then(response => {
         if (response.Code === 0) {
           if (response.Data && response.Data.rows) {
+            response.Data.rows.map((item, index) => {
+              item.whetherStatus = 0
+            })
             this.tableData = this.filterTableData(response.Data.rows)
           }
           this.listLoading = false
+          this.getWhetherRentOut(response.Data.rows)
           return response.Data
         }
       }).catch(err => {
@@ -270,10 +292,12 @@ export default {
     filterOperation(row) {
       let Operations = []
       if (row.Status === 1) {
-        Operations = ['Detail', 'Update', 'Delete', 'Commit']
+        Operations = ['Detail', 'Update', 'Delete', 'Commit', 'WhetherRentOut']
       } else if (row.Status === 2 || row.Status === 7) {
-        Operations = ['Detail', 'Withdrawn']
-      } else if ([3, 4, 5, 6].indexOf(row.Status) !== -1) {
+        Operations = ['Detail', 'Withdrawn', 'WhetherRentOut']
+      } else if ([3, 4, 5].indexOf(row.Status) !== -1) {
+        Operations = ['Detail', 'WhetherRentOut']
+      } else if (row.Status === 6) {
         Operations = ['Detail']
       }
       return {
@@ -345,6 +369,38 @@ export default {
     },
     handleApproval(row) {
       this.$refs.excuteAudit.open(row.KeyID, row.HouseKey)
+    },
+    handleWhetherRentOut(row) {
+      console.log(row)
+      if (this.titleFinsh) {
+        this.$refs.HouseRenew.open({ status: row.whetherStatus, type: 1, HouseID: row.HouseID, HouseKey: row.HouseKey })
+      } else {
+        this.$message.error('正在努力中，请稍等。。。')
+      }
+    },
+    refresh(val) {
+        if (val === 'Ok') {
+          this.fetchData()
+        }
+    },
+    getWhetherRentOut(data) {
+      if (data.length === 0 || data === null) {
+        return
+      }
+      var HouseKeySum = []
+      data.forEach(val => {
+        HouseKeySum.push(val.HouseKey)
+      })
+      ShowHouseInfoFieldByHousekey({ HouseKeySum }).then(({ Data }) => {
+        // Data.map((item, index) => {
+        //   this.tableData[index].whetherStatus = item.whetherRentOut
+        // })
+        this.tableData.map((item, index) => {
+          item.whetherStatus = Data[index].whetherRentOut
+        })
+        console.log(Data, this.tableData)
+        this.titleFinsh = true
+      })
     }
   }
 }

@@ -41,13 +41,12 @@ export default {
       OwnerSrcUrl: '',
       TenantSrcUrl: '',
       TenantTotalAmount: 0.00,
-      height: 6600,
+      height: 5800,
       loading: false
     }
   },
   created() {
     this.fillData()
-    // debugger
     window.addEventListener('message', (event) => {
       if (event.data.height > 0) {
         this.height = event.data.height + 'px'
@@ -75,6 +74,7 @@ export default {
       }
       this.OwnerSrcUrl = `${gwUrl}/OwnerContract?KeyID=${this.id}&&Token=${this.useToken}&&contractType=1&&previewType=${this.previewType}`
       this.TenantSrcUrl = `${gwUrl}/TenantContract?KeyID=${this.id}&&Token=${this.useToken}&&contractType=0&&previewType=${this.previewType}&&req=0`
+      console.log('业主合同网址', this.OwnerSrcUrl, '租客合同网址', this.TenantSrcUrl)
       setTimeout(() => {
         // console.log('id', this.id)
         this.loading = false

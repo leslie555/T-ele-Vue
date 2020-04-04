@@ -2,7 +2,7 @@
   <div
     class="qr-sign"
     v-loading="loading"
-    element-loading-text="签名上传中"
+    :element-loading-text="loadingText"
     element-loading-spinner="el-icon-loading"
     element-loading-background="rgba(0, 0, 0, 0.8)"
   >
@@ -13,7 +13,7 @@
       <div class="sign-canvas-tip tip1">
         <span v-show="!hasBegined">请</span>
       </div>
-      <div class="sign-canvas-tip">
+      <div class="sign-canvas-tip tip2">
         <span v-show="!hasBegined">签</span>
       </div>
       <div class="sign-canvas-tip tip3">
@@ -24,11 +24,18 @@
     </div>
     <p class="sign-notice">此处为合同签字面板,需本人签字.</p>
     <p class="sign-notice">在签字之前请仔细阅读合同条款.</p>
-    <el-button type="primary" class="sign-button" @click="save" :disabled="!hasBegined">确认</el-button>
+    <el-button
+      type="primary"
+      class="sign-button"
+      @click="save"
+      :disabled="!hasBegined || disableBtn"
+    >确认</el-button>
   </div>
 </template>
 
 <script>
+  /* eslint-disable no-undef */
+
   import axios from 'axios'
   import request from '../../utils/request'
   import { baseURL } from '../../config'
@@ -39,8 +46,10 @@
       return {
         draw: null,
         loading: false,
+        loadingText: '签名上传中',
         disabled: false,
         query: this.$route.query,
+        disableBtn: false,
         formData: {}
       }
     },
@@ -59,11 +68,15 @@
         this.draw.hasBegined = false
       },
       save: function() {
-        this.loading = true
-        const ImgStr = this.draw.save()
-        this.formData = new FormData()
-        this.formData.append('file', this.b64toBlob(ImgStr))
-        this.formData.append('code', this.query.code || '')
+        try {
+          const ImgStr = this.draw.save()
+          this.formData = new FormData()
+          this.formData.append('file', this.b64toBlob(ImgStr))
+          this.formData.append('code', this.query.code || '')
+        } catch (e) {
+          this.$alert('当前手机系统版本暂不支持签字，请分享到其他手机或者非微信浏览器中打开签字！')
+          return
+        }
         this.loading = true
         axios({
           url: baseURL + '/SystemMethod/imageUp?Token=' + this.query.to,
@@ -76,7 +89,21 @@
           }
         }).then(({ data }) => {
           if (data.Data && data.Data.length > 0) {
-            this.getSignUrl(data.Data[0].ImageLocation)
+            if (this.query.os) { // onlysign 只是签字,不进行合同的操作
+              this.loading = false
+              this.$alert('上传成功').then(() => {
+                if (WeixinJSBridge) {
+                  WeixinJSBridge.call('closeWindow')
+                }
+                this.disableBtn = true
+                window.close()
+              })
+            } else {
+              this.getSignUrl(data.Data[0].ImageLocation)
+            }
+          } else {
+            this.loading = false
+            this.$alert('上传签字失败，请重新提交')
           }
         }).catch(({ message }) => {
           this.loading = false
@@ -99,6 +126,7 @@
         return blob
       },
       getSignUrl(SignUrl) {
+        this.loadingText = '签名生成中'
         this.draw.getNewImg().then((ImgStr) => {
           request({
             url: '/FDD/FDD/ExtsignAndSeal?Token=' + this.query.to,
@@ -115,8 +143,6 @@
           }).then(({ Data }) => {
             this.loading = false
             location.href = decodeURIComponent(Data)
-            // console.log(decodeURIComponent(Data))
-            this.loading = false
           }).catch(({ message }) => {
             this.loading = false
           })

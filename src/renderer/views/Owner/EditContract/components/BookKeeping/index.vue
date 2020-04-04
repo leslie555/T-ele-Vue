@@ -17,10 +17,10 @@
                             <p>{{ props.row.Remark || '无' }}</p>
                         </el-form-item>
                         <el-form-item label="图片凭证">
-                            <div class="table-expand-img-box">
+                            <div class="table-expand-img-box" v-viewer="{url: 'data-src'}">
                                 <template v-if="props.row.ImageUpload">
                                     <div class="table-expand-img" v-for="(item,index) in props.row.ImageUpload" :key="index">
-                                        <img :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)" @click="$seeImage($ImgUnit.getImgUrl(item.ImageLocation))">
+                                        <img :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)" :data-src="$ImgUnit.getImgUrl(item.ImageLocation)">
                                     </div>
                                 </template>
                                 <template v-else>无</template>

@@ -38,7 +38,7 @@
       </div>
       <div class="clearfix">
         <el-form-item label="装修图片:">
-          <div class="upload-img-Box">
+          <div class="upload-img-Box" v-viewer="{url: 'data-src'}">
             <div
               class="upload-img"
               v-for="(item, index) in DecorationForm.DecoratePicIDList"
@@ -46,7 +46,7 @@
             >
               <img
                 :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)"
-                @click="$seeImage($ImgUnit.getImgUrl(item.ImageLocation))"
+                :data-src="$ImgUnit.getImgUrl(item.ImageLocation)"
               >
             </div>
           </div>

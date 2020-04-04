@@ -162,7 +162,7 @@ export default {
       },
       CalculateInfoForm: {
         KeyWord: '',
-        EmployeeID: '',
+        FullIDNew: '',
         EmployeeName: ''
       },
       tableLabel: [
@@ -209,8 +209,8 @@ export default {
       })
     },
     getPeople(data) {
-      this.CalculateInfoForm.EmployeeID = !data.fullID ? data.FullID : data.fullID
-      this.CalculateInfoForm.EmployeeName = !data.label ? data.UserName : data.label
+      this.CalculateInfoForm.FullIDNew = !data.FullIDNew ? data.FullID : data.FullIDNew
+      this.CalculateInfoForm.EmployeeName = !data.UserName ? data.UserName : data.UserName
     },
     // 导出表格
     handleExport() {

@@ -1,0 +1,137 @@
+@import "../../../styles/variables";
+@import "../../../styles/mixin";
+.header {
+  width: 191px;
+  height: 40px;
+  font-size: 16px;
+  line-height: 28px;
+  color: #444444;
+  text-align: center;
+  margin: 0 auto;
+  word-wrap: break-word;
+  display: block;
+  font-weight: bold;
+}
+.header-desscription {
+  font-size: 14px;
+  color: #444444;
+  line-height: 26px;
+  margin-top: 32px;
+  display: block;
+  margin-bottom: 35px;
+}
+.radios-header {
+  font-size: 14px;
+  color: #6F7284;
+}
+.system-template {
+  margin-left: 80px;
+}
+.content-tip {
+  color: #444444;
+  font-size: 14px;
+}
+.radio-content {
+  font-size: 14px;
+  color: #444444;
+  margin-left: 0;
+  margin-right: 30px;
+}
+.el-checkbox-group {
+  display: inherit;
+}
+.form-agreement {
+  color: #389EF2;
+  cursor: pointer;
+}
+.footer {
+  margin: 0 auto;
+  text-align: center;
+}
+.el-icon-question {
+  color: #C7CCD7;
+}
+.el-radio-group {
+  line-height: 44px;
+}
+.footer-agree {
+  margin-top: 40px;
+  line-height: 20px;
+}
+.el-textarea {
+  width: 400px;
+}
+.order-sign-dialog {
+  .sign-box {
+    @include displayFlex(column, center, flex-start);
+    width: 100%;
+    .scan-box {
+      padding: 5px;
+      background: #f9f9f9;
+      border: 1px solid #eee;
+      border-radius: 5px;
+    }
+    .img-box {
+      @include displayFlex(row, center, center);
+      width: 500px;
+      height: 220px;
+      background: #f9f9f9;
+      border: 1px solid #eee;
+      border-radius: 5px;
+      img {
+        max-width: 100%;
+        max-height: 100%;
+      }
+    }
+    .sign-text {
+      margin-top: 15px;
+      font-size: 16px;
+      color: $--color-text-primary;
+    }
+    .sign-notice {
+      @include displayFlex(row, flex-start, center);
+      margin-top: 30px;
+      font-size: 14px;
+      color: $--color-text-secondary;
+      width: 430px;
+      line-height: 20px;
+      p:first-child {
+        margin-right: 5px;
+      }
+    }
+  }
+}
+.sign-info {
+  float: right;
+  margin-right: 25%;
+  .sign-info-detail {
+    font-size: 14px;
+    color:#444444;
+    text-align: left;
+    line-height: 25px;
+    .sign-info-img {
+      p {
+        float: left;
+      }
+      img {
+        float: right;
+      }
+    }
+  }
+  .sign-info-date {
+    margin-top: 31px;
+    display: inline-block;
+  }
+}
+.footer-button {
+  height: 85px;
+  margin-top: 38px;
+  text-align: center;
+  box-shadow: 0px 0px 10px 0px rgba(111,114,132,0.14);
+  // margin-left: -20px;
+  margin-bottom: -10px;
+  margin-left: -18px;
+  margin-right: -18px;
+  margin: 38px -18px -10px -18px;
+  @include displayFlex(row, center, center);
+}

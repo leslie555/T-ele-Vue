@@ -13,9 +13,10 @@
             >
             </el-input>
           </el-form-item>
-          <el-form-item label="部门" prop="FullID">
+          <!-- <el-form-item label="部门" prop="FullID">
             <select-store ref="selectStore" type="report" @change="handleStoreChange"></select-store>
-          </el-form-item>
+          </el-form-item> -->
+          <SelectOrganization v-model="ruleForm.FullID" :type="3"></SelectOrganization>
             <el-form-item label="状态" prop="PurchasingtStatus">
             <el-select v-model="ruleForm.PurchasingtStatus" placeholder="请选择">
                 <el-option
@@ -53,7 +54,7 @@
               <el-table-column align="center" label='地址' min-width="180" prop="Location">
               </el-table-column>
               <el-table-column align="center" label='业务员' min-width="120" prop="Salesman"></el-table-column>
-              <el-table-column align="center" label='部门' min-width="120" prop="CompanyName"></el-table-column>
+              <el-table-column align="center" label='组织' min-width="120" prop="CompanyName"></el-table-column>
               <el-table-column align="center" label='钥匙位置' min-width="120" prop="KeyLocation"></el-table-column>
               <el-table-column align="center" label='创建时间' min-width="120" prop="CreaterTime">
                 <template slot-scope="scope">
@@ -83,14 +84,16 @@
             <bottom-tool-bar ref="bottomToolBar" :page-size="pageSize" :handlePageChange="fetchData"></bottom-tool-bar>
             <div>
               <qrcode ref="qrcode"></qrcode>
+              <designate @refresh="refresh" ref="designate"></designate>
                 <FixPaperAndPurchaseDialog ref="addConfigBox" @editConfigInfo="editConfigInfo"></FixPaperAndPurchaseDialog>
             </div>
     </div>
 </template>
 <script>
-import { SearchPanel, TableButtons, BottomToolBar, SelectStore } from '@/components'
+import { SearchPanel, TableButtons, BottomToolBar, SelectStore, SelectOrganization } from '@/components'
 import FixPaperAndPurchaseDialog from '../FixPaper/components/FixPaperAndPurchaseDialog'
 import { ShowPurchasingOrder, UpdatePurchasingOrderStatus } from '@/api/purchase'
+import designate from '../MoveingPaper/components/designate'
 import qrcode from '../../components/qrcode'
 export default {
   name: 'PurchasePaperList',
@@ -99,8 +102,10 @@ export default {
     SearchPanel,
     BottomToolBar,
     SelectStore,
+    SelectOrganization,
     FixPaperAndPurchaseDialog,
-    qrcode
+    qrcode,
+    designate
   },
   data() {
     return {
@@ -110,15 +115,15 @@ export default {
         FullID: '',
         HouseName: '',
         Salesman: '',
-        PurchasingtStatus: 0
+        PurchasingtStatus: ''
       },
       HouseName: '',
       procureList: [
-        { value: 0, label: '全部' },
+        { value: '', label: '全部' },
         { value: 1, label: '未安装' },
-        { value: 2, label: '已安装' },
-        { value: 3, label: '待审批（经理）' },
-        { value: 4, label: '待审批（采购部）' }
+        { value: 2, label: '已安装' }
+        // { value: 3, label: '待审批（经理）' },
+        // { value: 4, label: '待审批（采购部）' }
       ],
       filterList: [],
       list: [],
@@ -151,19 +156,20 @@ export default {
     // 重置
     keywordReset() {
       this.$refs.ruleForm.resetFields()
+      this.ruleForm.FullID = ''
       this.$refs.bottomToolBar.search()
       // 门店选择框重置
-      this.$refs.selectStore.reset()
+      // this.$refs.selectStore.reset()
     },
     // 选择门店过后，返回来的数据
-    handleStoreChange(val) {
-        // 选择门店后的回调
-        if (val) {
-            this.ruleForm.FullID = val.fullID
-        } else {
-            this.ruleForm.FullID = ''
-        }
-    },
+    // handleStoreChange(val) {
+    //     // 选择门店后的回调
+    //     if (val) {
+    //         this.ruleForm.FullID = val.fullID
+    //     } else {
+    //         this.ruleForm.FullID = ''
+    //     }
+    // },
     // 调接口
     fetchData(pages) {
       if (!pages) {
@@ -177,7 +183,8 @@ export default {
         parm: pages,
         HouseName: this.ruleForm.HouseName, // 房源名称
         Salesman: this.ruleForm.Salesman, // 业务员
-        DepID: this.ruleForm.FullID, // 部门id
+        DepID: '', // 部门id
+        FullIDNew: this.ruleForm.FullID, // 组织id
         PurchasingtStatus: this.ruleForm.PurchasingtStatus // 采购单状态
       }).then(response => {
         this.list = response.Data.rows
@@ -197,7 +204,8 @@ export default {
       })
     },
     filterStatus(item) {
-      const labelStatus = this.procureList.find(res => item === res.value)
+      const num = Number(item)
+      const labelStatus = this.procureList.find(res => num === res.value)
       return labelStatus.label
     },
     filterTableDataItem(item) {
@@ -226,24 +234,50 @@ export default {
       console.log('row', row)
     },
     handleQrcode(row) {
+        this.currentRow = this.$deepCopy(row)
+        row.num = 1
+        row.bill = 10
+        this.$refs.designate.open(row, '采购')
+    },
+    refresh(val, row, type) {
+        row.ShareID = val.userID
         this.$refs.qrcode.open(row, 'purchaseSingle')
     },
     handleDecorationEnd(row) {
       console.log('row', row)
-      UpdatePurchasingOrderStatus({
-        KeyID: row.KeyID, // 查询时获取到的主键ID
-        PurchasingtStatus: 2 // 装修单状态
-      }).then(res => {
-        if (res.Code === 0 && res.Data === 1) {
-          console.log('采购单-安装完成', res)
-          row.PurchasingtStatus = 2
-          row.conditionBtn = ['Detail']
-          this.$refs.bottomToolBar.search()
-          console.log('row', row)
-        } else {
-          alert('采购单-安装失败', res)
-          console.log('row.PurchasingtStatus', row.PurchasingtStatus)
-        }
+      this.$confirm('确定所有采购物品都已装修完成?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        UpdatePurchasingOrderStatus({
+          KeyID: row.KeyID, // 查询时获取到的主键ID
+          PurchasingtStatus: 2 // 装修单状态
+        }).then(res => {
+          if (res.Code === 0 && res.Data === 1) {
+            console.log('采购单-安装完成', res)
+            row.PurchasingtStatus = 2
+            row.conditionBtn = ['Detail']
+            this.$message({
+              type: 'success',
+              message: '操作成功!'
+            })
+            this.$refs.bottomToolBar.search()
+            console.log('row', row)
+          } else {
+            // alert('采购单-安装失败', res)
+            this.$message({
+              type: 'warning',
+              message: '操作失败!'
+            })
+            console.log('row.PurchasingtStatus', row.PurchasingtStatus)
+          }
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消操作'
+        })
       })
     },
     // 详细对话框事件监听

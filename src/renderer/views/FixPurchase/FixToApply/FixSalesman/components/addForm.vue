@@ -10,7 +10,7 @@
     <el-form
       :model="EditFormData"
       label-position="right"
-      label-width="100px"
+      label-width="130px"
       :inline="true"
       :rules="rules"
       style="height: 500px; overflow: auto;"
@@ -35,6 +35,18 @@
             ></el-input>
           </el-form-item>
         </div>
+        <!-- <div class="clearfix">
+          <el-form-item label="是否可继续出租" prop="whetherRentOut">
+            <el-select v-model="EditFormData.whetherRentOut" placeholder="请选择">
+              <el-option
+                v-for="item in procureList"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+        </div> -->
         <div class="clearfix fix-to-apply-project-input">
           <el-form-item label="装修项目">
             <el-button @click="addProject" size="small" plain type="primary">添加项目</el-button>
@@ -94,7 +106,7 @@
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="close">取 消</el-button>
-      <el-button @click="submitForm(1)">暂 存</el-button>
+      <el-button @click="submitForm(1)" :loading="btnLoading">暂 存</el-button>
       <el-button type="primary" @click="submitForm(2)" :loading="btnLoading">确 定</el-button>
     </div>
   </el-dialog>
@@ -122,6 +134,7 @@
           HouseArea: '',
           Location: '',
           KeyLocation: '',
+          whetherRentOut: 0,
           ZXJSON: [{
             RenovationApplyCategoryID: '',
             ProjectIDs: [],
@@ -136,11 +149,18 @@
         rules: {
           HouseName: [
             { required: true, message: '请选择房源', trigger: 'blur' }
-          ]
+          ],
+           whetherRentOut: [
+             { required: true, message: '请选择是否可继续出租', trigger: 'blur' }
+           ]
         },
         btnLoading: false,
         projectData: [],
-        oldImage: []
+        oldImage: [],
+        procureList: [
+          { value: 0, label: '是' },
+          { value: 1, label: '否' }
+        ]
       }
     },
     created() {

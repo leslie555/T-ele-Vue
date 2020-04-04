@@ -9,6 +9,7 @@
     :remote-method="querySearchAsync"
     :disabled="disabled"
     :loading="loading"
+    :clearable="canClear"
   >
     <el-option
       v-for="item in resultList"
@@ -30,7 +31,7 @@
   export default {
     props: {
       type: {
-        type: Number,
+        type: Number, // 14空置房源
         default: 1
       },
       value: {
@@ -41,12 +42,19 @@
         type: String,
         default: 'KeyID'
       },
-      disabled: Boolean
+      disabled: Boolean,
+      canClear: {
+        type: Boolean,
+        default: false
+      }
     },
     watch: {
       value: {
         handler: function(newValue, oldValue) {
           this.houseName = newValue
+          if (this.houseName === '') {
+            this.resultList = []
+          }
         },
         immediate: true
       }

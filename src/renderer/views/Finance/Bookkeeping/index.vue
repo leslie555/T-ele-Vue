@@ -2,6 +2,7 @@
   <div class="app-container data-list">
     <search-panel :model="ruleForm" ref="ruleForm" label-width="80px" box-flex right-width="270px">
       <template slot="search">
+        <SelectOrganization v-model="ruleForm.FullIDNew"/>
         <el-form-item label="房源名称" prop="HouseName">
           <el-input
             placeholder="房源名称"
@@ -115,7 +116,8 @@
               </el-form-item>
               <el-form-item label="金额">
                 {{$priceFormat(props.row.Amount)}}
-                {{props.row.PaidMoney - 0 > 0 && ((props.row.PaidMoney - 0) !== (props.row.Amount - 0)) ? '(已付'+ props.row.PaidMoney + ')': ''}}
+                {{props.row.PaidMoney - 0 > 0 && ((props.row.PaidMoney - 0) !== (props.row.Amount - 0)) ? '(已付'+
+                props.row.PaidMoney + ')': ''}}
               </el-form-item>
               <el-form-item label="收支日期">{{$dateFormat(props.row.ReceivablesDate)}}</el-form-item>
               <el-form-item label="收支状态">{{props.row.InOrOutStatus?InOrOutStatusArr[props.row.InOrOutStatus]:''}}
@@ -124,11 +126,11 @@
                 <p>{{ props.row.Remark || '无' }}</p>
               </el-form-item>
               <el-form-item label="图片凭证">
-                <div class="table-expand-img-box">
+                <div class="table-expand-img-box"  v-viewer="{url: 'data-src'}">
                   <template v-if="props.row.ImageUpload">
                     <div class="table-expand-img" v-for="(item,index) in props.row.ImageUpload" :key="index">
                       <img :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)"
-                           @click="$seeImage($ImgUnit.getImgUrl(item.ImageLocation))">
+                           :data-src="$ImgUnit.getImgUrl(item.ImageLocation)">
                     </div>
                   </template>
                   <template v-else>无</template>
@@ -148,7 +150,8 @@
         <el-table-column align="center" label="金额" min-width="100">
           <template slot-scope="scope">
             {{$priceFormat(scope.row.Amount)}}
-            {{scope.row.PaidMoney - 0 > 0 && ((scope.row.PaidMoney - 0) !== (scope.row.Amount - 0)) ? '(已付'+ scope.row.PaidMoney + ')': ''}}
+            {{scope.row.PaidMoney - 0 > 0 && ((scope.row.PaidMoney - 0) !== (scope.row.Amount - 0)) ? '(已付'+
+            scope.row.PaidMoney + ')': ''}}
           </template>
         </el-table-column>
         <el-table-column align="center" label="收支日期" min-width="140">
@@ -164,7 +167,6 @@
         <el-table-column align="center" fixed="right" label="操作" min-width="250">
           <template slot-scope="scope">
             <table-buttons
-              :showAll="true"
               :options="operation2button"
               :condition="handleButtons(scope.row)"
               @handleDeleteClick="handleDelete(scope.row)"
@@ -199,7 +201,14 @@
   import { mapActions, mapGetters } from 'vuex'
   import { deleteBookKeepByIDs, getBookKeepingList } from '../../../api/finance'
   // 引入公用样式组件
-  import { BottomToolBar, SearchPanel, Settlement, TableButtons, SelectPayAmount } from '../../../components'
+  import {
+    BottomToolBar,
+    SearchPanel,
+    SelectOrganization,
+    SelectPayAmount,
+    Settlement,
+    TableButtons
+  } from '../../../components'
   import uuid from '../../../utils/uuid'
 
   export default {
@@ -250,7 +259,8 @@
           InOrOutStatus: '',
           InOrOut: '',
           date: [],
-          MarkArr: []
+          MarkArr: [],
+          FullIDNew: ''
         },
         operation2button: [
           {
@@ -279,7 +289,8 @@
       TableButtons,
       SearchPanel,
       BottomToolBar,
-      Settlement
+      Settlement,
+      SelectOrganization
     },
     // 请求ajax中定义的方法
     created() {

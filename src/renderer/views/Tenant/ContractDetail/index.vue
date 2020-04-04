@@ -47,6 +47,7 @@
               紧急联系人：{{ContractInfo.EmergencyContactName}}（{{ContractInfo.EmergencyContactPhone}}）</p>
             <p class="info-text" v-else>紧急联系人：无</p>
             <!--<p class="info-text info-full">通讯地址：{{ContractInfo.ContractAddress||'无'}}</p>-->
+            <p class="info-text">电子邮箱：{{ContractInfo.Email || '无'}}</p>
           </div>
         </div>
       </div>
@@ -76,9 +77,6 @@
           <el-button type="primary" @click="handleHouseDetail" v-show="HouseInfo.HouseStatus>2">房源详情</el-button>
           <el-button type="primary" @click="handleRenew"
                      v-show="TenantContractOperate.RentLeaseStatus==3&&TenantContractOperate.AuditStatus==2">续约
-          </el-button>
-          <el-button type="primary" @click="handleCheckOut"
-                     v-show="TenantContractOperate.RentLeaseStatus==3&&TenantContractOperate.AuditStatus==2">退房
           </el-button>
         </template>
       </div>
@@ -136,10 +134,10 @@
         if (HouseInfo) {
           this.HouseInfo = HouseInfo
         }
-        this.ImageUpload = ImageUpload || []
         this.LivePeopleInfoList = LivePeopleInfoList || []
         this.TenantContractOperate = TenantContractOperate || {}
         this.ContractInfo = TenantContractInfo || {}
+        this.ImageUpload = [...(this.ContractInfo.CardIDFront || []), ...(this.ContractInfo.CardIDBack || []), ...(ImageUpload || [])]
         if (TenantBill) {
           this.BillList = TenantBill
         }

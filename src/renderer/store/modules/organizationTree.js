@@ -34,14 +34,17 @@ const treeData = {
   },
 
   actions: {
-    initOrganization({ commit }, Type) {
+    initOrganization({ commit, state }, Type) {
       ShowStaffRelationIntoByEmployeeID({
         Type
       }).then(({ Data }) => {
         let isEmpty
         if (Data && Data.length) {
           const topVal = Data.filter(v => !v.PID)
-          const treeData = createTree(topVal, Data)
+          const treeData = {
+            ...state.treeData,
+            [Type]: createTree(topVal, Data)
+          }
           commit('SET_ORGANIZATION_TREE', treeData)
           localStorage.set('treeData', treeData)
           isEmpty = false

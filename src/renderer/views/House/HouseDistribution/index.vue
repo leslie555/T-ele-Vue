@@ -8,7 +8,7 @@
                         :disabled="judgeHouse"
                         class="inline-input"
                         v-model="ruleForm.HousePersonName"
-                        placeholder="请先选择门店,再查询"
+                        placeholder="请先选择组织,再查询"
                         clearable
                         :fetch-suggestions="querySearch"
                         :trigger-on-focus="false"
@@ -308,7 +308,7 @@
                 this.$refs.ruleForm.resetFields()
                 this.$refs.bottomToolBar.search()
                 // 门店选择框重置
-                this.$refs.selectStore.reset()
+                // this.$refs.selectStore.reset()
             },
             batchBtn() {
                 if (this.multipleSelection.length === 0) {
@@ -352,7 +352,7 @@
             },
                 //  模糊查询下拉框选择
             handleSelect(val) {
-                this.ruleForm.HousePerson = val.FullIDNew
+                this.ruleForm.HousePerson = val.KeyID
             },
             //   模糊查询
             querySearch(queryString, cb) {

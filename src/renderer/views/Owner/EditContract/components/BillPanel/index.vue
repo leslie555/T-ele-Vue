@@ -9,28 +9,27 @@
       <el-table-column align="center" label='账单期数' min-width="180">
         <template slot-scope="scope">
           <p>
-            <el-checkbox v-model="selectArr" :label="data[scope.row.pIndex].uuid" class="mr-10"
-                         :disabled="disabled||data[scope.row.pIndex].disableEdit">
+            <!-- <el-checkbox v-model="selectArr" :label="data[scope.row.pIndex].uuid" class="mr-10"
+                         :disabled="disabled">
               &nbsp;
-            </el-checkbox>
+            </el-checkbox> -->
             <span>账期{{nzhcn.encodeS(scope.row.pIndex+1)}}
-              <!--：{{$dateFormat(data[scope.row.pIndex].BillStartDate)}}至--></span>
-            <!--<span style="display:inline-block;width: 130px;text-align: left"-->
-            <!--v-if="scope.row.pIndex==data.length-1||scope.row.pIndex==data.length-2&&type==1">{{$dateFormat(data[scope.row.pIndex].BillEndDate)}}</span>-->
-            <!--<el-date-picker v-else v-model="data[scope.row.pIndex].BillEndDate"-->
-            <!--placeholder="结束日期" size="mini"-->
-            <!--@change="reCalcDate"-->
-            <!--:disabled="disabled"-->
-            <!--style="width: 130px"></el-date-picker>-->
+              ：{{$dateFormat(data[scope.row.pIndex].BillStartDate)}}至</span>
+            <span style="display:inline-block;width: 130px;text-align: left">{{$dateFormat(data[scope.row.pIndex].BillEndDate)}}</span>
+            <!-- <el-date-picker v-else v-model="data[scope.row.pIndex].BillEndDate"
+            placeholder="结束日期" size="mini"
+            @change="reCalcDate"
+            :disabled="disabled"
+            style="width: 130px"></el-date-picker> -->
           </p>
           <p class="bill-item-total">合计 ：{{$priceFormat(data[scope.row.pIndex].BillAmount)}} <i
             class="iconfont icon-tianjiamoren" @click="addBillItem(scope.row)"
-            v-if="!disabled&&!data[scope.row.pIndex].disableEdit"></i></p>
+            v-if="!disabled"></i></p>
         </template>
       </el-table-column>
       <el-table-column align="center" label='账单项目' min-width="240">
         <template slot-scope="scope">
-          <span v-if="!scope.row.CanOperate || scope.row.disableEdit">{{scope.row.BillProjectName}}</span>
+          <span v-if="!scope.row.CanOperate">{{scope.row.BillProjectName}}</span>
           <template v-else>
             <i class="iconfont icon-shanjianmoren" @click="deleteBillItem(scope.row)"
                :class="scope.row.isFirst?'same-hidden':''" v-if="!disabled"></i>
@@ -50,7 +49,7 @@
       </el-table-column>
       <el-table-column align="center" label='账单金额（元）' min-width="140">
         <template slot-scope="scope">
-          <span v-if="scope.row.disableEdit">{{tableList[scope.$index].markAmount}}</span>
+          <span v-if="!scope.row.CanOperate">{{tableList[scope.$index].markAmount}}</span>
           <template v-else>
             <el-input v-model="tableList[scope.$index].markAmount" style="width: 110px"
                       @blur="amountChange(tableList[scope.$index])"
@@ -62,7 +61,7 @@
       </el-table-column>
       <el-table-column align="center" label='收支类型' min-width="140">
         <template slot-scope="scope">
-          <span v-if="!scope.row.CanOperate || scope.row.disableEdit">{{$EnumData.getEnumDesByValue('InOrOut', scope.row.InOrOut)}}</span>
+          <span v-if="!scope.row.CanOperate">{{$EnumData.getEnumDesByValue('InOrOut', scope.row.InOrOut)}}</span>
           <el-select v-else v-model="tableList[scope.$index].InOrOut" placeholder="请选择收支类型"
                      @change="reCalcAmount"
                      :disabled="disabled"
@@ -74,7 +73,7 @@
               :key="item.Value"
             ></el-option>
           </el-select>
-          <el-button v-if="scope.row.CanOperate&&scope.row.pIndex==0&&!scope.row.disableEdit"
+          <el-button v-if="scope.row.CanOperate&&scope.row.pIndex==0"
                      @click="useToOther(scope.row)" type="primary"
                      size="mini">批量应用
           </el-button>
@@ -88,14 +87,14 @@
             placeholder="选择日期"
             @focus="saveReceiveDateChange(scope.row.pIndex)"
             @change="receiveDateChange(scope.row.pIndex)"
-            :disabled="disabled || data[scope.row.pIndex].disableEdit"
+            :disabled="disabled"
             style="width: 150px;"
           ></el-date-picker>
         </template>
       </el-table-column>
       <div slot="append" class="bill-footer">
         <div class="foot-left">
-          <el-button
+          <!-- <el-button
             type="danger"
             icon="delete"
             size="mini"
@@ -103,15 +102,15 @@
             :disabled="selectArr.length===0"
             @click="deleteBill">
             <span>删除已选</span>
-          </el-button>
-          <el-button
+          </el-button> -->
+          <!-- <el-button
             type="primary"
             icon="add"
             size="mini"
             v-if="!disabled"
             @click="addBill">
             <span>添加账期</span>
-          </el-button>
+          </el-button> -->
         </div>
         <div class="foot-right">
           账单总金额：{{$priceFormat(total)}}元
@@ -150,6 +149,10 @@
       disabled: {
         type: Boolean,
         default: false
+      },
+      childrenKey: {
+        type: String,
+        default: ''
       }
     },
     computed: {
@@ -168,85 +171,16 @@
         tableList: [],
         selectArr: [],
         total: 0,
-        childrenKey: 'OwnerBillDetail',
         dateMark: ''
       }
     },
     created() {
-      if (this.type === 1) {
-        this.childrenKey = 'TenantBillDetail'
-      }
     },
     methods: {
       ...mapActions([
         'refreshBillItem'
       ]),
-      initData(data, cloneData = []) {
-        if (data.length > 0) {
-          const initData = []
-          data.map((item, index) => {
-            const markItem = { ...item }
-            if (+markItem.BillAmount !== 0) {
-              const arr = item[this.childrenKey].filter(x => +x.Amount !== 0)
-              markItem[this.childrenKey] = arr
-              initData.push(markItem)
-            }
-          })
-          data = initData
-        }
-        if (cloneData.length > 0) {
-          const initData = []
-          cloneData.map((item, index) => {
-            const markItem = { ...item }
-            if (+markItem.BillAmount !== 0) {
-              const arr = item[this.childrenKey].filter(x => +x.Amount !== 0)
-              markItem[this.childrenKey] = arr
-              initData.push(markItem)
-            }
-          })
-          cloneData = initData
-        }
-        // 初始化或者新增
-        if (cloneData.length === 0) {
-          const initData = []
-          data.map((item, index) => {
-            const markItem = { ...item }
-            markItem[this.childrenKey] = []
-            const arr1 = item[this.childrenKey].filter(x => x.IsActual !== 0)
-            const arr2 = item[this.childrenKey].filter(x => x.IsActual === 0)
-            initData.push({
-              ...markItem,
-              [this.childrenKey]: arr1.length > 0 ? arr1 : arr2
-            })
-            if (arr1.length > 0 && arr2.length > 0) {
-              initData.push({
-                ...markItem,
-                [this.childrenKey]: arr2
-              })
-            }
-          })
-          data = initData
-        }
-        // 修改的时候
-        const extendData = []
-        if (cloneData.length > 0) {
-          cloneData.map((item) => {
-            const mark = []
-            item[this.childrenKey].map((cItem) => {
-              if (cItem.IsActual !== 0) {
-                mark.push({ ...cItem })
-              }
-            })
-            if (mark.length > 0) {
-              item.disableEdit = true
-              item[this.childrenKey] = mark
-              extendData.push({ ...item })
-            }
-          })
-        }
-        if (extendData.length > 0) {
-          data = [...extendData, ...data]
-        }
+      initData(data) {
         this.refreshBillItem().then(() => {
           this.data.length = 0
           this.data.push(...data)
@@ -258,13 +192,9 @@
               cItem.BillProjectIDMark = getTreeNodeByValue(this.billItem.data, cItem.BillProjectID, this.billItem.props).pathArr
               cItem.uuid = uuid()
               cItem.isFirst = cIndex === 0
-              if (!cItem.CanOperate) {
+              // if (!cItem.CanOperate) {
                 cItem.CanOperate = false
-              }
-              if (cItem.IsActual !== 0) {
-                cItem.disableEdit = true
-                item.disableEdit = true
-              }
+              // }
             })
           })
           this.resetData()

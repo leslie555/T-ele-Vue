@@ -13,7 +13,8 @@
                                 <p>{{ detailsList.HouseName }}</p>
                             </div>
                             <div class="detail-conList">
-                                <p>部门：</p>
+                                <!-- <p>部门：</p> -->
+                                <p>组织：</p>
                                 <p>{{ detailsList.CompanyName }}</p>
                             </div>
                             <div class="detail-conList">
@@ -56,7 +57,7 @@
                     </div>
                     <el-form label-width="70px"  :inline="false" ref="FormImg" style="margin-top:10px;overflow:hidden;">
                         <el-form-item label="图片:">
-                            <div class="upload-img-Box">
+                            <div class="upload-img-Box" v-viewer="{url: 'data-src'}">
                                 <div
                                 class="upload-img"
                                 v-for="(item, index) in detailsList.imageSumList"
@@ -64,7 +65,7 @@
                                 >
                                 <img
                                     :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)"
-                                    @click="$seeImage($ImgUnit.getImgUrl(item.ImageLocation))"
+                                    :data-src="$ImgUnit.getImgUrl(item.ImageLocation)"
                                 >
                                 </div>
                             </div>
@@ -94,21 +95,21 @@
                         </div>
                         <el-form v-if="detailsList.State !== 5 && detailsList.State !== 3" label-width="80px"  :inline="false" ref="FormImg" style="margin-top:10px;overflow:hidden;">
                             <el-form-item label="维修图片:">
-                                <div class="upload-img-Box">
+                                <div class="upload-img-Box" v-viewer="{url: 'data-src'}">
                                     <div
                                     class="upload-img"
-                                    v-for="(item, index) in detailsList.MaintainIDSumList"
+                                    v-for="(item, index) in (detailsList.MaintainIDSumList.length > 0 ? detailsList.MaintainIDSumList : detailsList.HandleImgList)"
                                     :key="index"
                                     >
                                     <img
                                         :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)"
-                                        @click="$seeImage($ImgUnit.getImgUrl(item.ImageLocation))"
+                                        :data-src="$ImgUnit.getImgUrl(item.ImageLocation)"
                                     >
                                     </div>
                                 </div>
                                 </el-form-item>
-                                <el-form-item label="维修备注:">    
-                                <el-input type="textarea" :disabled='textboolean' v-model="detailsList.MaintainRemark"></el-input>
+                                <el-form-item label="维修备注:">
+                                <el-input type="textarea" :disabled='textboolean' v-model="detailsList.repairRemark"></el-input>
                             </el-form-item>
                         </el-form>
                     </div>
@@ -123,7 +124,7 @@
                                 <p style="font-size: 15px;">{{ item.Category }}</p>
                                 <p style="font-size: 14px;color:gray;">
                                     <el-input
-                                    disabled="true"
+                                    :disabled="true"
                                     type="textarea"
                                     class="textareaBoder"
                                     :autosize="{ minRows: 0, maxRows: 10}"
@@ -163,6 +164,7 @@
           }).then(({ Data, BusCode, Msg }) => {
             //   this.detailsStepList = Data.RenovationTrack
               this.detailsList = Data
+              this.detailsList.repairRemark = Data.HandleBZ || Data.MaintainRemark
             //   this.imageList = Data.imageList
             //   this.tableData = Data.DecorationDetails
           })

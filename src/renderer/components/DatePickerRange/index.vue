@@ -163,11 +163,14 @@
         this.validate()
         if (this.StartTime && this.EndTime) {
           this.$emit('input', [this.StartTime, this.EndTime])
+          this.$emit('change', [this.StartTime, this.EndTime])
         } else if (!this.StartTime && !this.EndTime) {
           this.$emit('input', [])
+          this.$emit('change', [])
         } else {
           this.mark = true // 这种情况下不应该去清空 start或者end
           this.$emit('input', [])
+          this.$emit('change', [])
         }
       },
       endTimeButton(month) {

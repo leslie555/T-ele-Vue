@@ -71,7 +71,7 @@
           <el-form-item label="房源照片:">
             <!-- <upload-file :imgList="EditFormData.HousePictureList"></upload-file> -->
             <div class="ImgBox">
-              <div class="upload-img-Box">
+              <div class="upload-img-Box" v-viewer="{url: 'data-src'}">
                 <div
                   class="upload-img"
                   v-for="(item, index) in EditFormData.HousePictureList"
@@ -79,7 +79,7 @@
                 >
                   <img
                     :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)"
-                    @click="$seeImage($ImgUnit.getImgUrl(item.ImageLocation))"
+                    :data-src="$ImgUnit.getImgUrl(item.ImageLocation)"
                   >
                 </div>
               </div>
@@ -118,7 +118,7 @@
             <el-collapse>
               <el-collapse-item>
                 <template slot="title">
-                 <span>{{`1.${operationContent(JSON.parse(item.EditData)[0])}` }}</span> 
+                 <span>{{`1.${operationContent(JSON.parse(item.EditData)[0])}` }}</span>
                 </template>
                 <div v-for="(data, index) in JSON.parse(item.EditData).slice(1)"
                   :key = "index"
@@ -126,7 +126,7 @@
                 {{ `${index + 2}.${operationContent(data)}` }}
                 </div>
               </el-collapse-item>
-            </el-collapse>            
+            </el-collapse>
           </template>
           <template v-else>
             <span class="FollowText">{{ item.Content }}</span>

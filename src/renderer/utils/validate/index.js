@@ -46,6 +46,12 @@ const validatePhoneNumber = function(val) {
   return reg.test(val)
 }
 
+// 验证电话号码格式
+const validateEmailNumber = function(val) {
+  const reg = /^(\w-*\.*)+@(\w-?)+(\.\w{2,})+$/
+  return reg.test(val)
+}
+
 export {
   validateURL,
   validateLowerCase,
@@ -54,5 +60,6 @@ export {
   isObject,
   isArray,
   validNumber,
-  validatePhoneNumber
+  validatePhoneNumber,
+  validateEmailNumber
 }

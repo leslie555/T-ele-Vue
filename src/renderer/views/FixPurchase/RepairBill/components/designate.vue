@@ -172,6 +172,10 @@ import { SelectPurchaseUser, EditMaintain } from '@/api/purchase'
             if (this.num === 1) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
+                        if (this.formInline.userID === '') {
+                            this.$message.error('请选择正确的指派人员')
+                            return
+                        }
                         if (this.bill === 1) {
                             const obj = {
                                 All: {

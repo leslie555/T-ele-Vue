@@ -20,10 +20,10 @@
       </template>
       <template v-if="ImageUpload.length>0">
         <div class="panel-title">证件照片</div>
-        <div class="contract-imgs">
+        <div class="contract-imgs" v-viewer="{url: 'data-src'}">
           <div class="img-box" v-for="(item,index) in ImageUpload" :key="index">
             <img :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)"
-                 @click="$seeImage($ImgUnit.getImgUrl(item.ImageLocation))">
+                 :data-src="$ImgUnit.getImgUrl(item.ImageLocation)">
           </div>
         </div>
       </template>

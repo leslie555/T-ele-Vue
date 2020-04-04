@@ -14,7 +14,7 @@
           style="width: 200px; margin-right: 10px;"
           :readonly="true"
         ></el-input>
-        <select-employee v-show="isShowSelect" allCompany @empChange="getPeople">
+        <select-employee :canSelectDep="false" v-show="isShowSelect" allCompany @empChange="getPeople">
           <el-button type="primary" @click="popoverVisible = true" size="mini">选择</el-button>
         </select-employee>
       </el-form-item>

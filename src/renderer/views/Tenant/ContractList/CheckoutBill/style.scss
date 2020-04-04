@@ -69,7 +69,7 @@
     margin: 20px 0px;
     @include displayFlex(row, center, flex-start);
     .el-input{
-      width: 140px;
+      width: 220px;
       margin-right: 100px;
       margin-left: 10px;
       border: 0 none;
@@ -163,4 +163,7 @@
   .but {
     display: flex;
     justify-content: center
+  }
+  .paymentDay_inline {
+    display: inline-block;
   }

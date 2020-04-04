@@ -14,7 +14,7 @@
             <li></li>
           </ul>
           <div class="detail-content">
-            <p> 
+            <p v-viewer="{url: 'data-src'}">
               <!-- <label class="img-detail"> 图片 &nbsp; &nbsp; </label> -->
               <label> 图片 &nbsp; &nbsp; </label>
               <span
@@ -22,7 +22,7 @@
               :key="index"
               >
                 <img class="img-preview" :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)"
-                      @click="$seeImage($ImgUnit.getImgUrl(item.ImageLocation))"
+                      :data-src="$ImgUnit.getImgUrl(item.ImageLocation)"
                 >
               </span>
                </p>
@@ -46,14 +46,14 @@
             <li></li>
           </ul>
           <div v-if="detailList.Status === 6" class="detail-content">
-            <p>
+            <p v-viewer="{url: 'data-src'}">
               <label> 搬家图片 &nbsp; &nbsp; </label>
               <span
               v-for="(item, index) in CleaningImgList"
               :key="index"
               >
                 <img class="img-preview" :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)"
-                      @click="$seeImage($ImgUnit.getImgUrl(item.ImageLocation))"
+                      :data-src="$ImgUnit.getImgUrl(item.ImageLocation)"
                 >
               </span>
             </p>
@@ -124,9 +124,18 @@ export default {
         this.detailList = res.Data.HouseRecord[0]
         // this.detailList.Status = this.filterState(res.Data.Status)
         this.imgListDetail = res.Data.ImageList
-        this.CleaningImgList = res.Data.MovingImageList
+        if (res.Data.MovingImageList.length === 0) {
+          this.CleaningImgList = res.Data.HandleImg
+        } else {
+          this.CleaningImgList = res.Data.MovingImageList
+        }
+        if (this.detailList.MovingBZ === '') {
+          this.detailList.MovingBZ = this.detailList.HandleBZ
+        }
         this.detailLoading = false
         this.stepList = res.Data.RenovationTrack
+      }).catch(() => {
+        this.detailLoading = false
       })
     },
     filterState(status) {

@@ -529,3 +529,19 @@ export function DeleteStaffSys(data) {
     data
   })
 }
+// 查询组织 Type 1全部组织 2配置的组织
+export function ShowStaffsysOrganization(data) {
+  return request({
+    url: '/SystemMethod/ShowStaffsysOrganization',
+    method: 'post',
+    data
+  })
+}
+// 根据组织查询人员
+export function HouseEmployeeListByFullIDNoPage(data) {
+  return request({
+    url: '/SystemMethod/HouseEmployeeListByFullIDNoPage',
+    method: 'post',
+    data
+  })
+}

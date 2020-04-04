@@ -18,9 +18,7 @@
           </el-form-item>
         </div>
         <div class="clearfix">
-          <el-form-item label="部门" prop="DepID">
-            <select-store ref="selectStore" type="report" @change="handleStoreChange"></select-store>
-          </el-form-item>
+          <select-organization v-model="ruleForm.FullIDNew" :type="3"></select-organization>
           <el-form-item label="业务员" prop="Salesman">
             <el-input placeholder="姓名/电话" v-model="ruleForm.Salesman"></el-input>
           </el-form-item>
@@ -72,7 +70,7 @@
           prop="TenantName"
         ></el-table-column>
         <el-table-column align="center" label="业务员" prop="Salesman" min-width="130"></el-table-column>
-        <el-table-column align="center" label="部门" min-width="120" prop="CompanyName"></el-table-column>
+        <!-- <el-table-column align="center" label="部门" min-width="120" prop="CompanyName"></el-table-column> -->
         <el-table-column align="center" label="提交时间" min-width="120" prop="CGBReviewedCommitTime"></el-table-column>
         <el-table-column v-if="type!==1" align="center" label="备注" min-width="120" prop="Remark"></el-table-column>
         <el-table-column align="center" label="审核状态" min-width="80" prop="ReviewedStatus">
@@ -93,7 +91,6 @@
       </el-table>
     </div>
     <bottom-tool-bar ref="bottomToolBar" :page-size="pageSize" :handlePageChange="fetchData"></bottom-tool-bar>
-    <FixPaperAndPurchaseDialog ref="addConfigBox"></FixPaperAndPurchaseDialog>
     <AddApproval ref="AddApproval" @updateAudit="handleUpdateAudit"></AddApproval>
   </div>
 </template>
@@ -102,10 +99,9 @@
     SearchPanel,
     TableButtons,
     BottomToolBar,
-    SelectStore
+    SelectOrganization
   } from '@/components'
   import { CGBApprovalList } from '@/api/purchase'
-  import FixPaperAndPurchaseDialog from '../../PurchaseDepartment/FixPaper/components/FixPaperAndPurchaseDialog.vue'
   import AddApproval from './AddApproval'
   export default {
     name: 'ApprovalList',
@@ -120,8 +116,7 @@
       TableButtons,
       SearchPanel,
       BottomToolBar,
-      SelectStore,
-      FixPaperAndPurchaseDialog,
+      SelectOrganization,
       AddApproval
     },
     data() {
@@ -130,6 +125,7 @@
         pageSize: 10,
         ruleForm: {
           DepID: '',
+          FullIDNew: '',
           HouseName: '',
           ReviewedStatus: '',
           Salesman: '',
@@ -160,8 +156,8 @@
       }
     },
     /* activated() {
-                  this.$refs.bottomToolBar.search(1)
-                }, */
+                                        this.$refs.bottomToolBar.search(1)
+                                      }, */
     methods: {
       // 查询
       configSearch() {
@@ -172,6 +168,7 @@
       keywordReset() {
         this.ruleForm = {
           DepID: '',
+          FullIDNew: '',
           HouseName: '',
           ReviewedStatus: '',
           Salesman: '',
@@ -179,16 +176,7 @@
         }
         this.$refs.bottomToolBar.search()
         // 部门选择框重置
-        this.$refs.selectStore.reset()
-      },
-      // 选择部门过后，返回来的数据
-      handleStoreChange(val) {
-        // 选择部门后的回调
-        if (val) {
-          this.ruleForm.DepID = val.fullID
-        } else {
-          this.ruleForm.DepID = ''
-        }
+        // this.$refs.selectStore.reset()
       },
       // 调接口
       fetchData(pages) {
@@ -275,7 +263,13 @@
       handleDetail(row) {
         switch (this.type) {
           case 1:
-            this.$refs.addConfigBox.open(row, { title: '装修单', titleID: 1 })
+            this.$router.push({
+              path: '/FixPurchase/FixPurchaseDepartmentDetail',
+              query: {
+                purchaseOrfitment: 1,
+                KeyID: row.KeyID
+              }
+            })
             break
           case 2:
             this.$router.push({

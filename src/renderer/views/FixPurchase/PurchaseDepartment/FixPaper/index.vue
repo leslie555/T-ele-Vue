@@ -13,9 +13,10 @@
             >
             </el-input>
           </el-form-item>
-          <el-form-item label="部门" prop="FullID">
+          <!-- <el-form-item label="部门" prop="FullID">
             <select-store ref="selectStore" type="report" @change="handleStoreChange"></select-store>
-          </el-form-item>
+          </el-form-item> -->
+          <SelectOrganization v-model="ruleForm.FullID" :type="3"></SelectOrganization>
             <el-form-item label="状态" prop="Status">
             <el-select v-model="ruleForm.Status" placeholder="请选择">
                 <el-option
@@ -53,7 +54,7 @@
               <el-table-column align="center" label='地址' min-width="180" prop="Location">
               </el-table-column>
               <el-table-column align="center" label='业务员' min-width="120" prop="Salesman"></el-table-column>
-              <el-table-column align="center" label='部门' min-width="120" prop="CompanyName"></el-table-column>
+              <el-table-column align="center" label='组织' min-width="120" prop="CompanyName"></el-table-column>
               <el-table-column align="center" label='钥匙位置' min-width="120" prop="KeyLocation"></el-table-column>
               <el-table-column align="center" label='创建时间' min-width="120" prop="CreaterTime">
                 <template slot-scope="scope">
@@ -69,11 +70,13 @@
               <el-table-column align="center" label="操作" fixed="right" min-width="120">
                 <template slot-scope="scope">
                   <table-buttons
+                    showAll
                     :options="operationButton"
                     :condition="scope.row.conditionBtn"
                     @handleDetailClick="handleDetail(scope.row)"
                     @handleEntranceClick="handleEntrance(scope.row)"
                     @handleDecorationEndClick="handleDecorationEnd(scope.row)"
+                    @handleQrcodeClick="handleQrcode(scope.row)"
                   ></table-buttons>
                 </template>
               </el-table-column>
@@ -81,12 +84,16 @@
           </div>
             <bottom-tool-bar ref="bottomToolBar" :page-size="pageSize" :handlePageChange="fetchData"></bottom-tool-bar>
             <FixPaperAndPurchaseDialog ref="addConfigBox" @editConfigInfo="editConfigInfo"></FixPaperAndPurchaseDialog>
+            <qrcode ref="qrcode"></qrcode>
+            <designate @refresh="refresh" ref="designate"></designate>
     </div>
 </template>
 <script>
-import { SearchPanel, TableButtons, BottomToolBar, SelectStore } from '@/components'
+import { SearchPanel, TableButtons, BottomToolBar, SelectStore, SelectOrganization } from '@/components'
 import FixPaperAndPurchaseDialog from './components/FixPaperAndPurchaseDialog'
 import { ShowDecorationSheet, UpdateDecorationSheetStatus } from '@/api/purchase'
+import designate from '../MoveingPaper/components/designate'
+import qrcode from '../../components/qrcode'
 export default {
   name: 'FixPaperList',
   components: {
@@ -94,26 +101,29 @@ export default {
     SearchPanel,
     BottomToolBar,
     SelectStore,
-    FixPaperAndPurchaseDialog
+    SelectOrganization,
+    FixPaperAndPurchaseDialog,
+    qrcode,
+    designate
   },
   data() {
     return {
       listLoading: false,
       pageSize: 10,
       ruleForm: {
-        Status: 0,
+        Status: '',
         FullID: '',
         Salesman: '',
         HouseName: ''
       },
       HouseName: '',
       procureList: [
-        { value: 0, label: '全部' },
+        { value: '', label: '全部' },
         { value: 1, label: '未入场' },
         { value: 2, label: '已入场' },
-        { value: 3, label: '已结束' },
-        { value: 4, label: '待审批（经理）' },
-        { value: 5, label: '待审批（采购部）' }
+        { value: 3, label: '已结束' }
+        // { value: 4, label: '待审批（经理）' },
+        // { value: 5, label: '待审批（采购部）' }
       ],
       list: [],
       filterList: [],
@@ -132,6 +142,11 @@ export default {
           key: 'DecorationEnd',
           value: '装修结束',
           type: 'primary'
+        },
+        {
+          key: 'Qrcode',
+          value: '分享',
+          type: 'primary'
         }
       ]
     }
@@ -145,20 +160,21 @@ export default {
     keywordReset() {
       // 清空文本框内容
       this.$refs.ruleForm.resetFields()
+      this.ruleForm.FullID = ''
       // 重新请求全部数据
       this.$refs.bottomToolBar.search()
       // 门店选择框重置
-      this.$refs.selectStore.reset()
+      // this.$refs.selectStore.reset()
     },
     // 选择门店过后，返回来的数据
-    handleStoreChange(val) {
-      // 选择门店后的回调
-      if (val) {
-          this.ruleForm.FullID = val.fullID
-      } else {
-          this.ruleForm.FullID = ''
-      }
-    },
+    // handleStoreChange(val) {
+    //   // 选择门店后的回调
+    //   if (val) {
+    //       this.ruleForm.FullID = val.fullID
+    //   } else {
+    //       this.ruleForm.FullID = ''
+    //   }
+    // },
     // 调接口
     fetchData(pages) {
       if (!pages) {
@@ -172,7 +188,8 @@ export default {
         parm: pages,
         HouseName: this.ruleForm.HouseName, // 房源名称
         Salesman: this.ruleForm.Salesman, // 业务员
-        DepID: this.ruleForm.FullID, // 部门ID
+        DepID: '', // 部门ID
+        FullIDNew: this.ruleForm.FullID, // 组织ID
         SheetStatus: this.ruleForm.Status // 装修单状态
       }).then(response => {
         console.log(response)
@@ -194,7 +211,7 @@ export default {
     filterTableDataItem(item) {
       let itemChooseStatus = []
       switch (item.SheetStatus) {
-        case 1: itemChooseStatus = ['Detail', 'Entrance']; break
+        case 1: itemChooseStatus = ['Detail', 'Entrance', 'Qrcode']; break
         case 2: itemChooseStatus = ['Detail', 'DecorationEnd']; break
         case 3: itemChooseStatus = ['Detail']; break
         default: itemChooseStatus = []
@@ -227,29 +244,84 @@ export default {
     },
     // 已入场
     handleEntrance(row) {
-      UpdateDecorationSheetStatus({
-        KeyID: row.KeyID, // 查询时获取到的主键ID
-        SheetStatus: 2 // 装修单状态
-      }).then(res => {
-        row.SheetStatus = 2
-        row.conditionBtn = ['Detail', 'DecorationEnd']
-        this.$refs.bottomToolBar.search()
-        console.log('已入场', res)
+      this.$confirm('确定所有装修项目都已入场?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        UpdateDecorationSheetStatus({
+          KeyID: row.KeyID, // 查询时获取到的主键ID
+          SheetStatus: 2 // 装修单状态
+        }).then(res => {
+          if (!res.Code) {
+            row.SheetStatus = 2
+            row.conditionBtn = ['Detail', 'DecorationEnd']
+            this.$message({
+              type: 'success',
+              message: '操作成功!'
+            })
+            this.$refs.bottomToolBar.search()
+          } else {
+            this.$message({
+              type: 'error',
+              message: '操作失败!'
+            })
+          }
+          console.log('已入场', res)
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消操作'
+        })
       })
       console.log('row', row)
     },
     // 装修结束
     handleDecorationEnd(row) {
-      UpdateDecorationSheetStatus({
-        KeyID: row.KeyID, // 查询时获取到的主键ID
-        SheetStatus: 3 // 装修单状态
-      }).then(res => {
-        row.SheetStatus = 3
-        row.conditionBtn = ['Detail']
-        this.$refs.bottomToolBar.search()
-        console.log('装修结束', res)
+      this.$confirm('确定所有装修项目都已装修完成?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        UpdateDecorationSheetStatus({
+          KeyID: row.KeyID, // 查询时获取到的主键ID
+          SheetStatus: 3 // 装修单状态
+        }).then(res => {
+          if (!res.Code) {
+            row.SheetStatus = 3
+            row.conditionBtn = ['Detail']
+            this.$message({
+              type: 'success',
+              message: '操作成功!'
+            })
+            this.$refs.bottomToolBar.search()
+          } else {
+            this.$message({
+              type: 'error',
+              message: '操作失败!'
+            })
+          }
+          console.log('装修结束', res)
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消操作'
+        })
       })
       console.log('row', row)
+    },
+    // 二维码
+    handleQrcode(row) {
+      this.currentRow = this.$deepCopy(row)
+      row.num = 1
+      row.bill = 10
+      this.$refs.designate.open(row, '装修')
+    },
+     refresh(val, row, type) {
+        row.ShareID = val.userID
+        this.$refs.qrcode.open(row, 'FixingSingle')
     },
     // 对话框事件监听
     editConfigInfo(data) {

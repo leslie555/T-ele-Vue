@@ -78,6 +78,23 @@
                 </el-form-item>
               </div>
               <div class="clearfix">
+                <el-form-item label="承租人电子邮箱" prop="Email">
+                  <el-input v-model="ContractInfo.Email" placeholder="请输入电子邮箱"
+                            maxlength="30"
+                            :disabled="IsSafeEdit"></el-input>
+                </el-form-item>
+                <el-form-item label="获客渠道" prop="PassengerChannel">
+                  <el-select v-model="ContractInfo.PassengerChannel" placeholder="请选择获客渠道">
+                    <el-option
+                      :label="item.Description"
+                      :value="item.Value"
+                      v-for="item in PassengerChannel"
+                      :key="item.Value"
+                    ></el-option>
+                  </el-select>
+                </el-form-item>
+              </div>
+              <div class="clearfix">
                 <el-form-item label="紧急联系人姓名" prop="EmergencyContactName">
                   <el-input v-model="ContractInfo.EmergencyContactName"
                             maxlength="14"
@@ -89,18 +106,6 @@
                             maxlength="11"
                             :disabled="IsSafeEdit"
                             placeholder="请输入紧急联系人电话" @blur="changeLivePeople"></el-input>
-                </el-form-item>
-              </div>
-              <div class="clearfix">
-                <el-form-item label="获客渠道" prop="PassengerChannel">
-                  <el-select v-model="ContractInfo.PassengerChannel" placeholder="请选择获客渠道">
-                    <el-option
-                      :label="item.Description"
-                      :value="item.Value"
-                      v-for="item in PassengerChannel"
-                      :key="item.Value"
-                    ></el-option>
-                  </el-select>
                 </el-form-item>
               </div>
               <div class="clearfix contract-agent">
@@ -124,10 +129,26 @@
                 </el-form-item>
               </div>
               <upload-file
+                ref="uploadFile1"
+                title="租客身份证正面"
+                :required="ContractInfo.PaperType==0"
+                :maxLength="1"
+                :img-list="ContractInfo.CardIDFront"
+                notice="请上传租客证件正面,，请使用png,jpg,jpeg等格式图片上传"
+              ></upload-file>
+              <upload-file
+                ref="uploadFile2"
+                title="租客身份证反面"
+                :required="ContractInfo.PaperType==0"
+                :maxLength="1"
+                :img-list="ContractInfo.CardIDBack"
+                notice="请上传租客证件反面,，请使用png,jpg,jpeg等格式图片上传"
+              ></upload-file>
+              <upload-file
                 ref="uploadFile"
-                title="上传附件"
+                title="其他附件"
                 :img-list="ImageUpload"
-                notice="请上传身份证正面、背面以及手持身份证等照片"
+                notice="请上客户手持身份证等其他照片"
               ></upload-file>
             </el-form>
           </div>
@@ -309,17 +330,26 @@
                             v-positive="ContractInfo.HouseDeposit"
                             placeholder="请输入金额（元）"></el-input>
                 </el-form-item>
+                <el-form-item label="管理服务费" prop="ManagerFee">
+                  <el-input v-model="ContractInfo.ManagerFee"
+                            type="number"
+                            min="0"
+                            max="100000"
+                            v-positive="ContractInfo.ManagerFee"
+                            placeholder="请输入服务费（元）"></el-input>
+                </el-form-item>
               </div>
-              <div class="clearfix form-item-xs">
+              <div class="clearfix form-item-xs" v-show="false">
                 <el-form-item label="租金包含费用" prop="RentIncludeCost">
                   <el-checkbox-group v-model="RentIncludeCost" @change="rentIncludeCostChange">
-                    <template v-for="item in RentIncludeCostList">
+                    <template v-for="(item,index) in RentIncludeCostList">
                       <el-checkbox
                         class="mr-15"
                         :label="item.Value"
+                        :key="index"
                       >{{item.Description}}
                       </el-checkbox>
-                      <el-input class="mr-25" type="number" v-model="RentIncludeInputCost[item.Value].val"
+                      <el-input :key="index" class="mr-25" type="number" v-model="RentIncludeInputCost[item.Value].val"
                                 @blur="$positive(RentIncludeInputCost[item.Value],'val',0,false,1000000,null,true,true)"
                                 v-show="RentIncludeInputCost[item.Value].show"></el-input>
                     </template>
@@ -431,11 +461,22 @@
                   </el-radio-group>
                 </el-form-item>
               </div>
+              <div class="clearfix">
+                <el-form-item label="优惠政策" class="form-item-lg">
+                  <el-input
+                    type="textarea"
+                    :autosize="{ minRows: 4, maxRows: 8}"
+                    placeholder="请输入优惠政策"
+                    maxlength="400"
+                    v-model="ContractInfo.DiscountPolicy">
+                  </el-input>
+                </el-form-item>
+              </div>
             </div>
           </el-form>
           <div class="clearfix block-center contract-btn-box">
             <el-button type="info" @click="prev(1)" class="mr-20">上一步</el-button>
-            <el-button type="primary" class="mr-20" @click="createOrder('TemporaryStorage',2)" v-if="!IsSafeEdit"
+            <el-button type="primary" class="mr-20" @click="createOrder('TemporaryStorage',2)" v-if="!query.SafeEdit"
                        :loading="orderLoading">暂存
             </el-button>
             <el-button type="primary" @click="next(1)" :loading="billLoading">下一步</el-button>
@@ -444,7 +485,7 @@
         <template slot="3">
           <div class="panel-title">账单计划</div>
           <div class="panel-body">
-            <bill-panel ref="billPanel" :disabled="IsSafeEdit" :data="BillList" :contract="ContractInfo"
+            <bill-panel ref="billPanel" :childrenKey="childrenKey" :disabled="IsSafeEdit" :data="BillList" :contract="ContractInfo"
                         :type="1"></bill-panel>
           </div>
           <div class="panel-title">
@@ -458,7 +499,7 @@
           <div class="clearfix block-center contract-btn-box">
             <el-button type="info" @click="prev(2)" class="mr-20">上一步</el-button>
             <el-button type="primary" class="mr-20" @click="createOrder('TemporaryStorage',3)"
-                       :loading="orderLoading" v-if="!IsSafeEdit">暂存
+                       :loading="orderLoading" v-if="!query.SafeEdit">暂存
             </el-button>
             <el-button type="primary" @click="next(2)">下一步</el-button>
           </div>
@@ -564,7 +605,7 @@
           </el-form>
           <div class="clearfix block-center contract-btn-box">
             <el-button type="info" @click="prev()" class="mr-20">上一步</el-button>
-            <template v-if="!IsSafeEdit">
+            <template v-if="!query.SafeEdit">
               <el-button type="primary" class="mr-20" @click="createOrder('TemporaryStorage',4)"
                          :loading="orderLoading">暂存
               </el-button>
@@ -616,7 +657,7 @@
   import { BillPanel, BookKeeping, ContractTabs, InputNumber } from '../../Owner/EditContract/components'
   import { LivePeople } from './components'
   import { UploadFile } from '../../../components/UploadFile'
-  import { validatePhone, validateCard } from '../../../utils/validate/rulevalidator'
+  import { validatePhone, validateCard, validateEmail } from '../../../utils/validate/rulevalidator'
   import uuid from '../../../utils/uuid'
   import { scrollToError } from '../../../utils/scrollToError'
   import { mapActions } from 'vuex'
@@ -724,6 +765,7 @@
           DepositModel: 1,
           HouseRent: 0,
           HouseDeposit: 0,
+          ManagerFee: 0,
           IncreaseType: 0,
           IncreaseFrequency: 1,
           TenantSex: 0,
@@ -731,9 +773,12 @@
           MaxLiverCount: 1,
           WaterBaseNumber: '',
           ElectricityBaseNumber: '',
-          GasBaseNumber: ''
+          GasBaseNumber: '',
+          CardIDFront: [],
+          CardIDBack: []
         }, // 合同信息
         HouseInfo: {}, // 房源信息
+        childrenKey: 'TenantBillDetail',
         LivePeopleInfoList: [
           {
             uuid: uuid(),
@@ -761,7 +806,9 @@
           ImageUpload: [],
           BookKeep: [],
           OutRoomInfoList: [],
-          TenantBill: []
+          TenantBill: [],
+          CardIDFront: [],
+          CardIDBack: []
         }, // clone的旧数据
         billForm: {}, // 账单表单 用于对比是否修改了账单
         Decoration: [], // 所有装修情况数据
@@ -805,6 +852,9 @@
             EmergencyContactPhone: [
               { validator: validatePhone, trigger: 'blur' }
             ],
+            Email: [
+              { validator: validateEmail, trigger: 'blur' }
+            ],
             PassengerChannel: [
               { required: true, message: '请选择获客渠道', trigger: 'change' }
             ],
@@ -835,6 +885,9 @@
             ],
             HouseDeposit: [
               { required: true, message: '请输入房屋押金', trigger: 'blur' }
+            ],
+            ManagerFee: [
+              { required: true, message: '请输入管理服务费', trigger: 'blur' }
             ],
             PayStageTimeMark: [
               { required: true, message: '请完善分期时间', trigger: 'change' }
@@ -986,6 +1039,12 @@
             this.ContractInfo.HostTimeMark = [this.ContractInfo.StartTime, this.ContractInfo.EndTime]
             this.changeLivePeople()
             return
+          }
+          if (TenantContractInfo.CardIDFront && TenantContractInfo.CardIDFront.length > 0) {
+            this.cloneData.CardIDFront = this.$deepCopy(TenantContractInfo.CardIDFront)
+          }
+          if (TenantContractInfo.CardIDBack && TenantContractInfo.CardIDBack.length > 0) {
+            this.cloneData.CardIDBack = this.$deepCopy(TenantContractInfo.CardIDBack)
           }
           this.ContractInfo = { ...this.ContractInfo, ...TenantContractInfo }
           // 合同编号重置
@@ -1142,7 +1201,6 @@
         }
       },
       next(index) {
-        console.log(this.OutRoomInfoList)
         let flag = -1
         switch (index) {
           case 0:
@@ -1164,6 +1222,14 @@
                 flag = 2
               }
             })
+            if (this.ContractInfo.PaperType === 0 && this.ContractInfo.CardIDFront.length === 0) {
+              this.$message.error('请上传租客身份证正面照！')
+              return false
+            }
+            if (this.ContractInfo.PaperType === 0 && this.ContractInfo.CardIDBack.length === 0) {
+              this.$message.error('请上传租客身份证反面照！')
+              return false
+            }
             if (flag === -1) {
               if (this.LivePeopleInfoList.length === 0) {
                 this.$message.error('入住人信息不能为空！')
@@ -1259,7 +1325,6 @@
       },
       searchHouseStatus() {
         if (this.query.SafeEdit) return
-        debugger
         return QueryHouseContractStatus({
           HouseID: this.HouseInfo.KeyID,
           TenantID: (this.query.Renew ? '' : this.query.KeyID) || ''
@@ -1412,6 +1477,7 @@
         getTenantBillNew(this.ContractInfo).then(({ Data, BusCode, Msg }) => {
           this.billLoading = false
           if (BusCode === 0) {
+            this.filterBillData(Data)
             this.$refs.billPanel.initData(Data, this.cloneData.TenantBill)
             this.$refs.steps.nextStep()
             this.saveBillForm()
@@ -1423,6 +1489,27 @@
           this.$message.error(message)
           // this.$refs.steps.nextStep()
         })
+      },
+      filterBillData(Data) {
+        const obj = {
+          BillProjectID: 0,
+          BillProjectName: '',
+          InOrOut: 2,
+          Amount: '',
+          showWhenZero: true,
+          IsActual: 0,
+          CanOperate: 1
+        }
+        if (this.query.OrderID) {
+          obj.BillProjectID = 57
+          obj.BillProjectName = '定金转租金'
+          Data[0].TenantBillDetail.push(obj)
+        }
+        if (this.query.Renew) {
+          obj.BillProjectID = 58
+          obj.BillProjectName = '续约转押金'
+          Data[0].TenantBillDetail.push(obj)
+        }
       },
       async createOrder(type, step) {
         // 点击前几步暂存时不需要走完流程，也不需要验证当页
@@ -1470,13 +1557,16 @@
         }
         // 合同模板
         this.ContractInfo.ContractTemplateUrl = this.ContractTemplate.find(v => v.ContractTemplateName === this.ContractInfo.ContractTemplateName).ContractTemplateUrl
-        // 租金包含费用
+        // 租金包含费用、租金包含费用合计
+        let RentIncludeExp = 0
         const RentIncludeCost = this.RentIncludeCost.map(v => {
+          RentIncludeExp += +this.RentIncludeInputCost[v].val
           return {
             KeyID: +v,
             Price: this.RentIncludeInputCost[v].val
           }
         })
+        this.ContractInfo.RentIncludeExp = RentIncludeExp
         this.ContractInfo.RentIncludeCost = JSON.stringify(RentIncludeCost)
         // 代办人信息
         this.ContractInfo.IsAgent = this.ContractInfo.IsAgent ? 1 : 0
@@ -1511,6 +1601,15 @@
         // 强制修改 InputTerminal
         this.ContractInfo.InputTerminal = 0
         this.ContractInfo.TenantCard = this.ContractInfo.TenantCard.toUpperCase()
+        // 身份证照片
+        const CardIDFront = this.$DiffArrFn(this.cloneData.CardIDFront, this.ContractInfo.CardIDFront, [
+          'ImageLocation'
+        ])
+        const CardIDBack = this.$DiffArrFn(this.cloneData.CardIDBack, this.ContractInfo.CardIDBack, [
+          'ImageLocation'
+        ])
+        this.ContractInfo.CardIDFront = CardIDFront
+        this.ContractInfo.CardIDBack = CardIDBack
         // 续约加字段
         if (this.query.Renew) {
           this.ContractInfo.RenewalID = this.query.KeyID
@@ -1606,6 +1705,7 @@
                     Mobile: this.ContractInfo.TenantPhone,
                     IDCard: this.ContractInfo.TenantCard,
                     Name: this.ContractInfo.TenantName,
+                    Img: this.ContractInfo.CardIDFront[0].ImageLocation,
                     ContractID: Data,
                     type: 1
                   }
@@ -1649,6 +1749,7 @@
             HouseName: this.HouseInfo.HouseName,
             HouseID: this.HouseInfo.KeyID,
             HouseKey: this.HouseInfo.HouseKey,
+            RentType: this.HouseInfo.RentType,
             uuid: uuid()
           },
           type: 0

@@ -53,7 +53,7 @@ export default {
   methods: {
     open(val, name) {
       const token = this.$store.getters.userinfo.Token
-      this.baseURI = phoneURL + name + `?token=${token}&KeyID=${val.KeyID}`
+      this.baseURI = phoneURL + name + `?token=${token}&KeyID=${val.KeyID}&ShareID=${val.ShareID}`
       this.showQRCodeDialog = true
     },
     close() {

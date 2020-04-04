@@ -14,20 +14,22 @@
         <el-row>
           <span style="color: #389EF2;">最多上传20张, 建议尺寸480*360以上; 每张最大5M</span>
         </el-row>
-        <div class="upload-imgs" v-for="(img, imgIndex) in imgList" :key="imgIndex" v-show="img.length > 0" >
+        <div class="upload-imgs" v-for="(img, imgIndex) in imgList" :key="imgIndex" v-show="img.length > 0">
           <div class="upload-img-name">{{ imgIndex === 0 ? '公共区域图片' : imgDataList[imgIndex].RoomName + '图片' }}</div>
           <div class="upload-img-Box">
-            <draggable v-model="imgList[imgIndex]">
+            <draggable v-model="imgList[imgIndex]" v-viewer="{url: 'data-src',filter: (image) => image.dataset.enable === '1'}">
               <div class="upload-img" v-for="(item, index) in img" :key="index">
-                <img :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)" @click="$seeImage($ImgUnit.getImgUrl(item.ImageLocation))">
+                <img :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)" :data-src="$ImgUnit.getImgUrl(item.ImageLocation)" :data-enable="1">
                 <i class="iconfont icon-shanjianmoren" @click="delImg(imgIndex, index)"></i>
-                <img src="../../../../../../assets/HouseList/bookPaper.png" alt="" class="upload-paper" v-show="index === 0">
+                <img src="../../../../../../assets/HouseList/bookPaper.png" alt="" class="upload-paper"
+                     v-show="index === 0">
+                <div @click="setHover(img,index)" class="upload-img-btn" v-show="index!==0">设为封面</div>
               </div>
             </draggable>
           </div>
         </div>
         <el-row>
-          <span style="color: #389EF2;">温馨提示: 拖动图片可以排序, 放在第一张的默认为封面, 快来试试吧!</span>
+          <span style="color: #389EF2;">温馨提示: 拖动图片到第一张或者点击"设为封面"即可设置封面图, 快来试试吧!</span>
         </el-row>
         <div v-for="(img, imgIndex) in imgList" :key="imgIndex + 200">
           <upload-dialog :img-list="img" :ref="'uploadFile'+imgIndex"></upload-dialog>
@@ -82,6 +84,11 @@
           return this.imgList[n]
         })())
       },
+      setHover(list, index) {
+        const item = list[index]
+        list.splice(index, 1)
+        list.unshift(item)
+      },
       dialogOpen(index) {
         this.$refs[`uploadFile${index}`][0].open()
       },
@@ -120,11 +127,11 @@
   @import 'style';
 </style>
 <style lang="scss">
-.clearfix{
-  .upload-btnBox{
-    .el-scrollbar__wrap {
-      overflow-x: hidden;
+  .clearfix {
+    .upload-btnBox {
+      .el-scrollbar__wrap {
+        overflow-x: hidden;
+      }
     }
   }
-}
 </style>

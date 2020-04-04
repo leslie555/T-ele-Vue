@@ -14,7 +14,7 @@
             <li></li>
           </ul>
           <div class="detail-content">
-            <p> 
+            <p  v-viewer="{url: 'data-src'}">
               <!-- <label class="img-detail"> 图片 &nbsp; &nbsp; </label> -->
               <label> 图片 &nbsp; &nbsp; </label>
               <span
@@ -22,7 +22,7 @@
               :key="index"
               >
                 <img class="img-preview" :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)"
-                      @click="$seeImage($ImgUnit.getImgUrl(item.ImageLocation))"
+                      :data-src="$ImgUnit.getImgUrl(item.ImageLocation)"
                 >
               </span>
                </p>
@@ -46,14 +46,14 @@
             <li></li>
           </ul>
           <div v-if="detailList.State !== 2 && detailList.State === 4" class="detail-content">
-            <p>
+            <p  v-viewer="{url: 'data-src'}">
               <label> 保洁图片 &nbsp; &nbsp; </label>
               <span
               v-for="(item, index) in CleaningImgList"
               :key="index"
               >
                 <img class="img-preview" :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)"
-                      @click="$seeImage($ImgUnit.getImgUrl(item.ImageLocation))"
+                      :data-src="$ImgUnit.getImgUrl(item.ImageLocation)"
                 >
               </span>
             </p>
@@ -124,7 +124,14 @@ export default {
         this.detailList = res.Data
         // this.detailList.State = this.filterState(res.Data.State)
         this.imgListDetail = res.Data.Img
-        this.CleaningImgList = res.Data.CleaningImg
+        if (res.Data.CleaningImg.length === 0) {
+          this.CleaningImgList = res.Data.HandleImg
+        } else {
+          this.CleaningImgList = res.Data.CleaningImg
+        }
+        if (this.detailList.CleaningRemark === '') {
+          this.detailList.CleaningRemark = this.detailList.HandleBZ
+        }
         this.detailLoading = false
         this.stepList = res.Data.RenovationPlanTrack
       })

@@ -51,7 +51,7 @@
         query: this.$route.query,
         showDialog: false,
         visible: false,
-        loadingText: '个人信息认证中..',
+        loadingText: '个人信息注册中..',
         baseURI: '',
         signURI: '',
         CustomerId: '',
@@ -93,8 +93,9 @@
         param.to = store.getters.token
         param.ty = this.type
         param.cu = this.CustomerId
+        param.im = this.query.Img || ''
         param.ti = new Date().getTime()
-        this.baseURI = phoneURL + 'ContractSign?p=' + JSON.stringify(param)
+        this.baseURI = phoneURL + 'ContractAuthInfo?p=' + JSON.stringify(param)
         console.log(this.baseURI)
       },
       personAuth() {
@@ -110,26 +111,22 @@
             this.CustomerId = Data.CustomerId
             this.getViewContract()
           } else {
-            this.authFail()
+            this.authFail('4')
           }
         }).catch(() => {
           this.visible = false
-          // this.authFail()
+          this.authFail('3')
         })
       },
-      authFail() {
-        this.$confirm('个人认证失败，请核对客户，身份证和电话。', '温馨提示', {
-          cancelButtonText: '返回列表',
-          confirmButtonText: '重新认证'
-        }).then(() => {
-          this.personAuth()
-        }).catch(() => {
+      authFail(text) {
+        console.log('身份认证错误标识' + text)
+        this.$alert('请核对客户姓名、身份证、电话是否准确。点击确定返回合同列表找到该合同撤回后进行修改', '温馨提示').then(() => {
           this.confirm()
         })
       },
       getViewContract() {
         this.visible = true
-        this.loadingText = '正在生成预览'
+        this.loadingText = '正在生成合同预览页面'
         viewContract({
           ContractId: this.query.ContractID,
           TemplateType: this.type + 1

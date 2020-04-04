@@ -45,9 +45,9 @@
               v-if="showOrgan"
               ref="cascader"
               separator=">"
-              expand-trigger="hover"
               :options="treeData"
-              @active-item-change="handleParentChange"
+              @change="handleChange"
+              @expand-change="handleParentChange"
               :props="defaultOptions"
               v-model="form.PID"
             ></el-cascader>
@@ -155,7 +155,9 @@
         showOrgan: false,
         defaultOptions: {
           label: 'SysName',
-          value: 'KeyID'
+          value: 'KeyID',
+          expandTrigger: 'hover',
+          checkStrictly: true
         },
         form: {},
         isEdit: false,
@@ -330,23 +332,25 @@
         ) {
           this.markDisbale = true
         }
+        // this.$emit('change', val)
+        this.$refs.cascader.dropDownVisible = false
         this.$emit('change', val)
       },
       handleParentChange(val) {
-        this.$refs.cascader.menu.$el.onclick = e => {
-          if (e.srcElement.nodeName === 'LI') {
-            if (
-              !this.markDisbale &&
-              findNodeByArr(this.treeData, val, null, this.defaultOptions)
-                .children
-            ) {
-              // 如果为叶子节点则不添加onclick
-              this.$refs.cascader.handlePick(val)
-            } else {
-              this.markDisbale = false
-            }
-          }
-        }
+        // this.$refs.cascader.menu.$el.onclick = e => {
+        //   if (e.srcElement.nodeName === 'LI') {
+        //     if (
+        //       !this.markDisbale &&
+        //       findNodeByArr(this.treeData, val, null, this.defaultOptions)
+        //         .children
+        //     ) {
+        //       // 如果为叶子节点则不添加onclick
+        //       this.$refs.cascader.handlePick(val)
+        //     } else {
+        //       this.markDisbale = false
+        //     }
+        //   }
+        // }
       },
       handleNameBlur() {
         // 名字Input失去焦点时验证身份证号合法性

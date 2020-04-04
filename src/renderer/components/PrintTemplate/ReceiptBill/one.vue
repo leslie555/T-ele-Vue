@@ -4,7 +4,10 @@
       <h5>收&nbsp;&nbsp;&nbsp;款&nbsp;&nbsp;&nbsp;单</h5>
     </div>
     <div class="receipt-company" style="margin-bottom:22px;">
-      <div class="company-item company-item1"><span>收款单位:</span><span>{{newPrintData.CompanyName || '无'}}</span></div>
+      <div>
+        <div class="company-item"><span>收款单位:</span><span>{{newPrintData.CompanyName || '无'}}</span></div>
+        <div class="company-item" style="float: right;"><span>租客名称:</span><span style="text-align: right">{{newPrintData.Abstract || ''}}</span></div>
+      </div>
       <div style="margin-top: 10px;">
         <div class="company-item"><span>房源名称:</span><span>{{HouseName || '无'}}</span></div>
         <div class="company-item" style="float: right;"><span>收款日期:</span><span style="text-align: right">{{$dateFormat(newPrintData.PaymentData) || '无'}}</span></div>

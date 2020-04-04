@@ -35,6 +35,7 @@ export default {
     },
     handleClick() {
       if (this.activeName === '1' && !this.isPubFirstFetch) {
+        debugger
         this.$refs.PubTable.search()
         this.isPubFirstFetch = true
       }

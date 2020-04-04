@@ -56,7 +56,7 @@
             <h4 class="order-contract-num">合同号：{{ContractNumber}}</h4>
             <p>
               <label>
-                门店：
+                组织：
                 <span>{{CompanyName}}</span>
               </label>
               <label>
@@ -435,34 +435,44 @@
               <label>维修等共计金额：</label>
               <el-input v-model="RepairMoney" placeholder="请填写" type="number"></el-input>元
             </div>
-            <div class="order-contract-info">
-              <p>
-                房租
-                  <el-input v-model="HouseRent" placeholder="请填写" type="number"></el-input>元/押金
-                  <el-input v-model="HouseDeposit" placeholder="请填写" type="number"></el-input>元/押金
-                元 (凭合同押金条，再财务核实)-需支付费用
-                <el-input v-model="NeedPay" placeholder="请填写" type="number"></el-input>元
-                =收到实退￥
-                <span>{{getActualReceive}}</span>元，大写：
-                <span>{{this.$ToCapChinese(getActualReceive)}}</span>,此后双方无任何纠纷，款项于30个工作日
-                  <el-date-picker
-                    v-model="PaymentDay"
-                    type="date"
-                    value-format="yyyy-MM-dd"
-                    placeholder="选择日期">
-                  </el-date-picker>
-                  日打到客户下面对应账上。
+            <el-form :model="ruleForm1" :rules="rules1" ref="ruleForm1">
+              <div class="order-contract-info">
+                <p>
+                  房租
+                    <el-input v-model="HouseRent" placeholder="请填写" type="number"></el-input>元/押金
+                    <el-input v-model="HouseDeposit" placeholder="请填写" type="number"></el-input>元/押金
+                  元 (凭合同押金条，再财务核实)-需支付费用
+                  <el-input v-model="NeedPay" placeholder="请填写" type="number"></el-input>元
+                  =收到实退￥
+                  <span>{{getActualReceive}}</span>元，大写：
+                  <span>{{this.$ToCapChinese(getActualReceive)}}</span>,此后双方无任何纠纷，款项于30个工作日
+                  <el-form-item prop="PaymentDay" class="paymentDay_inline">
+                    <!-- <el-input v-model="ruleForm1.PaymentDay"></el-input> -->
+                    <el-date-picker
+                      v-model="ruleForm1.PaymentDay"
+                      type="date"
+                      value-format="yyyy-MM-dd"
+                      placeholder="选择日期">
+                    </el-date-picker>
+                  </el-form-item>
+                    日打到客户下面对应账上。
+                </p>
+              </div>
+              <p class="order-contract-bank-info">
+                <!-- <label>客户本人银行卡号:</label> -->
+                <el-form-item label="客户本人银行卡号:" prop="BankAccount">
+                  <el-input v-model="ruleForm1.BankAccount" placeholder="请填写" type="number"></el-input>
+                </el-form-item>
+                <!-- <label>户名:</label> -->
+                <el-form-item label="户名:" prop="TenBankName">
+                  <el-input v-model="ruleForm1.TenBankName" placeholder="请填写"></el-input>
+                </el-form-item>
+                <!-- <label>开户行:</label> -->
+                <el-form-item label="开户行:" prop="OpenBankName">
+                  <el-input v-model="ruleForm1.OpenBankName" placeholder="请填写"></el-input>
+                </el-form-item>
               </p>
-            </div>
-            <p class="order-contract-bank-info">
-              <label>客户本人银行卡号:</label>
-              <el-input v-model="BankAccount" placeholder="请填写" type="number"></el-input>
-              <label>户名:</label>
-              <el-input v-model="TenBankName" placeholder="请填写"></el-input>
-              <label>开户行:</label>
-              <el-input v-model="OpenBankName" placeholder="请填写"></el-input>
-            </p>
-
+            </el-form>
             <div class="order-contract-signInfo">
               <ul>
                 <li>
@@ -506,9 +516,9 @@
                 <span>{{getActualReceive}}</span>元（大写：
                 <span>{{this.$ToCapChinese(getActualReceive)}}</span>）
                 于30个工作日
-                  <span>{{PaymentDay}}</span>
+                  <span>{{ruleForm1.PaymentDay}}</span>
                 日打入本人银行卡号：
-                <span>{{BankAccount}}</span>此后双方无任何纠纷。
+                <span>{{ruleForm1.BankAccount}}</span>此后双方无任何纠纷。
               </p>
               <p>
               <span class="order-contract-footer">
@@ -532,7 +542,7 @@
       </steps-box>
     </div>
 
-    <bills-preview ref="billsPreview"></bills-preview>
+    <bills-preview ref="billsPreview" :is-detail="!!this.query.IsSafeEdit" hide-detail></bills-preview>
   </div>
 </template>
 
@@ -583,15 +593,35 @@ export default {
         DefaultAgreeRemoveDate: '',
         DefaultReturnMonry: ''
       },
+      ruleForm1: {
+        PaymentDay: '', // 款项打款日
+        BankAccount: '', // 客户银行卡号
+        TenBankName: '', // 户名
+        OpenBankName: '' // 开户行
+      },
+      rules1: {
+        PaymentDay: [
+          { required: true, message: '请选择日期', trigger: 'blur' }
+        ],
+        BankAccount: [
+          { required: true, message: '请填写银行卡号', trigger: 'blur' }
+        ],
+        TenBankName: [
+          { required: true, message: '请填写户名', trigger: 'blur' }
+        ],
+        OpenBankName: [
+          { required: true, message: '请填写开户行', trigger: 'blur' }
+        ]
+      },
       RepairMoney: '', // 维修共计金额
       HouseRent: '', // 房租
       HouseDeposit: '', // 房屋押金
       NeedPay: '', // 需支付费用
       ActualReceive: '', // 收到实退
-      PaymentDay: '', // 款项打款日
-      BankAccount: '', // 客户银行卡号
-      TenBankName: '', // 户名
-      OpenBankName: '', // 开户行
+      // PaymentDay: '', // 款项打款日
+      // BankAccount: '', // 客户银行卡号
+      // TenBankName: '', // 户名
+      // OpenBankName: '', // 开户行
       TenSignInfo: '', // 租客签字
       TenantName: '', // 租客签字
       TenantCard: '', // 租客身份证号
@@ -678,7 +708,7 @@ export default {
           this.TenantPhone = Data.TenantPhone
           this.HouseRent = Data.HouseRent
           this.HouseDeposit = Data.HouseDeposit
-          this.PaymentDay = dateFormat(Data.PaymentDay)
+          this.ruleForm1.PaymentDay = dateFormat(Data.PaymentDay)
           this.NeedPay = Data.NeedPay
           this.filterList1[0].WaterBaseNumber = Data.WaterBaseNumber
           this.filterList1[1].ElectricityBaseNumber = Data.ElectricityBaseNumber
@@ -688,8 +718,8 @@ export default {
           this.ruleForm.DefaultPrepayment = Data.DefaultPrepayment || ''
           this.ruleForm.DefaultAgreeRemoveDate = dateFormat(Data.DefaultAgreeRemoveDate)
           this.ruleForm.DefaultReturnMonry = Data.DefaultReturnMonry || ''
-          this.TenBankName = Data.TenBankName // 户名
-          this.OpenBankName = Data.OpenBankName // 开户行
+          this.ruleForm1.TenBankName = Data.TenBankName // 户名
+          this.ruleForm1.OpenBankName = Data.OpenBankName // 开户行
           this.filterList1[0].WaterBaseNumber = Data.WaterBaseNumber || ''
           this.filterList1[0].WaterEndNumber = Data.WaterEndNumber || ''
           this.filterList1[0].WaterMoney = Data.WaterMoney || ''
@@ -725,8 +755,8 @@ export default {
           this.HouseDeposit = Data.HouseDeposit
           this.NeedPay = Data.NeedPay
           this.ActualReceive = Data.ActualReceive
-          this.PaymentDay = dateFormat(Data.PaymentDay)
-          this.BankAccount = Data.BankAccount
+          this.ruleForm1.PaymentDay = dateFormat(Data.PaymentDay)
+          this.ruleForm1.BankAccount = Data.BankAccount
           this.TenSignInfo = Data.TenSignInfo
           this.TenantName = Data.TenantName
           this.TenantCard = Data.TenantCard
@@ -798,71 +828,78 @@ export default {
     handleSaveInfo() {
       // updateStatus 为 true 则修改， 否则新增
       //
-      const ID = this.KeyID !== 0 ? this.KeyID : this.query.KeyID
-      const apiRequest = this.updateStatus === true ? UpdateTenCheckOutAgreement : InsertTenCheckOutAgreement
-      this.SaveLoading = true
-      apiRequest({
-        KeyID: ID,
-        TenContractID: this.query.KeyID,
-        IsDefault: this.checkoutType,
-        HouseName: this.query.HouseName,
-        HouseID: this.query.HouseID,
-        HouseKey: this.query.HouseKey,
-        WaterEndNumber: this.filterList1[0].WaterEndNumber, // 水止数
-        WaterMoney: this.filterList1[0].WaterMoney, // 水金额
-        WaterIsSettle: this.filterList1[0].WaterIsSettle, // 水是否结清
-        ElectricityEndNumber: this.filterList1[1].ElectricityEndNumber, // 电止数
-        ElectricityMoney: this.filterList1[1].ElectricityMoney, // 电金额
-        ElectricityIsSettle: this.filterList1[1].ElectricityIsSettle, // 电是否结清
-        GasEndNumber: this.filterList1[2].GasEndNumber, // 气止数
-        GasMoney: this.filterList1[2].GasMoney, // 气金额
-        GasIsSettle: this.filterList1[2].GasIsSettle, // 气是否结清
-        NetWorkStartDate: this.filterList2[0].NetWorkDate[0], // 网开始日期
-        NetWorkEndDate: this.filterList2[0].NetWorkDate[1], // 网截止日期
-        NetWorkMoney: this.filterList2[0].NetWorkMoney, // 网金额
-        NetWorkIsSettle: this.filterList2[0].NetWorkIsSettle, // 网是否结清
-        ManageStartDate: this.filterList2[1].ManageDate[0], // 物管卫生开始日期
-        ManageEndDate: this.filterList2[1].ManageDate[1], // 物管卫生截止日期
-        ManageMoney: this.filterList2[1].ManageMoney, // 物管卫生金额
-        ManageIsSettle: this.filterList2[1].ManageIsSettle, // 物管卫生是否结清
-        CleanStartDate: this.filterList2[2].CleanDate[0], // 保洁费用开始日期
-        CleanEndDate: this.filterList2[2].CleanDate[1], // 保洁费用截止日期
-        CleanMoney: this.filterList2[2].CleanMoney, // 保洁费用金额
-        CleanIsSettle: this.filterList2[2].CleanIsSettle, // 保洁费用是否结清
-        DoorCardCount: this.filterList3[0].DoorCardCount, // 门卡张数
-        WaterCardCount: this.filterList3[0].WaterCardCount, // 水卡张数
-        ElecCardCount: this.filterList3[0].ElecCardCount, // 电卡张数
-        KeyCount: this.filterList3[0].KeyCount, // 钥匙数量
-        KeyPlacement: this.filterList3[1].KeyPlacement, // 钥匙放置处
-        ExpireLiveDay: this.filterList4[0].ExpireLiveDay, // 到期多居住天数
-        ExpireLiveDayMoney: this.filterList4[0].ExpireLiveDayMoney, // 到期多居住金额
-        DefaultMoney: this.filterList4[0].DefaultMoney, // 违约退房金额
-        Equipment: this.filterList5, // 添加设备列表
-        RepairMoney: this.RepairMoney, // 维修共计金额
-        HouseRent: this.HouseRent, // 房租
-        HouseDeposit: this.HouseDeposit, // 房屋押金
-        NeedPay: this.NeedPay, // 需支付费用
-        ActualReceive: this.getActualReceive, // 收到实退
-        PaymentDay: this.PaymentDay, // 款项打款日
-        BankAccount: this.BankAccount, // 客户银行卡号
-        TenSignInfo: this.TenSignInfo, // 租客签字
-        TenantCard: this.TenantCard, // 租客身份证号
-        TenantPhone: this.TenantPhone, // 租客电话号码
-        ContractStartDate: this.ContractStartDate, // 合同起止日期
-        CheckOutDate: this.CheckOutDate, // 退房当天日期
-        SalesmanSignInfo: this.SalesmanSignInfo, // 退房人签字
-        DefaultPrepayment: this.ruleForm.DefaultPrepayment, // 违约退房-水电气预付金
-        DefaultAgreeRemoveDate: this.ruleForm.DefaultAgreeRemoveDate, // 违约退房-约定搬离日期
-        DefaultReturnMonry: this.ruleForm.DefaultReturnMonry, // 违约退房-退还租金和押金
-        TenBankName: this.TenBankName, // 户名
-        OpenBankName: this.OpenBankName // 开户行
-      }).then(res => {
-        console.log('res:', res)
-        this.SaveLoading = false
-        this.updateStatus = true
-        this.$refs['billsPreview'].open({
-          contractID: this.query.KeyID
-        })
+      this.$refs['ruleForm1'].validate((valid) => {
+        if (valid) {
+          const ID = this.KeyID !== 0 ? this.KeyID : this.query.KeyID
+          const apiRequest = this.updateStatus === true ? UpdateTenCheckOutAgreement : InsertTenCheckOutAgreement
+          this.SaveLoading = true
+          apiRequest({
+            KeyID: ID,
+            TenContractID: this.query.KeyID,
+            IsDefault: this.checkoutType,
+            HouseName: this.query.HouseName,
+            HouseID: this.query.HouseID,
+            HouseKey: this.query.HouseKey,
+            WaterEndNumber: this.filterList1[0].WaterEndNumber, // 水止数
+            WaterMoney: this.filterList1[0].WaterMoney, // 水金额
+            WaterIsSettle: this.filterList1[0].WaterIsSettle, // 水是否结清
+            ElectricityEndNumber: this.filterList1[1].ElectricityEndNumber, // 电止数
+            ElectricityMoney: this.filterList1[1].ElectricityMoney, // 电金额
+            ElectricityIsSettle: this.filterList1[1].ElectricityIsSettle, // 电是否结清
+            GasEndNumber: this.filterList1[2].GasEndNumber, // 气止数
+            GasMoney: this.filterList1[2].GasMoney, // 气金额
+            GasIsSettle: this.filterList1[2].GasIsSettle, // 气是否结清
+            NetWorkStartDate: this.filterList2[0].NetWorkDate[0], // 网开始日期
+            NetWorkEndDate: this.filterList2[0].NetWorkDate[1], // 网截止日期
+            NetWorkMoney: this.filterList2[0].NetWorkMoney, // 网金额
+            NetWorkIsSettle: this.filterList2[0].NetWorkIsSettle, // 网是否结清
+            ManageStartDate: this.filterList2[1].ManageDate[0], // 物管卫生开始日期
+            ManageEndDate: this.filterList2[1].ManageDate[1], // 物管卫生截止日期
+            ManageMoney: this.filterList2[1].ManageMoney, // 物管卫生金额
+            ManageIsSettle: this.filterList2[1].ManageIsSettle, // 物管卫生是否结清
+            CleanStartDate: this.filterList2[2].CleanDate[0], // 保洁费用开始日期
+            CleanEndDate: this.filterList2[2].CleanDate[1], // 保洁费用截止日期
+            CleanMoney: this.filterList2[2].CleanMoney, // 保洁费用金额
+            CleanIsSettle: this.filterList2[2].CleanIsSettle, // 保洁费用是否结清
+            DoorCardCount: this.filterList3[0].DoorCardCount, // 门卡张数
+            WaterCardCount: this.filterList3[0].WaterCardCount, // 水卡张数
+            ElecCardCount: this.filterList3[0].ElecCardCount, // 电卡张数
+            KeyCount: this.filterList3[0].KeyCount, // 钥匙数量
+            KeyPlacement: this.filterList3[1].KeyPlacement, // 钥匙放置处
+            ExpireLiveDay: this.filterList4[0].ExpireLiveDay, // 到期多居住天数
+            ExpireLiveDayMoney: this.filterList4[0].ExpireLiveDayMoney, // 到期多居住金额
+            DefaultMoney: this.filterList4[0].DefaultMoney, // 违约退房金额
+            Equipment: this.filterList5, // 添加设备列表
+            RepairMoney: this.RepairMoney, // 维修共计金额
+            HouseRent: this.HouseRent, // 房租
+            HouseDeposit: this.HouseDeposit, // 房屋押金
+            NeedPay: this.NeedPay, // 需支付费用
+            ActualReceive: this.getActualReceive, // 收到实退
+            PaymentDay: this.ruleForm1.PaymentDay, // 款项打款日
+            BankAccount: this.ruleForm1.BankAccount, // 客户银行卡号
+            TenSignInfo: this.TenSignInfo, // 租客签字
+            TenantCard: this.TenantCard, // 租客身份证号
+            TenantPhone: this.TenantPhone, // 租客电话号码
+            ContractStartDate: this.ContractStartDate, // 合同起止日期
+            CheckOutDate: this.CheckOutDate, // 退房当天日期
+            SalesmanSignInfo: this.SalesmanSignInfo, // 退房人签字
+            DefaultPrepayment: this.ruleForm.DefaultPrepayment, // 违约退房-水电气预付金
+            DefaultAgreeRemoveDate: this.ruleForm.DefaultAgreeRemoveDate, // 违约退房-约定搬离日期
+            DefaultReturnMonry: this.ruleForm.DefaultReturnMonry, // 违约退房-退还租金和押金
+            TenBankName: this.ruleForm1.TenBankName, // 户名
+            OpenBankName: this.ruleForm1.OpenBankName // 开户行
+          }).then(res => {
+            console.log('res:', res)
+            this.SaveLoading = false
+            this.updateStatus = true
+            this.$refs['billsPreview'].open({
+              contractID: this.query.KeyID
+            })
+          })
+        } else {
+          this.$message.error('请填写完整信息!')
+          return false
+        }
       })
     },
     arraySpanMethod({ row, column, rowIndex, columnIndex }) { // 把列合并为行

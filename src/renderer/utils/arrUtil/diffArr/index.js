@@ -1,5 +1,5 @@
 /* eslint-disable eqeqeq */
-export default function(oldData, newData, diffKey = []) {
+export default function(oldData = [], newData = [], diffKey = []) {
   /*
   *  ModifyStatus  0：未改 1：新增 2：修改 3：删除
   *  oldData  [{KeyID:1,a:111},{KeyID:2,a:222},{KeyID:3,a:333}]

@@ -133,7 +133,12 @@
                 if (prevPath) {
                   this.$router.push(prevPath)
                 } else {
-                  this.$router.push({ path: '/' })
+                  if (this.loginForm.username === 'qingke') {
+                    this.$store.dispatch('delAllViews')
+                    this.$router.push({ path: '/Finance/AccountManage' })
+                  } else {
+                    this.$router.push({ path: '/' })
+                  }
                 }
                 // 获取枚举类型数据
                 this.$store.dispatch('GetEnumList')

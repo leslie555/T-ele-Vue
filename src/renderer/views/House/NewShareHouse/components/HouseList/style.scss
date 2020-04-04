@@ -1,0 +1,103 @@
+@import "../../../../../styles/variables";
+@import "../../../../../styles/mixin";
+.house-panel {
+  height: 100%;
+  .fix-height {
+    height: 100%;
+    min-height: 500px;
+  }
+  .house-no-data {
+    height: 100%;
+    color: #909399;
+    font-size: 14px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+  }
+  .house-img-panel {
+    margin: 5px 0px;
+    display: flex;
+    flex-wrap: wrap;
+    .house-img-list-panel:hover {
+      background: rgba(0,0,0,0.05);
+    }
+    .house-img-list-panel {
+      width: 50%;
+      border-radius: 10px;
+      display: flex;
+      @include displayFlex(row, center,space-between);
+      flex-wrap: wrap;
+      padding-right: 100px;
+      cursor: pointer;
+      .house-img-list {
+        display: flex;
+        width: 500px;
+      }
+      .house-btn-group {
+        .house-btn-item {
+        }
+      }
+      .house-img {
+        width: 139px;
+        height: 93px;
+        // border: 1px solid #09f;
+        // background-color: #9CCC65;
+        margin: 10px 0px;
+        .house-img-box {
+          cursor: pointer;
+          padding: 16px 0;
+          width: 100%;
+          height: 100%;
+          border-radius: 6px;
+          padding: 0;
+        }
+      }
+      .house-img-right {
+        // width: 300px;
+        margin: 10px 10px;
+        .house-img-title {
+          color: #444444;
+          font-weight: bold;
+          font-size: 14px;
+          font-family:Microsoft YaHei;
+          line-height: 25px;
+        }
+        .house-img-address {
+          width: 260px;
+          white-space: nowrap;
+          // overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .house-img-detail, .house-img-address {
+          color: #666666;
+          font-weight: 400;
+          font-size: 12px;
+          font-family:Microsoft YaHei;
+          line-height: 25px;
+          .house-near-address {
+            display: inline-block;
+            color: #0088FF;
+            font-weight:bold;
+            margin-left: 10px;
+            cursor: pointer;
+            .iconfont.icon-shanchu {
+              font-size: 12px;
+            }
+            .iconfont.icon-location {
+              font-size: 12px;
+            }
+          }
+        }
+        .house-img-price {
+          font-size: 16px;
+          font-weight: 400;
+          line-height: 20px;
+          color: #FF0707;
+
+        }
+      }
+    }
+  }
+}

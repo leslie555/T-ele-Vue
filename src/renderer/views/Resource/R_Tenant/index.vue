@@ -16,7 +16,7 @@
             </template>
             <template slot="more">
               <el-form-item label="跟进人">
-                <select-employee @empChange="getSelfPeople" allCompany>
+                <select-employee :canSelectDep="false" @empChange="getSelfPeople" allCompany>
                   <el-input
                     v-model="searchForm_Self.FollowUpName"
                     readonly
@@ -39,8 +39,10 @@
               <el-form-item label="期望区域">
                 <el-cascader
                   :options="CityData"
+                  ref='cascaderPrivate'
+                  @change="handleChange('cascaderPrivate')"
                   v-model="searchForm_Self.RegionStr"
-                  change-on-select
+                  :props="defaultOptions"
                   clearable
                   expand-trigger="hover"
                   separator
@@ -164,7 +166,7 @@
             </template>
             <template slot="more">
               <el-form-item label="跟进人">
-                <select-employee @empChange="getPubPeople" allCompany>
+                <select-employee :canSelectDep="false" @empChange="getPubPeople" allCompany>
                   <el-input
                     v-model="searchForm_Pub.FollowUpName"
                     readonly
@@ -177,7 +179,9 @@
                 <el-cascader
                   :options="CityData"
                   v-model="searchForm_Pub.RegionStr"
-                  change-on-select
+                  ref='cascaderpublic'
+                  @change="handleChange('cascaderpublic')"
+                  :props="defaultOptions"
                   clearable
                   expand-trigger="hover"
                   separator
@@ -313,6 +317,9 @@
     },
     data() {
       return {
+        defaultOptions: {
+          checkStrictly: true
+        },
         activeName: '0',
         CityData,
         pageSize: 10,
@@ -752,6 +759,9 @@
         }
         this.$refs.ruleForm_Pub.resetFields()
         this.$refs.bottomToolBar_Pub.search()
+      },
+      handleChange(name) {
+        this.$refs[name].dropDownVisible = false
       }
     }
   }

@@ -12,9 +12,9 @@
             ></el-input>
           </el-form-item>
           <SelectOrganization v-model="CustomerForm.FullIDNew"></SelectOrganization>
-          <el-form-item label="门店选择">
+          <!-- <el-form-item label="门店选择">
             <select-store ref="selectStore" @change="handleChange"></select-store>
-          </el-form-item>
+          </el-form-item> -->
         </div>
       </template>
       <template slot="more">
@@ -137,7 +137,7 @@
           FullIDNew: '',
           FullID: ''
         }
-        this.$refs.selectStore.reset()
+        // this.$refs.selectStore.reset()
         this.$refs.bottomToolBar.search()
         this.findCount()
       },
@@ -145,9 +145,9 @@
         this.$refs.bottomToolBar.search()
         this.findCount()
       },
-      handleChange(val) {
-        this.CustomerForm.FullID = val.fullID
-      },
+      // handleChange(val) {
+      //   this.CustomerForm.FullID = val.fullID
+      // },
       findCount(type) {
         if (this.CustomerForm.date !== null) {
           this.CustomerForm.StartTime = this.$dateFormat(this.CustomerForm.date[0], 'yyyy-MM-dd 00:00:00')

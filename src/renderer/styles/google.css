@@ -1,0 +1,12 @@
+.el-cascader-panel .el-scrollbar .el-radio__inner  {
+      border: 0px !important;
+      background-color:inherit
+}
+.el-cascader-panel .el-scrollbar .el-radio__input.is-checked .el-radio__inner {
+  background:none
+}
+.el-cascader-panel .el-scrollbar .el-radio{
+  height: 100%;
+  width: 150px;
+  position: absolute;
+}

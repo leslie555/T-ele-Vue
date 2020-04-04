@@ -191,11 +191,11 @@
           <div
             class="upload-img-name"
           >{{ imgIndex === 0 ? '公共区域图片' : pricePartTable[imgIndex - 1].RoomName + '图片' }}</div>
-          <div class="upload-img-Box">
+          <div class="upload-img-Box" v-viewer="{url: 'data-src'}">
             <div class="upload-img" v-for="(item, index) in img" :key="index">
               <img
                 :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)"
-                @click="$seeImage($ImgUnit.getImgUrl(item.ImageLocation))"
+                :data-src="$ImgUnit.getImgUrl(item.ImageLocation)"
               >
             </div>
           </div>

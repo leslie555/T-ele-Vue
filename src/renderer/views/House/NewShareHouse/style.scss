@@ -1,0 +1,129 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixin';
+
+.share-house {
+  // .el-input {
+  //   /deep/ .el-input__inner {
+  //     height: 28px;
+  //     font-size: 12px;
+  //   }
+  // }
+  // .el-form {
+  //   /deep/ .el-form-item {
+  //     font-size: 14px;
+  //   }
+  // }
+  .house-list {
+    line-height: 35px;
+    .house-area-title {
+      float: left;
+      font-size: 12px;
+      font-weight: bold;
+      width: 70px;
+    }
+    .house-item {
+      .house-item-card {
+        margin-left: 70px;
+        .house-item-list {
+          font-size: 12px;
+          .house-item-span {
+            margin-left: 3px;
+            margin-right: 5px;
+            .house-label1 {
+              font-weight: bold;
+              cursor: pointer;
+            }
+            .house-label2 {
+              margin: 0px 5px;
+              cursor: pointer;
+            }
+          }
+        }
+      }
+      .el-card__body {
+        padding: 0px 5px;
+      }
+      .house-area-price1 {
+        display: inline-block;
+        margin-left: 20px;
+        width: 80px;
+      }
+      .house-area-price2 {
+        display: inline-block;
+        width: 80px;
+      }
+      .ok_btn {
+        margin: 10px;
+        color: #0088ff;
+        font-weight: bold;
+        cursor: pointer;
+      }
+    }
+    .el-radio-group {
+      /deep/ .el-radio__inner:after {
+        width: 3px;
+        height: 7px;
+        box-sizing: content-box;
+        content: '';
+        border: 1px solid #fff;
+        border-left: 0;
+        border-top: 0;
+        border-radius: 0%;
+        background-color: transparent;
+        content: '';
+        position: absolute;
+        left: 4px;
+        top: 1px;
+        transform: rotate(45deg) scaleY(0);
+        transition: transform 0.15s ease-in;
+        transform-origin: center;
+      }
+      /deep/ .el-radio__input.is-checked .el-radio__inner:after {
+        transform: rotate(45deg) scale(1);
+      }
+      /deep/ .el-radio__inner {
+        border: 1px solid #dcdfe6;
+        border-radius: 2px;
+        width: 14px;
+        height: 14px;
+        position: relative;
+        cursor: pointer;
+      }
+      /deep/ .el-radio__label {
+        font-size: 12px;
+      }
+    }
+    .el-checkbox-group {
+      /deep/ .el-checkbox__label {
+        font-size: 12px;
+      }
+    }
+    ul {
+      list-style: none;
+      .house-item-li {
+        list-style: none;
+        float: left;
+        margin-right: 20px;
+        // color: #444;
+        font-size: 12px;
+        cursor: pointer;
+        &:hover {
+          font-weight: bold;
+        }
+      }
+    }
+  }
+}
+.fz12 {
+  font-size: 12px;
+}
+.dis_inline {
+  display: inline-block;
+}
+.activeColor {
+  color: #0088ff;
+  font-weight: bold;
+}
+.defaultColor {
+  color: #444;
+}

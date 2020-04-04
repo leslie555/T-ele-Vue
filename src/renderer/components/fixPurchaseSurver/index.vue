@@ -10,7 +10,7 @@
     <div class="settlement-box" style="max-height:700px;;overflow-y:scroll;">
         <ItemTable v-if="num === 1 || num === 2" @changeTextArea='changeTextArea'  @changeData='changeData' :ShowRenovationProject='ShowRenovationProject' :KeyID='KeyID' :Status='CGZXStatus' ref="ItemTable"></ItemTable>
         <ItemFitment v-if="num === 1 || num === 3" @changeTextArea='changeTextArea'  @changeData='changeData'  :ShowRenovationProject='ShowRenovationProject' :KeyID='KeyID' :Status='CGZXStatus' ref="ItemFitment"></ItemFitment>
-        <div v-if="CGZXStatus !== 1" style="display: flex;justify-content: center;">
+        <div v-if="CGZXStatus !== 1" v-loading="BTNloading" style="display: flex;justify-content: center;">
             <el-button @click="submitC" type="primary">提交</el-button>
         </div>
     </div>
@@ -43,7 +43,8 @@ import { SurveyedCommit, ShowRenovationProject } from '@/api/purchase'
             ShowRenovationProject: [],
             titleStatus: '',
             // 0为 可以新增  1为不能
-            CGZXStatus: 0
+            CGZXStatus: 0,
+            BTNloading: false
         }
     },
     mounted() {
@@ -192,11 +193,15 @@ import { SurveyedCommit, ShowRenovationProject } from '@/api/purchase'
                 CGJSON: JSON.stringify(this.purchaseData),
                 RenovationApplyRecordID: this.KeyID
             }
+            this.BTNloading = true
             SurveyedCommit(obj).then(({ Data, BusCode, Msg }) => {
                 this.$message.success('提交成功')
                 // 返回给列表 刷新页面 和关闭弹框
                 this.$emit('watchSubmit', 1)
                 this.showDialog = false
+                this.BTNloading = false
+            }).catch(() => {
+                this.BTNloading = false
             })
         },
         // 下拉框的接口

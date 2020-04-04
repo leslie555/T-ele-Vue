@@ -72,16 +72,22 @@
             </el-form-item>
           </div>
           <div class="clearfix">
-            <SelectOrganization v-model="HouseListForm.FullIDNew"></SelectOrganization>
-            <el-form-item label="管房人">
-              <el-input
+            <SelectOrganization v-model="HouseListForm.FullIDNew" @change="handleStoreChange"></SelectOrganization>
+            <el-form-item label="管房人" prop="EmployeeName" v-if="!isEmpty">
+              <el-autocomplete
+                :disabled="isShowSelect"
+                class="inline-input"
                 v-model="HouseListForm.EmployeeName"
-                style="width: 200px; margin-right: 10px;"
-                :readonly="true"
-              ></el-input>
-              <select-employee v-show="isShowSelect" @dbClick="getPeople" @empChange="getPeople">
-                <el-button type="primary" @click="popoverVisible = true" size="mini">选择</el-button>
-              </select-employee>
+                placeholder="请先选择组织,再查询"
+                clearable
+                :fetch-suggestions="querySearch"
+                :trigger-on-focus="false"
+                @select="handleSelect"
+              >
+                <template slot-scope="props">
+                  <div :disabled="props.item.id === 1" class="name">{{ props.item.value }}</div>
+                </template>
+              </el-autocomplete>
               <el-checkbox
                 v-model="HouseListForm.isMine"
                 style="margin-left: 20px"
@@ -428,8 +434,9 @@
   import { CityData } from '@/utils/CityData'
   import { SearchPanel, SelectOrganization } from '@/components'
   import SelectEmployee from '@/components/SelectEmployee'
-  import { selectRoomStatusList, selectRoomaAwaitList, selectRoomStatusListWhere, selectRoomaAuditList, editHouseInfoEmp, selectRoomStatusTofuList, SelectHouseHead } from '@/api/house'
-  import { mapActions, mapGetters } from 'vuex'
+  import { selectRoomStatusList, selectRoomaAwaitList, selectRoomStatusListWhere, selectRoomaAuditList, selectRoomStatusTofuList, SelectHouseHead } from '@/api/house'
+  import { HouseEmployeeListByFullID } from '../../../api/system'
+  import { mapActions, mapGetters, mapState } from 'vuex'
 
   export default {
     name: 'HouseList',
@@ -594,21 +601,38 @@
       ...mapActions([
         'setHouseInfoForm'
       ]),
-      // 批量换管房人
-      ChangePeople(data) {
-        var HouseIDList = []
-        this.SelectedList.forEach(ele => {
-          HouseIDList.push(ele.HouseKey)
-        })
-        editHouseInfoEmp({
-          MyHouseKey: HouseIDList,
-          MyHouseEmp: data
-        }).then(response => {
-          this.$message({
-            message: '修改管房人成功!',
-            type: 'success'
+      handleStoreChange(val) {
+        // 选择门店后的回调
+        if (val.length !== 0) {
+          this.isShowSelect = false
+        } else {
+          this.HouseListForm.FullIDNew = ''
+          this.isShowSelect = true
+        }
+        this.HouseListForm.EmployeeFullID = ''
+        this.HouseListForm.EmployeeName = ''
+        this.HouseListForm.isMine = false
+      },
+      //   模糊查询
+      querySearch(queryString, cb) {
+        const pages = {
+          size: 20,
+          page: 1
+        }
+        HouseEmployeeListByFullID({
+          Keyword: queryString,
+          pageParam: pages,
+          FullID: this.HouseListForm.FullIDNew
+        }).then(({ Data, BusCode, Msg }) => {
+          Data.forEach(val => {
+            val.value = val.UserName
           })
+          cb(Data)
         })
+      },
+      //  模糊查询下拉框选择
+      handleSelect(val) {
+        this.HouseListForm.EmployeeFullID = val.KeyID
       },
       // 我的房源
       ChangeMyHouse(val) {
@@ -616,11 +640,8 @@
         if (val) {
           this.HouseListForm.EmployeeFullID = ''
           this.HouseListForm.EmployeeName = ''
+          this.HouseListForm.FullIDNew = ''
         }
-      },
-      getPeople(data) {
-        this.HouseListForm.EmployeeFullID = !data.fullID ? data.FullID : data.fullID
-        this.HouseListForm.EmployeeName = !data.label ? data.UserName : data.label
       },
       // 待完善房源控制
       ShowControlCom() {
@@ -1160,6 +1181,9 @@
       }
     },
     computed: {
+      ...mapState({
+        isEmpty: state => state.organizationTree.isEmpty
+      }),
       ...mapGetters([
         'userinfo'
       ]),

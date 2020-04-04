@@ -54,7 +54,7 @@
                     </div>
                     <el-form label-width="70px"  :inline="false" ref="FormImg" style="margin-top:10px;overflow:hidden;">
                         <el-form-item label="图片:">
-                            <div class="upload-img-Box">
+                            <div class="upload-img-Box" v-viewer="{url: 'data-src'}">
                                 <div
                                 class="upload-img"
                                 v-for="(item, index) in detailsList.Img"
@@ -62,7 +62,7 @@
                                 >
                                 <img
                                     :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)"
-                                    @click="$seeImage($ImgUnit.getImgUrl(item.ImageLocation))"
+                                    :data-src="$ImgUnit.getImgUrl(item.ImageLocation)"
                                 >
                                 </div>
                             </div>
@@ -92,7 +92,7 @@
                 </div>
                 <el-form label-width="80px"  :inline="false" ref="FormImg" style="margin-top:10px;overflow:hidden;">
                         <el-form-item label="保洁图片:">
-                            <div class="upload-img-Box">
+                            <div class="upload-img-Box" v-viewer="{url: 'data-src'}">
                                 <div
                                 class="upload-img"
                                 v-for="(item, index) in detailsList.CleaningImg"
@@ -100,12 +100,12 @@
                                 >
                                 <img
                                     :src="$ImgUnit.getThumbImgUrl(item.ImageLocation)"
-                                    @click="$seeImage($ImgUnit.getImgUrl(item.ImageLocation))"
+                                    :data-src="$ImgUnit.getImgUrl(item.ImageLocation)"
                                 >
                                 </div>
                             </div>
                             </el-form-item>
-                            <el-form-item label="保洁备注:">    
+                            <el-form-item label="保洁备注:">
                             <el-input type="textarea" :disabled='textboolean' v-model="detailsList.CleaningRemark"></el-input>
                         </el-form-item>
                     </el-form>
